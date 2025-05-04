@@ -1,0 +1,69 @@
+=============================================================================
+NOTICE for IndexTTS Workflow Studio
+=============================================================================
+
+This project, IndexTTS Workflow Studio, is based on and contains modifications to the original IndexTTS project. It also incorporates and depends on several third-party libraries and models, each with their own licensing terms.
+
+-----------------------------------------------------------------------------
+Original Project Information (Base for this work):
+-----------------------------------------------------------------------------
+
+*   **Project Name:** IndexTTS
+*   **Repository:** https://github.com/index-tts/index-tts
+*   **Authors:** Wei Deng, Siyi Zhou, Jingchen Shu, Jinchao Wang, Lu Wang
+*   **Copyright:** Copyright for the original IndexTTS components belongs to the original authors.
+*   **License:** The original IndexTTS project code is licensed under the Apache License, Version 2.0. A copy of the Apache License 2.0, as obtained from the original IndexTTS repository, is included in this distribution in the file named `LICENSE`. The pre-trained models provided by the original project are subject to a separate license, included in the file named `INDEX_MODEL_LICENSE`.
+
+-----------------------------------------------------------------------------
+Modifications and Additions in This Project (IndexTTS Workflow Studio):
+-----------------------------------------------------------------------------
+
+This project includes the core functionalities of IndexTTS and incorporates the following significant modifications and additions developed by James A Whittaker-Bent:
+
+*   **Comprehensive Gradio User Interface:**
+    *   Developed a multi-tab Gradio application (`webui.py`, `ui_layout.py`, `ui_logic.py`) for an extended workflow.
+    *   Features include script-based multi-line input, generation of multiple audio versions per line, complex seed management strategies.
+    *   Implemented an interactive review process allowing playback, comparison, and selection of the best audio version for each line.
+    *   Integrated speaker similarity analysis (using SpeechBrain) to provide feedback during review and enable threshold-based regeneration.
+    *   Added functionality to regenerate specific lines or versions below a similarity threshold.
+    *   Implemented project save/load functionality (via JSON).
+
+*   **Extensive Audio Post-Processing:**
+    *   Integrated a concatenation pipeline for selected audio lines (`ui_logic.py`).
+    *   Implemented various optional audio effects using libraries like Pydub, Librosa, SciPy, and NoiseReduce (`audio_utils.py`, `ui_logic.py`), including:
+        *   Per-segment and final peak normalization.
+        *   Silence trimming.
+        *   Pitch shifting and speed adjustment.
+        *   Noise reduction.
+        *   3-band Parametric EQ and 10-band Graphical EQ.
+        *   Dynamic range compression.
+        *   Reverb, Chorus, and Flanger effects.
+
+*   **FastAPI Wrapper (`tts_api.py`):**
+    *   Developed a separate FastAPI server to provide a simple API endpoint (`/synthesize`) for basic text-to-speech generation using a reference voice, intended for integration with other applications like DialogueLab.
+
+*   **Supporting Modules:**
+    *   Created utility modules (`app_context.py`, `constants.py`, `general_utils.py`, `audio_utils.py`)
+
+-----------------------------------------------------------------------------
+Acknowledgements and Key Dependencies:
+-----------------------------------------------------------------------------
+
+This project builds upon the work of several other open-source projects and libraries, including:
+
+*   [tortoise-tts](https://github.com/neonbjb/tortoise-tts)
+*   [XTTSv2](https://github.com/coqui-ai/TTS)
+*   [BigVGAN](https://github.com/NVIDIA/BigVGAN)
+*   [wenet](https://github.com/wenet-e2e/wenet/tree/main)
+*   [icefall](https://github.com/k2-fsa/icefall)
+
+Users should consult the licenses of these individual projects for their specific terms.
+
+-----------------------------------------------------------------------------
+Licensing Summary:
+-----------------------------------------------------------------------------
+
+*   The code specific to IndexTTS Workflow Studio (modifications and additions by James A Whittaker-Bent) is licensed under the Apache License, Version 2.0 (see `LICENSE` file).
+*   The original IndexTTS code components are also licensed under Apache License, Version 2.0.
+*   The pre-trained models downloaded from the original IndexTTS project are subject to the terms outlined in the `INDEX_MODEL_LICENSE` file.
+*   Other third-party dependencies are subject to their own respective licenses.

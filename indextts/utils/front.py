@@ -67,23 +67,36 @@ class TextNormalizer:
             from wetext import Normalizer
             self.zh_normalizer = Normalizer(remove_erhua=False,lang="zh",operator="tn")
             self.en_normalizer = Normalizer(lang="en",operator="tn")
-        else:
-            from tn.chinese.normalizer import Normalizer as NormalizerZh
-            from tn.english.normalizer import Normalizer as NormalizerEn
-            self.zh_normalizer = NormalizerZh(remove_interjections=False, remove_erhua=False,overwrite_cache=False)
-            self.en_normalizer = NormalizerEn(overwrite_cache=False)
+        else: # This is line 70
+            pass # Keep this pass for the else block
+        #from tn.chinese.normalizer import Normalizer as NormalizerZh # (Still commented out)
+        #from tn.english.normalizer import Normalizer as NormalizerEn # (Still commented out)
+        #self.zh_normalizer = NormalizerZh(remove_interjections=False, remove_erhua=False,overwrite_cache=False) # (Still commented out)
+        #self.en_normalizer = NormalizerEn(...) # (Still commented out)
 
-    def infer(self, text):
+    # This function definition seems duplicated in your original paste, removing the duplicate
+    # def infer(self, text): # This should now be correctly unindented relative to the 'else' block
+    #     pass # <-- This pass was added here based on the error
+
+    def infer(self, text): # This is the actual function definition
+        pass # <--- ADD THIS LINE TO FIX INDENTATION ERROR
         pattern = re.compile("|".join(re.escape(p) for p in self.char_rep_map.keys()))
         replaced_text = pattern.sub(lambda x: self.char_rep_map[x.group()], text)
         if not self.zh_normalizer or not self.en_normalizer:
             print("Error, text normalizer is not initialized !!!")
-            return ""
+            # Since normalizers are never initialized due to commenting,
+            # we should probably just return the basic cleaned text here.
+            # Otherwise, the original code would return "" below,
+            # let's return the text after basic punctuation replacement for now.
+            return replaced_text
+            # return "" # Original code would return this
+
+        # This part will likely never run because the normalizers are None
         try:
             normalizer = self.zh_normalizer if self.use_chinese(replaced_text) else self.en_normalizer
             result = normalizer.normalize(replaced_text)
         except Exception:
-            result = ""
+            result = "" # Fallback to empty string on error
             print(traceback.format_exc())
         result = self.restore_pinyin_tone_numbers(replaced_text, result)
         return result

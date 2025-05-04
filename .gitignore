@@ -1,4 +1,29 @@
+# Python
 venv/
-__pycache__
+__pycache__/
+*.pyc
+*.egg-info
+build/
+dist/
+*.log
+
+# OS / Editor specific
 *.DS_Store
 .idea/
+.vscode/
+
+# Project specific outputs & data
+api_outputs/
+conversation_outputs/
+conversations/
+outputs/
+project_saves/
+prompts/
+Speakers/
+
+# Downloaded Models & Cache
+checkpoints/*.pth
+checkpoints/*.vocab
+checkpoints/*.model
+checkpoints/.cache
+pretrained_models/

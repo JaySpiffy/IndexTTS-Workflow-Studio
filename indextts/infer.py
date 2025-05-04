@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
 import os
 import re
 import sys
+import random # Import random for seeding if needed elsewhere
 
 import sentencepiece as spm
 import torch
@@ -15,7 +17,8 @@ from indextts.utils.feature_extractors import MelSpectrogramFeatures
 from indextts.utils.common import tokenize_by_CJK_char
 from indextts.vqvae.xtts_dvae import DiscreteVAE
 
-from indextts.utils.front import TextNormalizer
+from indextts.utils.front import TextNormalizer # Keep original import
+
 class IndexTTS:
     def __init__(self, cfg_path='checkpoints/config.yaml', model_dir='checkpoints', is_fp16=True):
         self.cfg = OmegaConf.load(cfg_path)
@@ -58,70 +61,96 @@ class IndexTTS:
         self.bigvgan = self.bigvgan.to(self.device)
         self.bigvgan.eval()
         print(">> bigvgan weights restored from:", self.bigvgan_path)
-        self.bpe_path = os.path.join(self.model_dir, self.cfg.dataset['bpe_model'])
+        self.bpe_path = os.path.join(self.model_dir, self.cfg.dataset['bpe_model']) # Use updated path from config
         self.normalizer = TextNormalizer()
         self.normalizer.load()
         print(">> TextNormalizer loaded")
 
     def preprocess_text(self, text):
-        # chinese_punctuation = "，。！？；：“”‘’（）【】《》"
-        # english_punctuation = ",.!?;:\"\"''()[]<>"
-        #
-        # # 创建一个映射字典
-        # punctuation_map = str.maketrans(chinese_punctuation, english_punctuation)
-
-        # 使用translate方法替换标点符号
-        # return text.translate(punctuation_map)
+        # Returns text after basic punctuation replacement,
+        # as complex normalization is disabled in front.py
         return self.normalizer.infer(text)
 
     def remove_long_silence(self, codes, silent_token=52, max_consecutive=30):
+        # (Keep the same silence removal logic as before)
         code_lens = []
         codes_list = []
         isfix = False
         for i in range(0, codes.shape[0]):
             code = codes[i]
             if self.cfg.gpt.stop_mel_token not in code:
-                code_lens.append(len(code))
                 len_ = len(code)
             else:
-                # len_ = code.cpu().tolist().index(8193)+1
-                len_ = (code == self.stop_mel_token).nonzero(as_tuple=False)[0] + 1
-                len_ = len_ - 2
+                stop_indices = (code == self.stop_mel_token).nonzero(as_tuple=False)
+                if len(stop_indices) > 0:
+                    len_ = stop_indices[0].item()
+                else:
+                     len_ = len(code)
 
-            count = torch.sum(code == silent_token).item()
+            code_to_check = code[:len_]
+            count = torch.sum(code_to_check == silent_token).item()
+
             if count > max_consecutive:
-                code = code.cpu().tolist()
+                code_list = code_to_check.cpu().tolist()
                 ncode = []
                 n = 0
-                for k in range(0, len_):
-                    if code[k] != silent_token:
-                        ncode.append(code[k])
+                for k in range(len_):
+                    if code_list[k] != silent_token:
+                        ncode.append(code_list[k])
                         n = 0
-                    elif code[k] == silent_token and n < 10:
-                        ncode.append(code[k])
+                    elif code_list[k] == silent_token and n < 10:
+                        ncode.append(code_list[k])
                         n += 1
-                    # if (k == 0 and code[k] == 52) or (code[k] == 52 and code[k-1] == 52):
-                    #    n += 1
-                len_ = len(ncode)
-                ncode = torch.LongTensor(ncode)
-                codes_list.append(ncode.cuda())
-                isfix = True
-                #codes[i] = self.stop_mel_token
-                #codes[i, 0:len_] = ncode
+                new_len = len(ncode)
+                if new_len > 0:
+                    ncode_tensor = torch.LongTensor(ncode).to(self.device)
+                    codes_list.append(ncode_tensor)
+                    code_lens.append(new_len)
+                    isfix = True
+                else:
+                    codes_list.append(code_to_check.to(self.device))
+                    code_lens.append(len_)
             else:
-                codes_list.append(codes[i])
-            code_lens.append(len_)
+                codes_list.append(code_to_check.to(self.device))
+                code_lens.append(len_)
 
-        codes = pad_sequence(codes_list, batch_first=True) if isfix else codes[:, :-2]
-        code_lens = torch.LongTensor(code_lens).cuda()
-        return codes, code_lens
+        if isfix and codes_list:
+            codes = pad_sequence(codes_list, batch_first=True, padding_value=self.stop_mel_token)
+        elif codes_list:
+             codes = pad_sequence(codes_list, batch_first=True, padding_value=self.stop_mel_token)
+        else:
+            return torch.empty((0,0), dtype=torch.long, device=self.device), torch.empty((0,), dtype=torch.long, device=self.device)
 
-    def infer(self, audio_prompt, text, output_path):
+        code_lens_tensor = torch.LongTensor(code_lens).to(self.device)
+        return codes, code_lens_tensor
+
+
+    # --- MODIFIED infer signature to include seed ---
+    def infer(self, audio_prompt, text, output_path,
+              temperature: float = 1.0,
+              top_p: float = 0.8,
+              top_k: int = 30,
+              # --- New Parameter ---
+              seed: int = -1): # Add seed parameter, default -1 for random
         print(f"origin text:{text}")
         text = self.preprocess_text(text)
         print(f"normalized text:{text}")
 
+        # --- Set Seed ---
+        if seed != -1 and isinstance(seed, int):
+            print(f"Setting seed: {seed}")
+            torch.manual_seed(seed)
+            torch.cuda.manual_seed_all(seed) # For multi-GPU, though likely not needed here
+            random.seed(seed) # If any other libraries use random
+            # Note: numpy seeding might also be needed if numpy randomness is used internally
+            # import numpy as np
+            # np.random.seed(seed)
+        else:
+            print("Using random seed.")
+            # Optional: If you want to *ensure* randomness even if called multiple times without seed
+            # torch.seed() # Reseed torch from system entropy if no seed provided
 
+        # --- Load reference audio (unchanged) ---
         audio, sr = torchaudio.load(audio_prompt)
         audio = torch.mean(audio, dim=0, keepdim=True)
         if audio.shape[0] > 1:
@@ -129,141 +158,133 @@ class IndexTTS:
         audio = torchaudio.transforms.Resample(sr, 24000)(audio)
         cond_mel = MelSpectrogramFeatures()(audio).to(self.device)
         print(f"cond_mel shape: {cond_mel.shape}")
-
         auto_conditioning = cond_mel
 
+        # --- Tokenizer and Sentence Splitting (unchanged) ---
         tokenizer = spm.SentencePieceProcessor()
         tokenizer.load(self.bpe_path)
-
         punctuation = ["!", "?", ".", ";", "！", "？", "。", "；"]
         pattern = r"(?<=[{0}])\s*".format("".join(punctuation))
         sentences = [i for i in re.split(pattern, text) if i.strip() != ""]
         print(sentences)
 
-        top_p = .8
-        top_k = 30
-        temperature = 1.0
+        # --- Hardcoded generation parameters (keep defaults, use args) ---
         autoregressive_batch_size = 1
         length_penalty = 0.0
-        num_beams = 3
+        num_beams = 3 # Note: Sampling (temp/top_p/top_k) usually used when num_beams=1
         repetition_penalty = 10.0
         max_mel_tokens = 600
         sampling_rate = 24000
+        # lang logic might need review depending on actual use
         lang = "EN"
         lang = "ZH"
         wavs = []
-        wavs1 = []
 
+        # --- Loop through sentences (calls gpt.inference_speech) ---
         for sent in sentences:
             print(sent)
-            # sent = " ".join([char for char in sent.upper()]) if lang == "ZH" else sent.upper()
             cleand_text = tokenize_by_CJK_char(sent)
-            # cleand_text = "他 那 像 HONG3 小 孩 似 的 话 , 引 得 人 们 HONG1 堂 大 笑 , 大 家 听 了 一 HONG3 而 散 ."
             print(cleand_text)
             text_tokens = torch.IntTensor(tokenizer.encode(cleand_text)).unsqueeze(0).to(self.device)
-
-            # text_tokens = F.pad(text_tokens, (0, 1))  # This may not be necessary.
-            # text_tokens = F.pad(text_tokens, (1, 0), value=0)
-            # text_tokens = F.pad(text_tokens, (0, 1), value=1)
             text_tokens = text_tokens.to(self.device)
             print(text_tokens)
             print(f"text_tokens shape: {text_tokens.shape}, text_tokens type: {text_tokens.dtype}")
             text_token_syms = [tokenizer.IdToPiece(idx) for idx in text_tokens[0].tolist()]
             print(text_token_syms)
-            text_len = [text_tokens.size(1)]
-            text_len = torch.IntTensor(text_len).to(self.device)
-            print(text_len)
+
+            # --- Critical: Re-seed *inside* the loop if you want EACH sentence
+            # --- segment potentially seeded differently when generating multiple
+            # --- versions of the *same* sentence. If generating one version of
+            # --- multiple sentences, seeding outside the loop is usually fine.
+            # --- For multi-version generation, seeding just before the call is best.
+            if seed != -1 and isinstance(seed, int):
+                 print(f"Re-setting seed to {seed} for sentence generation.")
+                 torch.manual_seed(seed)
+                 torch.cuda.manual_seed_all(seed)
+                 random.seed(seed)
+
             with torch.no_grad():
+                # Generate codes using sampling parameters
                 if self.is_fp16:
                     with torch.cuda.amp.autocast(enabled=self.dtype is not None, dtype=self.dtype):
                         codes = self.gpt.inference_speech(auto_conditioning, text_tokens,
-                                                          cond_mel_lengths=torch.tensor([auto_conditioning.shape[-1]],
-                                                                                        device=text_tokens.device),
-                                                          # text_lengths=text_len,
-                                                          do_sample=True,
-                                                          top_p=top_p,
-                                                          top_k=top_k,
-                                                          temperature=temperature,
-                                                          num_return_sequences=autoregressive_batch_size,
-                                                          length_penalty=length_penalty,
-                                                          num_beams=num_beams,
-                                                          repetition_penalty=repetition_penalty,
-                                                          max_generate_length=max_mel_tokens)
+                                                          cond_mel_lengths=torch.tensor([auto_conditioning.shape[-1]], device=text_tokens.device),
+                                                          do_sample=True, top_p=top_p, top_k=top_k, temperature=temperature,
+                                                          num_return_sequences=autoregressive_batch_size, length_penalty=length_penalty,
+                                                          num_beams=num_beams, repetition_penalty=repetition_penalty, max_generate_length=max_mel_tokens)
                 else:
                     codes = self.gpt.inference_speech(auto_conditioning, text_tokens,
-                                                      cond_mel_lengths=torch.tensor([auto_conditioning.shape[-1]],
-                                                                                    device=text_tokens.device),
-                                                      # text_lengths=text_len,
-                                                      do_sample=True,
-                                                      top_p=top_p,
-                                                      top_k=top_k,
-                                                      temperature=temperature,
-                                                      num_return_sequences=autoregressive_batch_size,
-                                                      length_penalty=length_penalty,
-                                                      num_beams=num_beams,
-                                                      repetition_penalty=repetition_penalty,
-                                                      max_generate_length=max_mel_tokens)
-                #codes = codes[:, :-2]
-                code_lens = torch.tensor([codes.shape[-1]])
+                                                      cond_mel_lengths=torch.tensor([auto_conditioning.shape[-1]], device=text_tokens.device),
+                                                      do_sample=True, top_p=top_p, top_k=top_k, temperature=temperature,
+                                                      num_return_sequences=autoregressive_batch_size, length_penalty=length_penalty,
+                                                      num_beams=num_beams, repetition_penalty=repetition_penalty, max_generate_length=max_mel_tokens)
+
+                # Process codes (unchanged)
                 print(codes, type(codes))
                 print(f"codes shape: {codes.shape}, codes type: {codes.dtype}")
-                print(f"code len: {code_lens}")
-                # remove ultra-long silence if exits
-                # temporarily fix the long silence bug.
                 codes, code_lens = self.remove_long_silence(codes, silent_token=52, max_consecutive=30)
                 print(codes, type(codes))
                 print(f"fix codes shape: {codes.shape}, codes type: {codes.dtype}")
                 print(f"code len: {code_lens}")
 
-                # latent, text_lens_out, code_lens_out = \
+                if codes.numel() == 0 or code_lens.numel() == 0 or torch.all(code_lens <= 0):
+                    print(f"Warning: Skipping empty segment for sentence: '{sent}' after silence removal.")
+                    continue
+
+                # Vocoder generation (unchanged)
                 if self.is_fp16:
                     with torch.cuda.amp.autocast(enabled=self.dtype is not None, dtype=self.dtype):
                         latent = \
                             self.gpt(auto_conditioning, text_tokens,
-                                     torch.tensor([text_tokens.shape[-1]], device=text_tokens.device), codes,
-                                     code_lens*self.gpt.mel_length_compression,
-                                     cond_mel_lengths=torch.tensor([auto_conditioning.shape[-1]], device=text_tokens.device),
+                                     torch.tensor([text_tokens.shape[-1]], device=self.device), codes.to(self.device),
+                                     code_lens.to(self.device)*self.gpt.mel_length_compression,
+                                     cond_mel_lengths=torch.tensor([auto_conditioning.shape[-1]], device=self.device),
                                      return_latent=True, clip_inputs=False)
                         latent = latent.transpose(1, 2)
                         wav, _ = self.bigvgan(latent.transpose(1, 2), auto_conditioning.transpose(1, 2))
                         wav = wav.squeeze(1).cpu()
-
                 else:
                     latent = \
                         self.gpt(auto_conditioning, text_tokens,
-                                 torch.tensor([text_tokens.shape[-1]], device=text_tokens.device), codes,
-                                 code_lens*self.gpt.mel_length_compression,
-                                 cond_mel_lengths=torch.tensor([auto_conditioning.shape[-1]], device=text_tokens.device),
+                                 torch.tensor([text_tokens.shape[-1]], device=self.device), codes.to(self.device),
+                                 code_lens.to(self.device)*self.gpt.mel_length_compression,
+                                 cond_mel_lengths=torch.tensor([auto_conditioning.shape[-1]], device=self.device),
                                  return_latent=True, clip_inputs=False)
                     latent = latent.transpose(1, 2)
-                    '''
-                    latent_list = []
-                    for lat, t_len in zip(latent, text_lens_out):
-                        lat = lat[:, t_len:]
-                        latent_list.append(lat)
-                    latent = torch.stack(latent_list)
-                    print(f"latent shape: {latent.shape}")
-                    '''
-
                     wav, _ = self.bigvgan(latent.transpose(1, 2), auto_conditioning.transpose(1, 2))
                     wav = wav.squeeze(1).cpu()
 
+                # Final processing (unchanged)
                 wav = 32767 * wav
                 torch.clip(wav, -32767.0, 32767.0)
                 print(f"wav shape: {wav.shape}")
-                # wavs.append(wav[:, :-512])
                 wavs.append(wav)
 
+        # Concatenate and save (unchanged)
+        if not wavs:
+            print("Error: No audio generated for any sentence.")
+            silent_wav = torch.zeros((1, 100), dtype=torch.int16)
+            torchaudio.save(output_path, silent_wav, sampling_rate)
+            return
+
         wav = torch.cat(wavs, dim=1)
-        torchaudio.save(output_path, wav.type(torch.int16), 24000)
+        torchaudio.save(output_path, wav.type(torch.int16), sampling_rate)
 
 
 if __name__ == "__main__":
     prompt_wav="test_data/input.wav"
-    prompt_wav="testwav/spk_1744181067_1.wav"
-    #text="晕 XUAN4 是 一 种 GAN3 觉"
-    #text='大家好，我现在正在bilibili 体验 ai 科技，说实话，来之前我绝对想不到！AI技术已经发展到这样匪夷所思的地步了！'
     text="There is a vehicle arriving in dock number 7?"
 
     tts = IndexTTS(cfg_path="checkpoints/config.yaml", model_dir="checkpoints", is_fp16=True)
-    tts.infer(audio_prompt=prompt_wav, text=text, output_path="gen.wav")
+
+    print("\n--- Inferring with default seed ---")
+    tts.infer(audio_prompt=prompt_wav, text=text, output_path="gen_default_seed.wav")
+
+    print("\n--- Inferring with seed 1234 ---")
+    tts.infer(audio_prompt=prompt_wav, text=text, output_path="gen_seed_1234_a.wav", seed=1234)
+
+    print("\n--- Inferring with seed 1234 again (should be same) ---")
+    tts.infer(audio_prompt=prompt_wav, text=text, output_path="gen_seed_1234_b.wav", seed=1234)
+
+    print("\n--- Inferring with seed 5678 ---")
+    tts.infer(audio_prompt=prompt_wav, text=text, output_path="gen_seed_5678.wav", seed=5678)
