@@ -118,9 +118,9 @@ The main improvements and contributions are summarized as follows:
 
 1.  **Clone this repository:**
     ```bash
-    # Replace with your actual repository URL after uploading to GitHub
-    git clone https://github.com/YOUR_GITHUB_USERNAME/IndexTTS-Workflow-Studio.git
-    cd IndexTTS-Workflow-Studio
+            # Replace with your actual repository URL after uploading to GitHub
+            git clone https://github.com/JaySpiffy/IndexTTS-Workflow-Studio.git
+            cd IndexTTS-Workflow-Studio
     ```
 2.  **Create Conda Environment:**
     ```bash
