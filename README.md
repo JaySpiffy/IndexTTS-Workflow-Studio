@@ -183,6 +183,10 @@ text="大家好，我现在正在bilibili 体验 ai 科技，说实话，来之�
 tts.infer(voice, text, output_path)
 ```
 
+## Dialogue Generation Prompt
+
+For those interested in the methodology, the detailed system prompt used to guide AI (like Cline) in generating the formatted dialogue scripts for the TTS engine can be found in the file [`DIALOGUE_GENERATION_PROMPT.md`](DIALOGUE_GENERATION_PROMPT.md).
+
 ## Acknowledge (Core Dependencies)
 1. [tortoise-tts](https://github.com/neonbjb/tortoise-tts)
 2. [XTTSv2](https://github.com/coqui-ai/TTS)
