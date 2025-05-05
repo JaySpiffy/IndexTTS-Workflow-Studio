@@ -166,6 +166,8 @@ python webui.py
 ```
 Open your browser and visit `http://127.0.0.1:7860` (or the URL provided in the terminal) to access the Gradio interface.
 
+**For detailed instructions on using the UI features, please see the [Gradio UI Guide](GRADIO_UI_GUIDE.md).**
+
 ### Running the API Server
 
 ```bash
