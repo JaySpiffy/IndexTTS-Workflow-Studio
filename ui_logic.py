@@ -1865,3 +1865,234 @@ def process_advanced_effects_preview(
     try: segment.export(out_path, format="wav")
     except Exception as e: print(f"Error exporting preview: {e}"); return None
     return out_path
+
+# --- Timeline Tab Functions ---
+
+def prepare_timeline_data(
+    parsed_script: ParsedScript,
+    selections_state: SelectionsState,
+    edited_texts_state: EditedTextsState
+) -> Tuple[List[str], Optional[str]]:
+    """
+    Prepares a list of strings for the timeline dropdown, representing each line
+    with its speaker, selected version, and a preview of its text.
+    """
+    if not parsed_script:
+        return [], None
+
+    timeline_display_strings = []
+    for idx, line_info in enumerate(parsed_script):
+        speaker = line_info.get('speaker_filename', 'Unknown Speaker')
+        # Prefer edited text if available, otherwise use original
+        text_to_display = edited_texts_state.get(idx, line_info.get('text', ''))
+        text_preview = text_to_display[:30].strip() + ("..." if len(text_to_display) > 30 else "")
+
+        selected_version_idx = selections_state.get(idx, -1)
+        version_display = f"V{selected_version_idx + 1}" if selected_version_idx != -1 else "N/A"
+
+        display_string = f"L{idx + 1}: {speaker} ({version_display}) - '{text_preview}'"
+        timeline_display_strings.append(display_string)
+
+    default_selection = timeline_display_strings[0] if timeline_display_strings else None
+    return timeline_display_strings, default_selection
+
+def load_timeline_line_details(
+    selected_line_str: Optional[str],
+    parsed_script: ParsedScript,
+    all_options_state: AllOptionsState,
+    selections_state: SelectionsState,
+    edited_texts_state: EditedTextsState,
+    selected_seed_data_state: dict,
+    app_context: AppContext # Required by signature, though not used in this specific logic yet
+) -> Tuple[str, str, str, Optional[str], str, str]:
+    """
+    Loads details for a selected line from the timeline_line_selector_dd.
+    Outputs: original_speaker, original_text, editable_text, audio_path, seed_text, status_text
+    """
+    default_return = "", "", "", None, "N/A", "No line selected or script empty."
+    if not selected_line_str or not parsed_script:
+        return default_return
+
+    try:
+        # Example: "L1: Speaker (V1) - 'Text...'" -> Extract "1"
+        match = re.match(r"L(\d+):", selected_line_str)
+        if not match:
+            return "", "", "", None, "N/A", "Error parsing line identifier from selection."
+        line_idx = int(match.group(1)) - 1 # Convert to 0-based index
+    except (ValueError, TypeError):
+        return "", "", "", None, "N/A", "Error parsing line index from selection."
+
+    if not (0 <= line_idx < len(parsed_script)):
+        return "", "", "", None, "N/A", f"Error: Parsed line index {line_idx+1} is out of bounds."
+
+    line_info = parsed_script[line_idx]
+    original_speaker = line_info.get('speaker_filename', 'Unknown Speaker')
+    original_text = line_info.get('text', '')
+    editable_text = edited_texts_state.get(line_idx, original_text)
+
+    selected_version_idx = selections_state.get(line_idx, -1)
+    audio_path: Optional[str] = None
+
+    if selected_version_idx != -1:
+        if line_idx < len(all_options_state) and \
+           isinstance(all_options_state[line_idx], list) and \
+           selected_version_idx < len(all_options_state[line_idx]):
+            potential_path = all_options_state[line_idx][selected_version_idx]
+            if potential_path and isinstance(potential_path, str) and Path(potential_path).is_file():
+                audio_path = potential_path
+            else:
+                print(f"Warning: Audio path for L{line_idx+1} V{selected_version_idx+1} ('{potential_path}') is invalid or file missing.")
+        else:
+            print(f"Warning: Could not retrieve audio path for L{line_idx+1} V{selected_version_idx+1} due to state mismatch.")
+
+
+    seed_text = "N/A"
+    if isinstance(selected_seed_data_state, dict) and str(line_idx) in selected_seed_data_state:
+        seed_info = selected_seed_data_state[str(line_idx)]
+        if isinstance(seed_info, dict) and 'seed' in seed_info:
+            seed_text = str(seed_info['seed'])
+
+    status_text = f"Details loaded for Line {line_idx + 1} ({original_speaker})."
+    if not audio_path:
+        status_text += " (Warning: Audio file not found for selected version)"
+
+    return original_speaker, original_text, editable_text, audio_path, seed_text, status_text
+
+
+def regenerate_timeline_audio_segment(
+    selected_line_str: Optional[str],
+    current_edited_text: str,
+    parsed_script: ParsedScript,
+    all_options_state: AllOptionsState,
+    selections_state: SelectionsState,
+    edited_texts_state: EditedTextsState, # Added to update edited text
+    selected_seed_data_state: dict,
+    temperature_val: float,
+    top_p_val: float,
+    top_k_val: int,
+    app_context: AppContext,
+    progress=gr.Progress(track_tqdm=True)
+) -> Iterator[Tuple[str, Optional[str], AllOptionsState, SelectionsState, EditedTextsState, dict]]:
+    """
+    Regenerates a single audio segment for a line selected in the timeline,
+    using its current edited text and potentially its original seed.
+    Updates the all_options_state and selected_seed_data_state.
+    Yields: status_message, new_audio_path_or_none, updated_all_options, updated_selections, updated_edited_texts, updated_selected_seeds
+    """
+    # Initial yield with original states
+    yield ("Starting regeneration...", None, all_options_state, selections_state, edited_texts_state, selected_seed_data_state)
+
+    if not selected_line_str:
+        yield ("Error: No line selected for regeneration.", None, all_options_state, selections_state, edited_texts_state, selected_seed_data_state)
+        return
+    if not current_edited_text or not current_edited_text.strip():
+        yield ("Error: Text for regeneration cannot be empty.", None, all_options_state, selections_state, edited_texts_state, selected_seed_data_state)
+        return
+    if app_context.tts is None:
+        yield ("Error: TTS model not initialized.", None, all_options_state, selections_state, edited_texts_state, selected_seed_data_state)
+        return
+
+    try:
+        match = re.match(r"L(\d+):", selected_line_str)
+        if not match:
+            yield (f"Error: Could not parse line index from '{selected_line_str}'.", None, all_options_state, selections_state, edited_texts_state, selected_seed_data_state)
+            return
+        line_idx = int(match.group(1)) - 1
+    except (ValueError, TypeError):
+        yield (f"Error: Invalid line index parsed from '{selected_line_str}'.", None, all_options_state, selections_state, edited_texts_state, selected_seed_data_state)
+        return
+
+    if not (0 <= line_idx < len(parsed_script)):
+        yield (f"Error: Line index {line_idx + 1} is out of bounds.", None, all_options_state, selections_state, edited_texts_state, selected_seed_data_state)
+        return
+
+    line_info = parsed_script[line_idx]
+    speaker_filename = line_info.get('speaker_filename')
+    if not speaker_filename:
+        yield (f"Error: Speaker filename not found for Line {line_idx + 1}.", None, all_options_state, selections_state, edited_texts_state, selected_seed_data_state)
+        return
+
+    speaker_path = SPEAKER_DIR / speaker_filename
+    if not speaker_path.is_file():
+        yield (f"Error: Speaker file '{speaker_path}' not found.", None, all_options_state, selections_state, edited_texts_state, selected_seed_data_state)
+        return
+
+    seed_to_use = -1 # Default to random seed
+    seed_found = False
+    if str(line_idx) in selected_seed_data_state and 'seed' in selected_seed_data_state[str(line_idx)]:
+        try:
+            seed_to_use = int(selected_seed_data_state[str(line_idx)]['seed'])
+            seed_found = True
+            status_msg = f"Using original seed: {seed_to_use} for Line {line_idx + 1}."
+        except (ValueError, TypeError):
+            status_msg = f"Warning: Could not parse seed for Line {line_idx + 1}. Using random seed."
+            seed_to_use = -1 # Fallback to random if parsing fails
+    else:
+        status_msg = f"No seed found for Line {line_idx + 1}. Using random seed."
+
+    yield (status_msg, None, all_options_state, selections_state, edited_texts_state, selected_seed_data_state)
+
+    selected_version_idx = selections_state.get(line_idx, -1)
+    if selected_version_idx == -1:
+        # This case should ideally be prevented by UI logic if regenerating a selected line's audio.
+        # If it occurs, we might need to decide how to handle it, e.g., pick the first slot or error out.
+        # For now, let's assume this means we are creating a *new* version for a line that had no version,
+        # or replacing the first slot if it's ambiguous.
+        # This part of the logic might need refinement based on exact UI flow for "timeline regeneration".
+        # If the timeline always shows a *selected* version, this index should always be valid.
+        # Let's assume for now it means "replace the currently selected version slot".
+        # If no version was selected, this regeneration is problematic.
+        # However, the `load_timeline_line_details` implies a version is already selected to be loaded.
+        # So, selected_version_idx should be valid.
+        yield (f"Error: No version slot selected for Line {line_idx + 1}. Cannot determine where to save regenerated audio.", None, all_options_state, selections_state, edited_texts_state, selected_seed_data_state)
+        return
+
+    # Ensure temp directory exists
+    TEMP_CONVO_MULTI_DIR.mkdir(parents=True, exist_ok=True)
+    output_filename_stem = f"line{line_idx:03d}_spk-{speaker_path.stem}_timeline_regen_s{seed_to_use if seed_to_use != -1 else random.randint(0, 2**31-1)}"
+    output_filename = str(TEMP_CONVO_MULTI_DIR / f"{output_filename_stem}.wav")
+
+    try:
+        progress(0.5, desc=f"Generating audio for L{line_idx+1}...")
+        app_context.tts.infer(
+            str(speaker_path),
+            current_edited_text,
+            output_filename,
+            temperature=temperature_val,
+            top_p=top_p_val,
+            top_k=int(top_k_val),
+            seed=seed_to_use
+        )
+        progress(1.0, desc=f"Audio generated for L{line_idx+1}")
+
+        if Path(output_filename).is_file() and Path(output_filename).stat().st_size > 0:
+            # Create copies of states to modify
+            all_options_copy = [list(opts) if isinstance(opts, list) else [] for opts in all_options_state]
+            # Ensure the line_idx exists and is a list
+            while line_idx >= len(all_options_copy): all_options_copy.append([None] * MAX_VERSIONS_ALLOWED)
+            if not isinstance(all_options_copy[line_idx], list): all_options_copy[line_idx] = [None] * MAX_VERSIONS_ALLOWED
+            # Ensure the version_idx is within bounds for that line
+            while selected_version_idx >= len(all_options_copy[line_idx]): all_options_copy[line_idx].append(None)
+
+            all_options_copy[line_idx][selected_version_idx] = output_filename
+
+            edited_texts_copy = edited_texts_state.copy()
+            edited_texts_copy[line_idx] = current_edited_text # Update edited text
+
+            selected_seed_data_copy = selected_seed_data_state.copy()
+            seed_entry = selected_seed_data_copy.get(str(line_idx), {})
+            seed_entry.update({
+                "seed": seed_to_use,
+                "selected_version_path": output_filename, # Update path
+                "text": current_edited_text # Update text in seed log
+            })
+            selected_seed_data_copy[str(line_idx)] = seed_entry
+
+            yield (f"Regeneration successful for Line {line_idx + 1}. Seed used: {seed_to_use}.", output_filename, all_options_copy, selections_state, edited_texts_copy, selected_seed_data_copy)
+        else:
+            yield (f"Regeneration failed for Line {line_idx + 1}: Output file not created or empty.", None, all_options_state, selections_state, edited_texts_state, selected_seed_data_state)
+
+    except Exception as e:
+        error_message = f"Error during TTS inference for Line {line_idx + 1}: {type(e).__name__} - {e}"
+        traceback.print_exc()
+        yield (error_message, None, all_options_state, selections_state, edited_texts_state, selected_seed_data_state)

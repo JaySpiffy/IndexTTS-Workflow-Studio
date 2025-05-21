@@ -205,3 +205,23 @@ def create_advanced_audio_tab():
             enable_noise_gate, noise_gate_threshold, noise_gate_attack, noise_gate_release,
             gain_slider_advanced, enable_graphical_eq, eq_band_sliders,
             preview_button, preview_audio)
+
+def create_timeline_tab():
+    """Creates the Gradio UI components for the Timeline / Final Edit Tab."""
+    with gr.TabItem("Timeline / Final Edit", id="tab_timeline_edit") as timeline_tab:
+        gr.Markdown("### Timeline / Final Edit")
+        timeline_line_selector_dd = gr.Dropdown(label="Select Line to Edit", choices=[], interactive=True) # Populate choices dynamically
+        with gr.Row():
+            with gr.Column(): # Column for displaying information and editing
+                timeline_original_speaker_text = gr.Textbox(label="Original Speaker", interactive=False)
+                timeline_original_text_display = gr.Textbox(label="Original Text", interactive=False, lines=2)
+                timeline_editable_text_input = gr.Textbox(label="Editable Text", interactive=True, lines=3, placeholder="Edit text here if needed for regeneration...")
+                timeline_selected_audio_player = gr.Audio(label="Selected Audio", type="filepath", interactive=True)
+                timeline_selected_audio_seed_text = gr.Textbox(label="Seed (if available)", interactive=False)
+                timeline_regenerate_button = gr.Button("Regenerate Selected Audio")
+        timeline_status_text = gr.Textbox(label="Timeline Status", interactive=False, lines=1)
+
+    return (timeline_tab, timeline_line_selector_dd, timeline_original_speaker_text,
+            timeline_original_text_display, timeline_editable_text_input,
+            timeline_selected_audio_player, timeline_selected_audio_seed_text,
+            timeline_regenerate_button, timeline_status_text)
