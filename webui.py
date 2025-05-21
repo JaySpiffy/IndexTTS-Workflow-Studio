@@ -98,6 +98,12 @@ except ImportError as e:
     def enable_concatenation_buttons(*args, **kwargs): return gr.update(interactive=False), gr.update(interactive=False)
     def list_save_files(*args, **kwargs): return []
 
+# --- Import from UI Layout --- (Added for Timeline Tab)
+try:
+    from ui_layout import create_timeline_tab
+except ImportError as e:
+    print(f"ERROR importing from ui_layout.py: {e}. Timeline tab will be unavailable.")
+    def create_timeline_tab(): return (None,) * 9 # Return dummy tuple matching expected output
 
 # --- Define Constants ---
 SPEAKER_DIR = Path("./speakers")
@@ -148,7 +154,7 @@ AllOptionsState = List[List[Optional[str]]]
 SelectionsState = Dict[int, int]
 EditedTextsState = Dict[int, str]
 ConvoGenYield = Tuple[str, ParsedScript, AllOptionsState, EditedTextsState, int, dict, dict, dict]
-ReviewYield = Tuple[str, str, str, str, int, dict, dict, *([dict]*MAX_VERSIONS_ALLOWED), dict]
+ReviewYield = Tuple[str, str, str, str, int, dict, dict, dict, dict, dict, dict, dict, dict]
 RegenYield = Tuple[str, AllOptionsState, SelectionsState, EditedTextsState]
 ManualRegenYield = Tuple[str, AllOptionsState, SelectionsState, EditedTextsState]
 
@@ -1161,8 +1167,8 @@ with gr.Blocks(theme=gr.themes.Soft()) as demo:
             gr.Markdown("You can preview the effect of these settings on a test audio sample before applying them to your final export.")
             preview_button = gr.Button("Preview Advanced Effects on Test Audio")
             preview_audio = gr.Audio(label="Preview Output", type="filepath", interactive=False)
-            import shutil
-            def process_advanced_effects_preview(
+            import shutil # Correctly placed within Advanced Audio tab
+            def process_advanced_effects_preview( # Correctly placed
                 test_audio_path,
                 enable_pitch_correction, pitch_correction_strength, pitch_correction_mode,
                 enable_chorus, chorus_depth, chorus_rate, chorus_mix,
@@ -1209,7 +1215,16 @@ with gr.Blocks(theme=gr.themes.Soft()) as demo:
                     enable_noise_gate, noise_gate_threshold, noise_gate_attack, noise_gate_release,
                     gain_slider_advanced, # Added gain slider input
                     enable_graphical_eq, *eq_band_sliders
-                ], outputs=preview_audio )
+                ], outputs=preview_audio
+            )
+        # End of "4. Advanced Audio" TabItem context
+
+        # --- Timeline / Final Edit Tab --- (Correctly Added from ui_layout.py)
+        (timeline_tab_component, timeline_line_selector_dd_component,
+         timeline_original_speaker_text_component, timeline_original_text_display_component,
+         timeline_editable_text_input_component, timeline_selected_audio_player_component,
+         timeline_selected_audio_seed_text_component, timeline_regenerate_button_component,
+         timeline_status_text_component) = create_timeline_tab()
 
     # --- Event Handlers ---
     list_speakers_btn.click(lambda: "\n".join(list_speaker_files()[1]), inputs=None, outputs=available_speakers_display)
@@ -1245,6 +1260,26 @@ with gr.Blocks(theme=gr.themes.Soft()) as demo:
         fn=enable_concatenation_buttons,
         inputs=[parsed_script_state, all_options_state, selections_state],
         outputs=[proceed_to_concat_button, concatenate_convo_button]
+    ).then(
+        fn=update_timeline_with_selection,
+        inputs=[
+            current_line_index_state, 
+            parsed_script_state,      
+            selections_state,         
+            all_options_state,        
+            selected_seed_data_state, 
+            edited_texts_state        
+        ],
+        outputs=[
+            timeline_line_selector_dd_component,      
+            timeline_original_speaker_text_component, 
+            timeline_original_text_display_component, 
+            timeline_editable_text_input_component,   
+            timeline_selected_audio_player_component, 
+            timeline_selected_audio_seed_text_component, 
+            timeline_status_text_component            
+        ],
+        queue=False
     )
     regenerate_inputs = [
         current_line_index_state, parsed_script_state, all_options_state, selections_state, edited_texts_state,

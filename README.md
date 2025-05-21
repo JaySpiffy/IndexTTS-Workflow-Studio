@@ -124,10 +124,29 @@ The main improvements and contributions are summarized as follows:
     ```
 2.  **Create Conda Environment:**
     ```bash
-    conda create -n index-tts-studio python=3.10
-    conda activate index-tts-studio
+    conda create -n index-tts-studio-timeline python=3.10
+    conda activate index-tts-studio-timeline
     ```
 3.  **Install Dependencies:**
+
+    **Important Note for NVIDIA GPU Users (especially newer models like RTX 40xx/50xx series):**
+    The `requirements.txt` file specifies a version of PyTorch (`torch`, `torchaudio`, `torchvision`) with a specific CUDA version (e.g., `+cu128`). While this may work for many setups, for optimal performance and compatibility with newer GPUs like your 5070 Ti, it's highly recommended to install PyTorch separately by following these steps **before** installing the other requirements:
+
+    1.  **Visit the Official PyTorch Website:** Go to [https://pytorch.org/get-started/locally/](https://pytorch.org/get-started/locally/) to get the precise installation command for your system (OS, package manager, CUDA version). Select the options that match your setup.
+    2.  **Modify `requirements.txt` (Temporarily):** Open the `requirements.txt` file in this project and comment out (by adding a `#` at the beginning of the line) or delete the lines related to `torch`, `torchaudio`, and `torchvision`. They typically look like this:
+        ```
+        # torch==2.7.0+cu128
+        # torchaudio==2.7.0+cu128
+        # torchvision==0.22.0+cu128
+        ```
+    3.  **Install PyTorch:** Run the command you obtained from the PyTorch website in your activated conda environment. For example, it might look something like `pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121` (this is just an example, **use the command from the official website**).
+    4.  **Install Remaining Dependencies:** Now, install the rest of the packages:
+        ```bash
+        pip install -r requirements.txt
+        ```
+
+    If you do not have a high-end NVIDIA GPU or prefer to use the versions specified, you can skip the steps above and directly run `pip install -r requirements.txt` after activating the conda environment and installing `pynini` if on Windows.
+
     ```bash
     pip install -r requirements.txt
     ```

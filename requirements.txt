@@ -5,7 +5,7 @@ tokenizers==0.15.0
 cn2an==0.5.22
 ffmpeg-python==0.2.0
 Cython==3.0.7
-g2p-en==2.1.0
+# g2p-en==2.1.0
 jieba==0.42.1
 keras==2.9.0
 numba==0.58.1
@@ -23,14 +23,14 @@ gradio==5.25.0
 tqdm==4.67.1
 
 # PyTorch (Specify CUDA version)
-torch==2.7.0+cu128
-torchaudio==2.7.0+cu128
-torchvision==0.22.0+cu128
+# torch==2.7.0+cu128
+# torchaudio==2.7.0+cu128
+# torchvision==0.22.0+cu128
 
 # --- Platform Specific ---
 # Installs WeTextProcessing on non-Darwin (macOS) and non-ARM64 systems
 # Note: WeTextProcessing version not specified as it wasn't in the freeze list for this system.
-WeTextProcessing; platform_machine != "Darwin" and platform_machine != "arm64"
+# WeTextProcessing; platform_machine != "Darwin" and platform_machine != "arm64"
 
 # Installs wetext on Darwin (macOS) or ARM64 systems
 wetext==0.0.4; platform_system == "Darwin" or platform_machine == "arm64"

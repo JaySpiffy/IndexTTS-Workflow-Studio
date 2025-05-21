@@ -1,82 +1,50 @@
 {
     "0": {
         "line_index": 0,
-        "speaker": "Pr.D.Trump.wav",
-        "text": "Lorraine Phillips? Never heard of her. Sounds like a loser.",
-        "selected_version_index": 3,
-        "selected_version_path": "C:\\Users\\whitt\\AppData\\Local\\Temp\\indextts_webui_convo_multi_segments\\line000_spk-Pr.D.Trump_v04_s2773292400.wav",
-        "seed": 2773292400
+        "speaker": "Quark.wav",
+        "text": "But Captains! This Kajsa is a visionary! His VODs of \"Captain of Industry\"!",
+        "selected_version_index": 2,
+        "selected_version_path": "C:\\Users\\whitt\\AppData\\Local\\Temp\\indextts_webui_convo_multi_segments\\line000_spk-Quark_v03_s3178587634.wav",
+        "seed": 3178587634
     },
     "1": {
         "line_index": 1,
-        "speaker": "Pr.D.Trump.wav",
-        "text": "Listen, Lorraine. You probably wouldn't understand greatness. It's true.",
-        "selected_version_index": 0,
-        "selected_version_path": "C:\\Users\\whitt\\AppData\\Local\\Temp\\indextts_webui_convo_multi_segments\\line001_spk-Pr.D.Trump_v01_s1467551714.wav",
-        "seed": 1467551714
+        "speaker": "KiraNerys.wav",
+        "text": "Visionary of WHAT, Quark?! Digital fucking landfill?! My patience is GONE!",
+        "selected_version_index": 4,
+        "selected_version_path": "C:\\Users\\whitt\\AppData\\Local\\Temp\\indextts_webui_convo_multi_segments\\line001_spk-KiraNerys_v05_autoregen1_s594205273.wav",
+        "seed": 594205273
     },
     "2": {
         "line_index": 2,
-        "speaker": "Pr.D.Trump.wav",
-        "text": "I'm the best. Everyone agrees. The smartest guy. Really terrific.",
-        "selected_version_index": 1,
-        "selected_version_path": "C:\\Users\\whitt\\AppData\\Local\\Temp\\indextts_webui_convo_multi_segments\\line002_spk-Pr.D.Trump_v02_s3674290117.wav",
-        "seed": 3674290117
+        "speaker": "MilesOBrien.wav",
+        "text": "I've seen more vision in a fecking blind targ, you gold-plated shit-gibbon!",
+        "selected_version_index": 0,
+        "selected_version_path": "C:\\Users\\whitt\\AppData\\Local\\Temp\\indextts_webui_convo_multi_segments\\line002_spk-MilesOBrien_v01_s1535183626.wav",
+        "seed": 1535183626
     },
     "3": {
         "line_index": 3,
-        "speaker": "Pr.D.Trump.wav",
-        "text": "But sometimes... sometimes, maybe I'm a wanker. Okay? A wanker!",
-        "selected_version_index": 4,
-        "selected_version_path": "C:\\Users\\whitt\\AppData\\Local\\Temp\\indextts_webui_convo_multi_segments\\line003_spk-Pr.D.Trump_v05_s3518081888.wav",
-        "seed": 3518081888
+        "speaker": "Dax.wav",
+        "text": "Darling, even for you, this obsession with Kajsa's \"uh idk\" VOD storage is just… tragic.",
+        "selected_version_index": 3,
+        "selected_version_path": "C:\\Users\\whitt\\AppData\\Local\\Temp\\indextts_webui_convo_multi_segments\\line003_spk-Dax_v04_s4236846744.wav",
+        "seed": 4236846744
     },
     "4": {
         "line_index": 4,
-        "speaker": "Pr.D.Trump.wav",
-        "text": "It happens! Even the best are wankers sometimes. Sad!",
-        "selected_version_index": 1,
-        "selected_version_path": "C:\\Users\\whitt\\AppData\\Local\\Temp\\indextts_webui_convo_multi_segments\\line004_spk-Pr.D.Trump_v02_s964643767.wav",
-        "seed": 964643767
+        "speaker": "Worf.wav",
+        "text": "This Kajsa displays no honor! No purpose! Only endless, mediocre digital recordings!",
+        "selected_version_index": 2,
+        "selected_version_path": "C:\\Users\\whitt\\AppData\\Local\\Temp\\indextts_webui_convo_multi_segments\\line004_spk-Worf_v03_s27600228.wav",
+        "seed": 27600228
     },
     "5": {
         "line_index": 5,
-        "speaker": "Pr.D.Trump.wav",
-        "text": "And frankly, I've done things... maybe I'm an idiot. A total idiot!",
-        "selected_version_index": 4,
-        "selected_version_path": "C:\\Users\\whitt\\AppData\\Local\\Temp\\indextts_webui_convo_multi_segments\\line005_spk-Pr.D.Trump_v05_s2773300277.wav",
-        "seed": 2773300277
-    },
-    "6": {
-        "line_index": 6,
-        "speaker": "Pr.D.Trump.wav",
-        "text": "Nobody knows more about being an idiot than me! Believe me!",
-        "selected_version_index": 3,
-        "selected_version_path": "C:\\Users\\whitt\\AppData\\Local\\Temp\\indextts_webui_convo_multi_segments\\line006_spk-Pr.D.Trump_v04_s2250778536.wav",
-        "seed": 2250778536
-    },
-    "7": {
-        "line_index": 7,
-        "speaker": "Pr.D.Trump.wav",
-        "text": "But you, Lorraine... you look like you have very low energy.",
-        "selected_version_index": 3,
-        "selected_version_path": "C:\\Users\\whitt\\AppData\\Local\\Temp\\indextts_webui_convo_multi_segments\\line007_spk-Pr.D.Trump_v04_s3540770648.wav",
-        "seed": 3540770648
-    },
-    "8": {
-        "line_index": 8,
-        "speaker": "Pr.D.Trump.wav",
-        "text": "Very unimpressive. Probably why nobody knows you. Unlike me!",
-        "selected_version_index": 1,
-        "selected_version_path": "C:\\Users\\whitt\\AppData\\Local\\Temp\\indextts_webui_convo_multi_segments\\line008_spk-Pr.D.Trump_v02_s3914870053.wav",
-        "seed": 3914870053
-    },
-    "9": {
-        "line_index": 9,
-        "speaker": "Pr.D.Trump.wav",
-        "text": "Now, I'm busy. Go bother someone else, you know? Pathetic.",
-        "selected_version_index": 1,
-        "selected_version_path": "C:\\Users\\whitt\\AppData\\Local\\Temp\\indextts_webui_convo_multi_segments\\line009_spk-Pr.D.Trump_v02_s3701081264.wav",
-        "seed": 3701081264
+        "speaker": "Martok.wav",
+        "text": "I WILL RECORD MY BOOT MAKING CONTACT WITH YOUR SKULL, FERENGI! THAT'S CONTENT!",
+        "selected_version_index": 0,
+        "selected_version_path": "C:\\Users\\whitt\\AppData\\Local\\Temp\\indextts_webui_convo_multi_segments\\line005_spk-Martok_v01_autoregen1_s3751642289.wav",
+        "seed": 3751642289
     }
 }

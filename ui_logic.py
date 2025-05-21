@@ -833,6 +833,85 @@ def save_seed_data(seed_data_dict):
         traceback.print_exc()
         return error_msg
 
+def update_timeline_with_selection(
+    current_line_index: int,
+    parsed_script: ParsedScript,
+    selections_state: SelectionsState,
+    all_options_state: AllOptionsState,
+    selected_seed_data_state: dict, # Contains seed and path
+    edited_texts_state: EditedTextsState # To get potentially edited text
+) -> Tuple[gr.update, gr.update, gr.update, gr.update, gr.update, gr.update, gr.update]:
+    """
+    Updates the Timeline tab components based on the currently selected audio
+    for the given line index.
+    """
+    timeline_status = ""
+    if not parsed_script or current_line_index < 0 or current_line_index >= len(parsed_script):
+        timeline_status = "Timeline: Invalid script or line index."
+        # Ensure all 7 gr.update calls are returned
+        return (
+            gr.update(choices=[], value=None), # timeline_line_selector_dd
+            gr.update(value=""),              # timeline_original_speaker_text
+            gr.update(value=""),              # timeline_original_text_display
+            gr.update(value=""),              # timeline_editable_text_input
+            gr.update(value=None),            # timeline_selected_audio_player
+            gr.update(value=""),              # timeline_selected_audio_seed_text
+            gr.update(value=timeline_status)  # timeline_status_text
+        )
+
+    line_data = parsed_script[current_line_index]
+    original_speaker = line_data.get('speaker_filename', 'Unknown Speaker')
+    original_text = line_data.get('text', 'No text')
+    
+    # Get edited text if available, otherwise original
+    editable_text = edited_texts_state.get(str(current_line_index), original_text)
+
+    selected_audio_path: Optional[str] = None
+    selected_seed: Optional[str] = "N/A" # Default to N/A
+
+    line_seed_data = selected_seed_data_state.get(str(current_line_index))
+    if line_seed_data and isinstance(line_seed_data, dict):
+        selected_audio_path = line_seed_data.get("selected_version_path")
+        seed_val = line_seed_data.get("seed")
+        if seed_val is not None:
+            selected_seed = str(seed_val)
+    else:
+        selected_version_index = selections_state.get(current_line_index, -1)
+        if selected_version_index != -1 and \
+           current_line_index < len(all_options_state) and \\
+           selected_version_index < len(all_options_state[current_line_index]):
+            selected_audio_path = all_options_state[current_line_index][selected_version_index]
+            if selected_audio_path and isinstance(selected_audio_path, str):
+                filename = Path(selected_audio_path).name
+                match = re.search(r'_s(\d+)\.wav$', filename, re.IGNORECASE)
+                if match:
+                    selected_seed = match.group(1)
+            else:
+                selected_audio_path = None # Ensure it's None if not a valid path string
+
+    if selected_audio_path and Path(selected_audio_path).exists():
+        timeline_status = f"Timeline: Loaded Line {current_line_index + 1}."
+    elif selected_audio_path:
+        timeline_status = f"Timeline: Audio for Line {current_line_index + 1} not found at '{selected_audio_path}'."
+        selected_audio_path = None
+    else:
+        timeline_status = f"Timeline: No audio selected/found for Line {current_line_index + 1}."
+        selected_audio_path = None
+
+    timeline_line_choices = [f"Line {i+1}: {line.get('speaker_filename', 'Unknown')} - {line.get('text', '')[:30]}..."
+                             for i, line in enumerate(parsed_script)]
+    selected_dropdown_value = timeline_line_choices[current_line_index] if timeline_line_choices and 0 <= current_line_index < len(timeline_line_choices) else None
+
+    return (
+        gr.update(choices=timeline_line_choices, value=selected_dropdown_value),
+        gr.update(value=original_speaker),
+        gr.update(value=original_text),
+        gr.update(value=editable_text),
+        gr.update(value=selected_audio_path),
+        gr.update(value=selected_seed),
+        gr.update(value=timeline_status)
+    )
+
 def update_convo_selection(
     choice_input: Optional[str],
     current_line_index: int,
