@@ -105,6 +105,24 @@ except ImportError as e:
     print(f"ERROR importing from ui_layout.py: {e}. Timeline tab will be unavailable.")
     def create_timeline_tab(): return (None,) * 9 # Return dummy tuple matching expected output
 
+# --- Import AppContext ---
+try:
+    from app_context import AppContext
+except ImportError as e:
+    print(f"ERROR importing AppContext from app_context.py: {e}")
+    AppContext = None
+
+# --- Import from UI Logic ---
+try:
+    from ui_logic import update_timeline_with_selection
+except ImportError as e:
+    print(f"ERROR importing from ui_logic.py: {e}")
+    # Define a dummy if not found, to prevent crashes if ui_logic.py is not ready
+    def update_timeline_with_selection(*args, **kwargs):
+        print("Warning: ui_logic.update_timeline_with_selection not found!")
+        return (gr.update(),) * 7
+
+
 # --- Define Constants ---
 SPEAKER_DIR = Path("./speakers")
 NO_SPEAKER_OPTION = "[No Speaker Selected]"
@@ -200,6 +218,23 @@ if SPEECHBRAIN_AVAILABLE:
         traceback.print_exc()
         speaker_similarity_model = None
         SPEECHBRAIN_AVAILABLE = False
+
+# --- Initialize AppContext ---
+app_context = None
+if AppContext is not None:
+    app_context = AppContext()
+    app_context.tts = tts
+    app_context.speaker_similarity_model = speaker_similarity_model
+    app_context.device = DEVICE
+    app_context.pydub_available = PYDUB_AVAILABLE
+    app_context.pydub_silence_available = PYDUB_SILENCE_AVAILABLE
+    app_context.pydub_compress_available = PYDUB_COMPRESS_AVAILABLE
+    app_context.scipy_available = SCIPY_AVAILABLE
+    app_context.noisereduce_available = NOISEREDUCE_AVAILABLE
+    app_context.speechbrain_available = SPEECHBRAIN_AVAILABLE
+    print("AppContext initialized and populated.")
+else:
+    print("AppContext class not available. Skipping initialization.")
 
 
 # --- Gradio UI Functions ---
@@ -1228,28 +1263,29 @@ with gr.Blocks(theme=gr.themes.Soft()) as demo:
 
     # --- Event Handlers ---
     list_speakers_btn.click(lambda: "\n".join(list_speaker_files()[1]), inputs=None, outputs=available_speakers_display)
-    display_line_inputs = [ current_line_index_state, parsed_script_state, all_options_state, selections_state, edited_texts_state ]
+    display_line_inputs = [ current_line_index_state, parsed_script_state, all_options_state, selections_state, edited_texts_state, app_context ] # Added app_context
     review_display_outputs_base = [ review_status_output, line_nav_display, current_line_display_review, editable_line_text_review, current_line_index_state, prev_line_button, next_line_button, *review_audio_outputs, line_choice_radio ]
     review_display_outputs_nav_full = review_display_outputs_base + [proceed_to_concat_button, concatenate_convo_button]
     generate_convo_inputs = [
         script_input_convo, num_versions_convo_radio, temperature_slider, top_p_slider, top_k_slider,
-        seed_strategy_dd, fixed_base_seed_input # Use new seed controls
+        seed_strategy_dd, fixed_base_seed_input, app_context # Added app_context
     ]
     convo_gen_outputs = [ convo_gen_status_output, parsed_script_state, all_options_state, edited_texts_state, current_line_index_state, generate_convo_button, review_tab, concat_tab ]
     generate_convo_button.click( fn=prepare_temp_dir, inputs=gr.State(TEMP_CONVO_MULTI_DIR), outputs=None, queue=False ).then( fn=parse_validate_and_start_convo, inputs=generate_convo_inputs, outputs=convo_gen_outputs, show_progress="full" ).then( fn=display_line_for_review, inputs=display_line_inputs, outputs=review_display_outputs_base ).then( fn=enable_concatenation_buttons, inputs=[parsed_script_state, all_options_state, selections_state], outputs=[proceed_to_concat_button, concatenate_convo_button] )
-    def navigate_and_display( direction: int, current_index: int, parsed_script: ParsedScript, all_options_state: AllOptionsState, selections_state: SelectionsState, edited_texts: EditedTextsState ):
+    def navigate_and_display( direction: int, current_index: int, parsed_script: ParsedScript, all_options_state: AllOptionsState, selections_state: SelectionsState, edited_texts: EditedTextsState, app_context_param: AppContext ): # Added app_context_param
         new_index = current_index + direction
-        review_yield_tuple = display_line_for_review(new_index, parsed_script, all_options_state, selections_state, edited_texts)
+        review_yield_tuple = display_line_for_review(new_index, parsed_script, all_options_state, selections_state, edited_texts, app_context_param) # Pass app_context_param
         can_proceed_update, can_concat_btn_update = enable_concatenation_buttons(parsed_script, all_options_state, selections_state)
         return review_yield_tuple + (can_proceed_update, can_concat_btn_update)
-    prev_line_button.click( fn=navigate_and_display, inputs=[gr.State(-1), current_line_index_state, parsed_script_state, all_options_state, selections_state, edited_texts_state], outputs=review_display_outputs_nav_full, queue=False )
-    next_line_button.click( fn=navigate_and_display, inputs=[gr.State(1), current_line_index_state, parsed_script_state, all_options_state, selections_state, edited_texts_state], outputs=review_display_outputs_nav_full, queue=False )
+    prev_line_button.click( fn=navigate_and_display, inputs=[gr.State(-1), current_line_index_state, parsed_script_state, all_options_state, selections_state, edited_texts_state, app_context], outputs=review_display_outputs_nav_full, queue=False ) # Added app_context
+    next_line_button.click( fn=navigate_and_display, inputs=[gr.State(1), current_line_index_state, parsed_script_state, all_options_state, selections_state, edited_texts_state, app_context], outputs=review_display_outputs_nav_full, queue=False ) # Added app_context
+    line_choice_radio_update_convo_inputs = [ # Defined new input list for update_convo_selection
+        line_choice_radio, current_line_index_state, selections_state,
+        parsed_script_state, all_options_state, selected_seed_data_state, app_context # Added app_context
+    ]
     line_choice_radio.change(
         fn=update_convo_selection,
-        inputs=[
-            line_choice_radio, current_line_index_state, selections_state,
-            parsed_script_state, all_options_state, selected_seed_data_state
-        ],
+        inputs=line_choice_radio_update_convo_inputs, # Used new input list
         outputs=[ selections_state, selected_seed_data_state, review_status_output ],
         queue=False
     ).then(
@@ -1263,15 +1299,16 @@ with gr.Blocks(theme=gr.themes.Soft()) as demo:
     ).then(
         fn=update_timeline_with_selection,
         inputs=[
-            current_line_index_state, 
-            parsed_script_state,      
-            selections_state,         
-            all_options_state,        
-            selected_seed_data_state, 
-            edited_texts_state        
+            current_line_index_state,
+            parsed_script_state,
+            selections_state,
+            all_options_state,
+            selected_seed_data_state,
+            edited_texts_state,
+            app_context # Added app_context
         ],
         outputs=[
-            timeline_line_selector_dd_component,      
+            timeline_line_selector_dd_component,
             timeline_original_speaker_text_component, 
             timeline_original_text_display_component, 
             timeline_editable_text_input_component,   
@@ -1285,7 +1322,7 @@ with gr.Blocks(theme=gr.themes.Soft()) as demo:
         current_line_index_state, parsed_script_state, all_options_state, selections_state, edited_texts_state,
         editable_line_text_review, num_versions_convo_radio,
         temperature_slider, top_p_slider, top_k_slider,
-        seed_strategy_dd, fixed_base_seed_input # Use new seed controls
+        seed_strategy_dd, fixed_base_seed_input, app_context # Added app_context
     ]
     regenerate_outputs = [ review_status_output, all_options_state, selections_state, edited_texts_state ]
     regenerate_current_line_button.click( fn=lambda: gr.update(interactive=False), inputs=None, outputs=regenerate_current_line_button, queue=False ).then( fn=regenerate_single_line, inputs=regenerate_inputs, outputs=regenerate_outputs, show_progress="full" ).then( fn=display_line_for_review, inputs=display_line_inputs, outputs=review_display_outputs_base ).then( fn=enable_concatenation_buttons, inputs=[ parsed_script_state, all_options_state, selections_state ], outputs=[proceed_to_concat_button, concatenate_convo_button] ).then( fn=lambda: gr.update(interactive=True), inputs=None, outputs=regenerate_current_line_button, queue=False )
@@ -1298,7 +1335,7 @@ with gr.Blocks(theme=gr.themes.Soft()) as demo:
         selections_state,
         edited_texts_state,
         temperature_slider, top_p_slider, top_k_slider,
-        manual_regen_attempts_dd # Added dropdown value
+        manual_regen_attempts_dd, app_context # Added app_context
     ]
     threshold_regen_outputs = [ review_status_output, all_options_state, selections_state, edited_texts_state ]
     if 'threshold_regen_button' in locals():
@@ -1327,7 +1364,8 @@ with gr.Blocks(theme=gr.themes.Soft()) as demo:
         apply_peak_norm_checkbox, peak_norm_target_input,
         reverb_amount_slider,
         pitch_shift_slider,
-        speed_slider
+        speed_slider,
+        app_context # Added app_context
     ]
     if PYDUB_AVAILABLE:
         concatenate_convo_button.click( fn=lambda: gr.update(interactive=False), inputs=None, outputs=concatenate_convo_button, queue=False ).then( fn=concatenate_conversation_versions, inputs=concat_inputs, outputs=[concat_status_output, final_conversation_audio], show_progress="full" ).then( fn=lambda: gr.update(interactive=True), inputs=None, outputs=concatenate_convo_button, queue=False )
