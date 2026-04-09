@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IndexTTS2 Fixed App Test</title>
+    <link rel="stylesheet" href="assets/css/base.css">
+    <link rel="stylesheet" href="assets/css/layout.css">
+    <link rel="stylesheet" href="assets/css/forms.css">
+    <link rel="stylesheet" href="assets/css/components.css">
+    <link rel="stylesheet" href="assets/css/workflows.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .debug-log {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            width: 400px;
+            height: 300px;
+            background: #1a1a1a;
+            color: #00ff00;
+            font-family: monospace;
+            font-size: 12px;
+            padding: 10px;
+            overflow-y: auto;
+            z-index: 9999;
+            border: 1px solid #333;
+        }
+        .debug-log .error {
+            color: #ff6b6b;
+        }
+        .debug-log .success {
+            color: #51cf66;
+        }
+        .debug-log .warning {
+            color: #ffd43b;
+        }
+        .debug-log .info {
+            color: #74c0fc;
+        }
+        .debug-controls {
+            position: fixed;
+            top: 320px;
+            right: 10px;
+            z-index: 9999;
+        }
+        .debug-controls button {
+            background: #333;
+            color: white;
+            border: 1px solid #555;
+            padding: 5px 10px;
+            margin: 2px;
+            cursor: pointer;
+        }
+        .debug-controls button:hover {
+            background: #555;
+        }
+        .test-results {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            width: 400px;
+            background: #2d3748;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            z-index: 9999;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .test-success {
+            color: #68d391;
+        }
+        .test-failure {
+            color: #fc8181;
+        }
+    </style>
+</head>
+<body>
+    <div class="debug-log" id="debug-log"></div>
+    <div class="debug-controls">
+        <button onclick="clearDebugLog()">Clear Log</button>
+        <button onclick="runAllTests()">Run All Tests</button>
+    </div>
+    <div class="test-results" id="test-results">
+        <h4>Test Results</h4>
+        <div id="test-output">Click "Run All Tests" to start testing...</div>
+    </div>
+
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-microphone-alt"></i>
+                    <h1>IndexTTS2 Fixed App Test</h1>
+                </div>
+                <div class="header-status">
+                    <div class="status-indicator" id="api-status">
+                        <span class="status-dot"></span>
+                        <span class="status-text">Debug Mode</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <nav class="tab-navigation">
+                <button class="tab-button active" data-tab="conversation-workflow">
+                    <i class="fas fa-comments"></i>
+                    <span>Conversation Workflow</span>
+                </button>
+                <button class="tab-button" data-tab="conversation-results">
+                    <i class="fas fa-file-audio"></i>
+                    <span>Conversation Results</span>
+                </button>
+            </nav>
+
+            <div class="tab-content">
+                <div class="tab-pane active" id="conversation-workflow">
+                    <h2>Conversation Workflow</h2>
+                    <div class="form-group">
+                        <label for="conversation-script">Script:</label>
+                        <textarea id="conversation-script" rows="5" placeholder="speaker_name: Dialogue text here">Speaker1: Hello, this is a test script.
+Speaker2: Great! Let's test the functionality.</textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-secondary" id="parse-script-btn">
+                            <i class="fas fa-check"></i> Parse Script
+                        </button>
+                        <button class="btn btn-primary" id="generate-conversation-btn">
+                            <i class="fas fa-play"></i> Generate Conversation
+                        </button>
+                    </div>
+                </div>
+
+                <div class="tab-pane" id="conversation-results">
+                    <h2>Conversation Results</h2>
+                    <p>Results will appear here</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Test functions
+        function clearDebugLog() {
+            document.getElementById('debug-log').innerHTML = '';
+        }
+
+        function updateTestResults(message, isSuccess = true) {
+            const testOutput = document.getElementById('test-output');
+            const testEntry = document.createElement('div');
+            testEntry.className = isSuccess ? 'test-success' : 'test-failure';
+            testEntry.textContent = message;
+            testOutput.appendChild(testEntry);
+        }
+
+        function runAllTests() {
+            document.getElementById('test-output').innerHTML = '';
+            updateTestResults('Starting tests...');
+            
+            // Wait a bit for app to initialize
+            setTimeout(() => {
+                testAppInitialization();
+                testTabSwitching();
+                testParseScript();
+                testGenerateConversation();
+            }, 2000);
+        }
+
+        function testAppInitialization() {
+            updateTestResults('Testing app initialization...');
+            
+            if (window.app) {
+                updateTestResults('✓ App object exists', true);
+                
+                // Test key methods
+                const methods = ['switchTab', 'parseScript', 'generateConversation', 'showNotification'];
+                methods.forEach(method => {
+                    if (typeof window.app[method] === 'function') {
+                        updateTestResults(`✓ Method ${method} exists`, true);
+                    } else {
+                        updateTestResults(`✗ Method ${method} missing`, false);
+                    }
+                });
+            } else {
+                updateTestResults('✗ App object does not exist', false);
+            }
+        }
+
+        function testTabSwitching() {
+            updateTestResults('Testing tab switching...');
+            
+            const tabButtons = document.querySelectorAll('.tab-button');
+            if (tabButtons.length === 2) {
+                updateTestResults('✓ Found 2 tab buttons', true);
+            } else {
+                updateTestResults(`✗ Expected 2 tab buttons, found ${tabButtons.length}`, false);
+            }
+            
+            if (window.app && typeof window.app.switchTab === 'function') {
+                try {
+                    // Test switching to results tab
+                    window.app.switchTab('conversation-results');
+                    const resultsTab = document.getElementById('conversation-results');
+                    const workflowTab = document.getElementById('conversation-workflow');
+                    
+                    if (resultsTab.classList.contains('active') && !workflowTab.classList.contains('active')) {
+                        updateTestResults('✓ Tab switching works correctly', true);
+                        
+                        // Switch back
+                        window.app.switchTab('conversation-workflow');
+                    } else {
+                        updateTestResults('✗ Tab switching not working', false);
+                    }
+                } catch (error) {
+                    updateTestResults(`✗ Tab switching error: ${error.message}`, false);
+                }
+            } else {
+                updateTestResults('✗ switchTab method not available', false);
+            }
+        }
+
+        function testParseScript() {
+            updateTestResults('Testing parse script...');
+            
+            const scriptTextarea = document.getElementById('conversation-script');
+            const parseButton = document.getElementById('parse-script-btn');
+            
+            if (scriptTextarea && parseButton) {
+                updateTestResults('✓ Script elements found', true);
+                
+                if (window.app && typeof window.app.parseScript === 'function') {
+                    try {
+                        // Set test script
+                        scriptTextarea.value = 'TestSpeaker: This is a test script for parsing.';
+                        
+                        // Try to parse
+                        window.app.parseScript();
+                        updateTestResults('✓ Parse script executed', true);
+                    } catch (error) {
+                        updateTestResults(`✗ Parse script error: ${error.message}`, false);
+                    }
+                } else {
+                    updateTestResults('✗ parseScript method not available', false);
+                }
+            } else {
+                updateTestResults('✗ Script elements not found', false);
+            }
+        }
+
+        function testGenerateConversation() {
+            updateTestResults('Testing generate conversation...');
+            
+            const generateButton = document.getElementById('generate-conversation-btn');
+            
+            if (generateButton) {
+                updateTestResults('✓ Generate button found', true);
+                
+                if (window.app && typeof window.app.generateConversation === 'function') {
+                    try {
+                        // Note: This might fail due to missing API, but we're testing if the method exists and can be called
+                        window.app.generateConversation();
+                        updateTestResults('✓ Generate conversation method executed', true);
+                    } catch (error) {
+                        // API errors are expected, but method should exist
+                        if (error.message.includes('API') || error.message.includes('network')) {
+                            updateTestResults('✓ Generate conversation method exists (API error expected)', true);
+                        } else {
+                            updateTestResults(`✗ Generate conversation error: ${error.message}`, false);
+                        }
+                    }
+                } else {
+                    updateTestResults('✗ generateConversation method not available', false);
+                }
+            } else {
+                updateTestResults('✗ Generate button not found', false);
+            }
+        }
+
+        // Enhanced error logging
+        window.addEventListener('error', function(event) {
+            const logElement = document.getElementById('debug-log');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = 'error';
+            logEntry.textContent = `[${timestamp}] ERROR: ${event.error.message} at ${event.filename}:${event.lineno}`;
+            logElement.appendChild(logEntry);
+            logElement.scrollTop = logElement.scrollHeight;
+        });
+
+        window.addEventListener('unhandledrejection', function(event) {
+            const logElement = document.getElementById('debug-log');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = 'error';
+            logEntry.textContent = `[${timestamp}] UNHANDLED PROMISE: ${event.reason}`;
+            logElement.appendChild(logEntry);
+            logElement.scrollTop = logElement.scrollHeight;
+        });
+    </script>
+
+    <!-- JavaScript Modules - Using the fixed app -->
+    <script type="module" src="src/app_fixed.js"></script>
+</body>
+</html>

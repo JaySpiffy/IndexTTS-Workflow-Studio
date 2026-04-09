@@ -1,0 +1,140 @@
+<div id="customMediaPlayer" class="custom-media-player">
+    <!-- Version Selector -->
+    <div class="version-selector">
+        <label>Version:</label>
+        <select id="versionSelect" class="version-dropdown">
+            <!-- Versions will be populated dynamically -->
+        </select>
+        <button id="compareBtn" class="compare-btn" disabled>Compare</button>
+    </div>
+
+    <!-- Main Player Area -->
+    <div class="player-main">
+        <!-- Waveform Container -->
+        <div class="waveform-container">
+            <div id="waveform" class="waveform"></div>
+            <div id="waveformComparison" class="waveform-comparison hidden">
+                <div class="comparison-track">
+                    <div class="track-label">Original</div>
+                    <div id="waveformOriginal" class="waveform"></div>
+                </div>
+                <div class="comparison-track">
+                    <div class="track-label">Comparison</div>
+                    <div id="waveformCompare" class="waveform"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Audio Info -->
+        <div class="audio-info">
+            <div class="audio-title">
+                <span id="audioTitle">Line X - Speaker Name</span>
+                <span id="audioQuality" class="quality-badge">Quality: <span id="qualityScore">--</span></span>
+            </div>
+            <div class="audio-meta">
+                <span id="audioDuration">0:00</span>
+                <span id="audioSize">-- MB</span>
+            </div>
+        </div>
+
+        <!-- Playback Controls -->
+        <div class="playback-controls">
+            <div class="primary-controls">
+                <button id="playPauseBtn" class="control-btn play-pause-btn">
+                    <i class="fas fa-play"></i>
+                </button>
+                <button id="stopBtn" class="control-btn">
+                    <i class="fas fa-stop"></i>
+                </button>
+                <button id="rewindBtn" class="control-btn">
+                    <i class="fas fa-backward"></i>
+                </button>
+                <button id="forwardBtn" class="control-btn">
+                    <i class="fas fa-forward"></i>
+                </button>
+            </div>
+
+            <div class="progress-container">
+                <span id="currentTime" class="time-display">0:00</span>
+                <div class="progress-bar">
+                    <div id="progressFill" class="progress-fill"></div>
+                    <div id="progressHandle" class="progress-handle"></div>
+                </div>
+                <span id="totalTime" class="time-display">0:00</span>
+            </div>
+
+            <div class="secondary-controls">
+                <button id="loopBtn" class="control-btn">
+                    <i class="fas fa-redo"></i>
+                </button>
+                <button id="muteBtn" class="control-btn">
+                    <i class="fas fa-volume-up"></i>
+                </button>
+                <div class="volume-control">
+                    <input type="range" id="volumeSlider" class="volume-slider" min="0" max="100" value="100">
+                </div>
+            </div>
+        </div>
+
+        <!-- Advanced Controls -->
+        <div class="advanced-controls">
+            <div class="control-group">
+                <label>Speed:</label>
+                <select id="playbackSpeed" class="speed-select">
+                    <option value="0.5">0.5x</option>
+                    <option value="0.75">0.75x</option>
+                    <option value="1" selected>1x</option>
+                    <option value="1.25">1.25x</option>
+                    <option value="1.5">1.5x</option>
+                    <option value="2">2x</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label>Zoom:</label>
+                <select id="zoomLevel" class="zoom-select">
+                    <option value="10">10px/s</option>
+                    <option value="25">25px/s</option>
+                    <option value="50" selected>50px/s</option>
+                    <option value="100">100px/s</option>
+                    <option value="200">200px/s</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <button id="downloadBtn" class="control-btn">
+                    <i class="fas fa-download"></i> Download
+                </button>
+                <button id="shareBtn" class="control-btn">
+                    <i class="fas fa-share"></i> Share
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Version Comparison Panel -->
+    <div id="comparisonPanel" class="comparison-panel hidden">
+        <div class="comparison-header">
+            <h3>Version Comparison</h3>
+            <button id="closeComparison" class="close-btn">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="comparison-content">
+            <div class="comparison-stats">
+                <div class="stat-item">
+                    <span class="stat-label">Duration Diff:</span>
+                    <span id="durationDiff" class="stat-value">--</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Quality Diff:</span>
+                    <span id="qualityDiff" class="stat-value">--</span>
+                </div>
+            </div>
+            <div class="comparison-actions">
+                <button id="useOriginalBtn" class="action-btn">Use Original</button>
+                <button id="useComparisonBtn" class="action-btn">Use Comparison</button>
+            </div>
+        </div>
+    </div>
+</div>

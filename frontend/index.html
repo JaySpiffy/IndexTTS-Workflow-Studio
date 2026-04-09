@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IndexTTS2 - Advanced Text-to-Speech</title>
+    <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
+    <!-- Base CSS -->
+    <link rel="stylesheet" href="assets/css/base.css?v=2026-04-08-timeline-standalone-2">
+    <link rel="stylesheet" href="assets/css/layout.css?v=2026-04-08-timeline-standalone-2">
+    <link rel="stylesheet" href="assets/css/forms.css?v=2026-04-08-timeline-standalone-2">
+    <link rel="stylesheet" href="assets/css/components.css?v=2026-04-08-timeline-standalone-2">
+    <link rel="stylesheet" href="assets/css/workflows.css?v=2026-04-08-timeline-standalone-2">
+    <link rel="stylesheet" href="assets/css/batch-processing.css?v=2026-04-08-timeline-standalone-2">
+    <link rel="stylesheet" href="assets/css/line-editor.css?v=2026-04-08-timeline-standalone-2">
+    <link rel="stylesheet" href="assets/css/emotion-timeline.css?v=2026-04-08-timeline-standalone-2">
+    <link rel="stylesheet" href="assets/css/edit-segment-modal.css?v=2026-04-08-timeline-standalone-2">
+    <link rel="stylesheet" href="assets/css/keyboard-shortcuts.css?v=2026-04-08-timeline-standalone-2">
+    <link rel="stylesheet" href="assets/css/responsive.css?v=2026-04-08-timeline-standalone-2">
+    <link rel="stylesheet" href="assets/css/custom-media-player.css?v=2026-04-08-timeline-standalone-2">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Dark Mode Toggle -->
+    <div class="dark-mode-toggle">
+        <button id="dark-mode-btn" title="Toggle Dark Mode">
+            <i class="fas fa-moon"></i>
+        </button>
+    </div>
+    
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-microphone-alt"></i>
+                    <h1>IndexTTS2</h1>
+                </div>
+                <div class="header-status">
+                    <div class="status-indicator" id="api-status">
+                        <span class="status-dot"></span>
+                        <span class="status-text">Checking API...</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Tab Navigation -->
+            <nav class="tab-navigation">
+                <button class="tab-button" data-tab="speaker-prep">
+                    <i class="fas fa-scissors"></i>
+                    <span>Speaker Prep</span>
+                </button>
+                <button class="tab-button active" data-tab="conversation-workflow">
+                    <i class="fas fa-comments"></i>
+                    <span>Conversation Workflow</span>
+                </button>
+                <button class="tab-button" data-tab="conversation-results">
+                    <i class="fas fa-file-audio"></i>
+                    <span>Conversation Results</span>
+                </button>
+                <button class="tab-button" data-tab="timeline-editor">
+                    <i class="fas fa-grip-lines"></i>
+                    <span>Timeline Editor</span>
+                </button>
+            </nav>
+
+            <!-- Tab Content -->
+            <div class="tab-content">
+                <!-- Conversation Workflow Tab -->
+                <div class="tab-pane active" id="conversation-workflow">
+                    <div class="tab-header">
+                        <h2>Conversation Workflow</h2>
+                        <p>Create and generate multi-speaker conversations</p>
+                    </div>
+
+                    <section class="workflow-section project-save-load-section project-session-inline">
+                        <div class="section-header">
+                            <h3><i class="fas fa-save"></i> Project Save / Load</h3>
+                        </div>
+                        <div class="section-content">
+                            <div class="settings-grid">
+                                <div class="form-group">
+                                    <label for="project-save-name">Save Filename:</label>
+                                    <input type="text" id="project-save-name" placeholder="project_name.json">
+                                </div>
+                                <div class="form-group">
+                                    <label for="saved-projects-select">Saved Projects:</label>
+                                    <select id="saved-projects-select">
+                                        <option value="">Select a saved project...</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button class="btn btn-secondary" id="new-project-btn">
+                                    <i class="fas fa-file-circle-plus"></i> Start New Project
+                                </button>
+                                <button class="btn btn-secondary" id="save-project-btn">
+                                    <i class="fas fa-save"></i> Save Current Project
+                                </button>
+                                <button class="btn btn-secondary" id="refresh-projects-btn">
+                                    <i class="fas fa-rotate"></i> Refresh List
+                                </button>
+                                <button class="btn btn-primary" id="load-project-btn">
+                                    <i class="fas fa-folder-open"></i> Load Selected Project
+                                </button>
+                                <button class="btn btn-secondary" id="delete-project-btn">
+                                    <i class="fas fa-trash"></i> Delete Selected
+                                </button>
+                            </div>
+                            <div class="help-text" id="project-save-status">
+                                Save your script, current settings, generated versions, and selections so you can restore the session later.
+                            </div>
+                        </div>
+                    </section>
+
+                    <div class="workflow-container">
+                        <div class="workflow-section">
+                            <div class="section-header">
+                                <h3><i class="fas fa-microphone-lines"></i> Available Voices</h3>
+                                <div class="section-actions">
+                                    <span class="voice-count-badge" id="available-voices-count">0 voices</span>
+                                    <button class="btn btn-secondary btn-small" id="refresh-voices-btn">
+                                        <i class="fas fa-rotate"></i> Refresh Voices
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="section-content">
+                                <div class="help-text">
+                                    Use these names at the start of each script line, for example <code>Asmongold: Hello there</code>.
+                                </div>
+                                <div class="help-text">
+                                    Voices are not bundled with the app for release. Add your own local speaker WAV files to <code>shared/audio/speakers</code> or prepare them in the <strong>Speaker Prep</strong> tab.
+                                </div>
+                                <div class="speaker-items" id="available-voices-list">
+                                    <div class="empty-state">
+                                        <i class="fas fa-microphone-slash"></i>
+                                        <p>No voices loaded yet.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Script Input Section -->
+                        <div class="workflow-section">
+                            <div class="section-header">
+                                <h3><i class="fas fa-file-alt"></i> Conversation Script</h3>
+                            </div>
+                            <div class="section-content">
+                                <div class="form-group">
+                                    <label for="conversation-title">Conversation Title (optional):</label>
+                                    <input type="text" id="conversation-title" placeholder="Enter conversation title">
+                                </div>
+                                <div class="form-group">
+                                    <label for="conversation-script">Script:</label>
+                                    <textarea id="conversation-script" rows="10" placeholder="Enter conversation script in format:
+speaker_name: Dialogue text here
+another_speaker: Response here
+..."></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="conversation-script-pack-file">Load script pack:</label>
+                                    <input
+                                        type="file"
+                                        id="conversation-script-pack-file"
+                                        accept=".md,.markdown,.txt"
+                                    >
+                                    <div class="help-text" id="conversation-script-pack-status">
+                                        Pick a markdown script pack from the repo to load its title, pasteable script, and timing/emotion plan into the page.
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="auto-detect-emotion">
+                                        <input type="checkbox" id="auto-detect-emotion" checked> Auto-detect emotions from text
+                                    </label>
+                                    <div class="help-text">Automatically detect emotions for each line using AI. You can manually override emotions after parsing.</div>
+                                </div>
+                                <div class="form-actions">
+                                    <button class="btn btn-secondary" id="parse-script-btn">
+                                        <i class="fas fa-check"></i> Parse Script
+                                    </button>
+                                    <button class="btn btn-secondary" id="clear-script-btn">
+                                        <i class="fas fa-times"></i> Clear
+                                    </button>
+                                </div>
+                                <div class="script-preview" id="script-preview" style="display: none;">
+                                    <h4>Script Preview</h4>
+                                    <div class="preview-content" id="preview-content"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Generation Settings Section -->
+                        <div class="workflow-section">
+                            <div class="section-header">
+                                <h3><i class="fas fa-cog"></i> Generation Settings</h3>
+                            </div>
+                            <div class="section-content">
+                                <div class="settings-grid">
+                                    <div class="form-group">
+                                        <label for="generation-preset">Quality Preset:</label>
+                                        <select id="generation-preset">
+                                            <option value="balanced">Balanced</option>
+                                            <option value="clone_fidelity">Clone Fidelity</option>
+                                            <option value="expressive">Expressive</option>
+                                        </select>
+                                        <div class="help-text" id="generation-preset-help">
+                                            Balanced keeps the upstream defaults. Clone Fidelity slows things down a bit for steadier, less robotic voice matching.
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="versions-per-line">Versions per Line:</label>
+                                        <input type="number" id="versions-per-line" min="1" max="5" value="3">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="similarity-threshold">Similarity Threshold:</label>
+                                        <input type="range" id="similarity-threshold" min="0" max="1" step="0.05" value="0.60">
+                                        <span class="range-value">0.60</span>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="auto-regen-attempts">Auto-regen Attempts:</label>
+                                        <input type="number" id="auto-regen-attempts" min="0" max="5" value="1">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="seed-strategy">Seed Strategy:</label>
+                                        <select id="seed-strategy">
+                                            <option value="fully_random">Fully Random (Unique Seed per Segment)</option>
+                                            <option value="random_base_sequential">Random Base + Per-Line Sequential Offset</option>
+                                            <option value="fixed_base_sequential">Fixed Base + Per-Line Sequential Offset</option>
+                                            <option value="fixed_base_reused_list">Fixed Base + Reused Sequential List</option>
+                                            <option value="random_base_reused_list">Random Base + Reused Random List</option>
+                                        </select>
+                                        <div class="help-text" id="seed-strategy-help">
+                                            Every generated version gets a fresh unique seed. Highest variation, lowest reproducibility.
+                                        </div>
+                                    </div>
+                                    <div class="form-group" id="fixed-base-seed-group" style="display: none;">
+                                        <label for="fixed-base-seed">Fixed Base Seed:</label>
+                                        <input type="number" id="fixed-base-seed" min="0" max="4294967295" value="1234">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="workflow-section">
+                            <div class="section-header">
+                                <h3><i class="fas fa-person-running"></i> Pacing Controls</h3>
+                            </div>
+                            <div class="section-content">
+                                <div class="pacing-preset-bar">
+                                    <div class="form-group">
+                                        <label for="dialogue-pacing-preset">Dialogue Pace Preset:</label>
+                                        <select id="dialogue-pacing-preset">
+                                            <option value="natural" selected>Natural</option>
+                                            <option value="calm">Calm</option>
+                                            <option value="argument">Argument</option>
+                                            <option value="panic">Panic</option>
+                                        </select>
+                                        <div class="help-text" id="dialogue-pacing-preset-help">
+                                            Balanced scene rhythm with neutral speaker delivery. Best everyday starting point before fine-tuning any individual speaker.
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="settings-grid">
+                                    <div class="form-group">
+                                        <label for="scene-pacing-profile">Scene Pace:</label>
+                                        <select id="scene-pacing-profile">
+                                            <option value="relaxed">Relaxed</option>
+                                            <option value="balanced" selected>Balanced</option>
+                                            <option value="snappy">Snappy</option>
+                                            <option value="tense">Tense</option>
+                                        </select>
+                                        <div class="help-text" id="scene-pacing-help">
+                                            A natural middle ground. Good default for most conversations.
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="scene-gap-ms">Base Gap Between Lines:</label>
+                                        <input type="range" id="scene-gap-ms" min="0" max="1200" step="5" value="140">
+                                        <strong id="scene-gap-ms-value">140 ms</strong>
+                                    </div>
+                                </div>
+                                <div class="form-group pacing-checkbox-group">
+                                    <label for="respect-punctuation-pauses">
+                                        <input type="checkbox" id="respect-punctuation-pauses" checked> Respect punctuation pauses
+                                    </label>
+                                    <div class="help-text">
+                                        Adds extra breathing room after <code>.</code>, <code>?</code>, <code>!</code>, and <code>...</code> when building the full conversation mix.
+                                    </div>
+                                </div>
+                                <div class="speaker-pacing-panel">
+                                    <div class="speaker-pacing-header">
+                                        <h4>Per-Speaker Delivery</h4>
+                                        <p>Use subtle rate shaping when a voice feels unnaturally rushed or too sleepy. This keeps the same take, then gently nudges the pace after generation.</p>
+                                    </div>
+                                    <div class="speaker-pacing-list" id="speaker-pacing-list">
+                                        <div class="empty-state compact-empty-state">
+                                            <i class="fas fa-user-clock"></i>
+                                            <p>Parse a script first to set speaker pacing.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Emotion Weight and Sampling Controls -->
+                        <div class="workflow-section">
+                            <div class="section-header">
+                                <h3><i class="fas fa-sliders-h"></i> Generation Controls</h3>
+                            </div>
+                            <div class="section-content">
+                                <div class="form-group">
+                                    <label for="emotion-weight">Emotion Weight:</label>
+                                    <input type="range" id="emotion-weight" min="0" max="2" step="0.1" value="1.0">
+                                    <span class="range-value">1.0</span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="use-random-sampling">
+                                        <input type="checkbox" id="use-random-sampling"> Use Random Sampling
+                                    </label>
+                                </div>
+                                
+                                <div class="help-text">
+                                    <i class="fas fa-info-circle"></i>
+                                    Emotions are controlled per-line using the timeline below. Click on any line in the timeline to adjust its emotion.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Advanced Settings Section -->
+                        <div class="workflow-section collapsible">
+                            <div class="section-header" id="advanced-settings-toggle">
+                                <h3><i class="fas fa-sliders-h"></i> Advanced Settings</h3>
+                                <i class="fas fa-chevron-down toggle-icon"></i>
+                            </div>
+                            <div class="section-content collapsible-content" style="display: none;">
+                                <div class="settings-grid">
+                                    <div class="form-group">
+                                        <label for="max-text-tokens">Max Text Tokens per Segment:</label>
+                                        <input type="number" id="max-text-tokens" min="1" max="500" value="120">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="do-sample">
+                                            <input type="checkbox" id="do-sample" checked> Do Sample
+                                        </label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="top-p">Top P:</label>
+                                        <input type="range" id="top-p" min="0" max="1" step="0.05" value="0.8">
+                                        <span class="range-value">0.8</span>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="top-k">Top K:</label>
+                                        <input type="number" id="top-k" min="0" value="30">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="temperature">Temperature:</label>
+                                        <input type="range" id="temperature" min="0.1" max="2" step="0.1" value="0.8">
+                                        <span class="range-value">0.8</span>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="length-penalty">Length Penalty:</label>
+                                        <input type="range" id="length-penalty" min="-5" max="5" step="0.5" value="0.0">
+                                        <span class="range-value">0.0</span>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="num-beams">Number of Beams:</label>
+                                        <input type="number" id="num-beams" min="1" max="10" value="3">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="repetition-penalty">Repetition Penalty:</label>
+                                        <input type="range" id="repetition-penalty" min="1" max="50" step="1" value="10">
+                                        <span class="range-value">10</span>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="max-mel-tokens">Max Mel Tokens:</label>
+                                        <input type="number" id="max-mel-tokens" min="100" max="5000" value="1500">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Generate Button -->
+                        <div class="workflow-actions">
+                            <button class="btn btn-primary btn-large" id="generate-conversation-btn">
+                                <i class="fas fa-play"></i> Generate Conversation
+                            </button>
+                        </div>
+
+                        <!-- Generation Progress -->
+                        <div class="generation-progress" id="generation-progress" style="display: none;">
+                            <div class="progress-header">
+                                <h4>Generating Conversation...</h4>
+                                <button class="btn btn-secondary btn-small" id="stop-generation-btn">
+                                    <i class="fas fa-stop"></i> Stop
+                                </button>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill"></div>
+                            </div>
+                            <div class="progress-details">
+                                <div class="progress-text">Initializing...</div>
+                                <div class="progress-percent">0%</div>
+                            </div>
+                            <div class="progress-logs" id="generation-logs">
+                                <!-- Generation logs will appear here -->
+                            </div>
+                        </div>
+
+                        <!-- Generation Result -->
+                        <div class="generation-result" id="generation-result" style="display: none;">
+                            <div class="result-header">
+                                <h4>Generation Complete!</h4>
+                                <button class="btn btn-primary" id="view-results-btn">
+                                    <i class="fas fa-arrow-right"></i> View Results
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Speaker Prep Tab -->
+                <div class="tab-pane" id="speaker-prep">
+                    <div class="tab-header">
+                        <h2>Speaker Prep</h2>
+                        <p>Upload source clips, diagnose them quickly, and prepare cleaner speaker prompts.</p>
+                    </div>
+
+                    <div class="workflow-container">
+                        <div class="workflow-section">
+                            <div class="section-header">
+                                <h3><i class="fas fa-upload"></i> Source Clip Intake</h3>
+                            </div>
+                            <div class="section-content">
+                                <div class="settings-grid">
+                                    <div class="form-group">
+                                        <label for="speaker-prep-upload-file">Audio File:</label>
+                                        <input type="file" id="speaker-prep-upload-file" accept=".wav,.mp3,.flac,.m4a,.ogg,audio/*">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="speaker-prep-upload-name">Optional Save Name:</label>
+                                        <input type="text" id="speaker-prep-upload-name" placeholder="trump_clean_take">
+                                    </div>
+                                </div>
+                                <div class="form-actions">
+                                    <button class="btn btn-primary" id="speaker-prep-upload-btn">
+                                        <i class="fas fa-upload"></i> Upload Source Clip
+                                    </button>
+                                    <button class="btn btn-secondary" id="speaker-prep-refresh-btn">
+                                        <i class="fas fa-rotate"></i> Refresh Clips
+                                    </button>
+                                </div>
+                                <div class="help-text" id="speaker-prep-status">
+                                    Start with a clean speaking sample. Short, dry, single-speaker clips usually clone best.
+                                </div>
+                                <div class="help-text">
+                                    Source clips are for your local workflow only. They are ignored by the repo so you can prepare voices without bundling private audio into a release.
+                                </div>
+                                <div class="speaker-prep-best-practices">
+                                    <span><strong>Best source:</strong> 8 to 20 seconds</span>
+                                    <span>one clear speaker</span>
+                                    <span>light room tone</span>
+                                    <span>natural punctuation and pacing</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="workflow-section">
+                            <div class="section-header">
+                                <h3><i class="fas fa-wave-square"></i> Source Clips</h3>
+                                <div class="section-actions">
+                                    <span class="voice-count-badge" id="speaker-prep-count">0 clips</span>
+                                </div>
+                            </div>
+                            <div class="section-content">
+                                <div class="speaker-items" id="speaker-prep-source-list">
+                                    <div class="empty-state">
+                                        <i class="fas fa-file-audio"></i>
+                                        <p>No source clips yet.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="workflow-section">
+                            <div class="section-header">
+                                <h3><i class="fas fa-stethoscope"></i> Clip Diagnostics</h3>
+                            </div>
+                            <div class="section-content">
+                                <div class="speaker-prep-selected" id="speaker-prep-selected-info">
+                                    Select a source clip to view cloning readiness, silence, loudness, and cleanup suggestions.
+                                </div>
+                                <div class="form-actions">
+                                    <button class="btn btn-secondary" id="speaker-prep-diagnose-btn">
+                                        <i class="fas fa-magnifying-glass-chart"></i> Run Diagnostics
+                                    </button>
+                                    <button class="btn btn-secondary" id="speaker-prep-play-source-btn">
+                                        <i class="fas fa-play"></i> Play Source Clip
+                                    </button>
+                                    <button class="btn btn-secondary" id="speaker-prep-delete-source-btn">
+                                        <i class="fas fa-trash"></i> Delete Source Clip
+                                    </button>
+                                </div>
+                                <div class="speaker-prep-diagnostics-empty" id="speaker-prep-diagnostics-empty">
+                                    No diagnostics yet.
+                                </div>
+                                <div class="speaker-prep-diagnostics" id="speaker-prep-diagnostics" style="display: none;">
+                                    <div class="speaker-prep-score-row">
+                                        <div class="speaker-prep-score-badge" id="speaker-prep-score-badge">Ready</div>
+                                        <div class="speaker-prep-score-copy" id="speaker-prep-score-copy"></div>
+                                    </div>
+                                    <div class="speaker-prep-recipe-summary" id="speaker-prep-recipe-summary"></div>
+                                    <div class="form-actions speaker-prep-quick-actions">
+                                        <button class="btn btn-secondary btn-small" id="speaker-prep-apply-recommended-btn">
+                                            <i class="fas fa-wand-magic-sparkles"></i> Apply Recommended Prep
+                                        </button>
+                                        <button class="btn btn-secondary btn-small" id="speaker-prep-apply-trim-btn">
+                                            <i class="fas fa-scissors"></i> Use Suggested Trim
+                                        </button>
+                                        <button class="btn btn-secondary btn-small" id="speaker-prep-reset-prep-btn">
+                                            <i class="fas fa-rotate-left"></i> Reset Prep Controls
+                                        </button>
+                                    </div>
+                                    <div class="speaker-prep-metrics-grid" id="speaker-prep-metrics-grid"></div>
+                                    <div class="speaker-prep-recommendations">
+                                        <h4>Recommendations</h4>
+                                        <ul id="speaker-prep-recommendations-list"></ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="workflow-section">
+                            <div class="section-header">
+                                <h3><i class="fas fa-sliders"></i> Prepare Clip</h3>
+                            </div>
+                            <div class="section-content">
+                                <div class="settings-grid">
+                                    <div class="form-group">
+                                        <label for="speaker-prep-start-time">Trim Start (seconds):</label>
+                                        <input type="number" id="speaker-prep-start-time" min="0" step="0.1" value="0">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="speaker-prep-end-time">Trim End (seconds, optional):</label>
+                                        <input type="number" id="speaker-prep-end-time" min="0" step="0.1" placeholder="Leave blank for full clip">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="speaker-prep-output-name">Output Name:</label>
+                                        <input type="text" id="speaker-prep-output-name" placeholder="trump_ready">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="speaker-prep-target-category">Save Prepared Clip To:</label>
+                                        <select id="speaker-prep-target-category">
+                                            <option value="speakers">Speakers</option>
+                                            <option value="source_clips">Source Clips</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="settings-grid speaker-prep-options-grid">
+                                    <label class="speaker-prep-toggle">
+                                        <input type="checkbox" id="speaker-prep-convert-mono" checked>
+                                        <span>Convert to mono</span>
+                                    </label>
+                                    <label class="speaker-prep-toggle">
+                                        <input type="checkbox" id="speaker-prep-normalize" checked>
+                                        <span>Normalize loudness</span>
+                                    </label>
+                                    <label class="speaker-prep-toggle">
+                                        <input type="checkbox" id="speaker-prep-noise-reduction">
+                                        <span>Noise cleanup</span>
+                                    </label>
+                                    <label class="speaker-prep-toggle">
+                                        <input type="checkbox" id="speaker-prep-vocal-separation">
+                                        <span>Vocal isolation</span>
+                                    </label>
+                                </div>
+
+                                <div class="settings-grid">
+                                    <div class="form-group">
+                                        <label for="speaker-prep-target-peak">Target Peak:</label>
+                                        <input type="range" id="speaker-prep-target-peak" min="-6" max="0" step="0.5" value="-1">
+                                        <span class="range-value" id="speaker-prep-target-peak-value">-1.0 dBFS</span>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="speaker-prep-noise-strength">Noise Reduction Strength:</label>
+                                        <input type="range" id="speaker-prep-noise-strength" min="0" max="1" step="0.05" value="0.35">
+                                        <span class="range-value" id="speaker-prep-noise-strength-value">0.35</span>
+                                    </div>
+                                </div>
+                                <div class="help-text speaker-prep-processing-help">
+                                    Mono and normalization are the safest defaults. Only turn on noise cleanup or vocal isolation when the source clip actually needs rescue, because aggressive cleanup can make cloning less natural.
+                                </div>
+
+                                <div class="form-actions">
+                                    <button class="btn btn-primary" id="speaker-prep-process-btn">
+                                        <i class="fas fa-wand-magic-sparkles"></i> Prepare Selected Clip
+                                    </button>
+                                    <button class="btn btn-secondary" id="speaker-prep-create-speaker-btn">
+                                        <i class="fas fa-microphone-lines"></i> Prepare And Create Speaker
+                                    </button>
+                                </div>
+                                <div class="speaker-prep-result" id="speaker-prep-result">
+                                    No prep run yet.
+                                </div>
+                                <div class="form-actions speaker-prep-result-actions" id="speaker-prep-result-actions" style="display: none;">
+                                    <button class="btn btn-secondary" id="speaker-prep-play-output-btn">
+                                        <i class="fas fa-play"></i> Play Prepared Output
+                                    </button>
+                                    <button class="btn btn-secondary" id="speaker-prep-load-output-btn">
+                                        <i class="fas fa-repeat"></i> Load Output As Active Source
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timeline Editor Tab -->
+                <div class="tab-pane" id="timeline-editor">
+                    <div class="tab-header">
+                        <h2>Timeline Editor</h2>
+                        <p>Build a scene from scratch or import one from results, then arrange, generate, and export it.</p>
+                    </div>
+
+                    <div class="workflow-container timeline-workbench">
+                        <div class="workflow-section">
+                            <div class="section-header">
+                                <h3><i class="fas fa-folder-tree"></i> Start A Timeline</h3>
+                            </div>
+                            <div class="section-content">
+                                <div class="settings-grid">
+                                    <div class="form-group">
+                                        <label for="timeline-project-name">New Timeline Name:</label>
+                                        <input type="text" id="timeline-project-name" placeholder="flower-argument-scene">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="timeline-project-select">Saved Timelines:</label>
+                                        <select id="timeline-project-select">
+                                            <option value="">Select a timeline project...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-actions">
+                                    <button class="btn btn-primary" id="timeline-create-blank-btn">
+                                        <i class="fas fa-file-circle-plus"></i> Create Blank Timeline
+                                    </button>
+                                    <button class="btn btn-secondary" id="timeline-import-conversation-btn">
+                                        <i class="fas fa-diagram-project"></i> Import Selected Conversation
+                                    </button>
+                                    <button class="btn btn-secondary" id="timeline-refresh-projects-btn">
+                                        <i class="fas fa-rotate"></i> Refresh Timelines
+                                    </button>
+                                    <button class="btn btn-secondary" id="timeline-load-project-btn">
+                                        <i class="fas fa-folder-open"></i> Load Selected Timeline
+                                    </button>
+                                    <button class="btn btn-secondary" id="timeline-delete-project-btn">
+                                        <i class="fas fa-trash"></i> Delete Selected
+                                    </button>
+                                </div>
+                                <div class="help-text" id="timeline-project-status">
+                                    Start with a blank timeline if you want to build the whole scene here. Importing a conversation is optional. Same-track overlap is blocked on purpose; use multiple tracks for interruptions.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="workflow-section">
+                            <div class="section-header">
+                                <h3><i class="fas fa-pen-ruler"></i> Standalone Scene Builder</h3>
+                                <div class="section-actions">
+                                    <span class="voice-count-badge" id="timeline-project-summary">No timeline loaded</span>
+                                </div>
+                            </div>
+                            <div class="section-content">
+                                <div class="help-text">
+                                    Build directly in the timeline: add speaker tracks first, then write segments right here. Importing from conversation results is only a shortcut.
+                                </div>
+                                <div class="timeline-builder-grid">
+                                    <div class="timeline-builder-card">
+                                        <div class="timeline-builder-step">1. Add Speaker Track</div>
+                                        <p class="timeline-builder-copy">Create a lane for each speaker you want in the scene. You can add multiple tracks for the same voice if you want interruptions or alternate takes.</p>
+                                        <div class="settings-grid">
+                                            <div class="form-group">
+                                                <label for="timeline-track-name">Track Name:</label>
+                                                <input type="text" id="timeline-track-name" placeholder="Trump Lead">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="timeline-track-speaker">Track Speaker:</label>
+                                                <select id="timeline-track-speaker">
+                                                    <option value="">Select a speaker...</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-actions">
+                                            <button class="btn btn-secondary" id="timeline-add-track-btn">
+                                                <i class="fas fa-plus"></i> Add Track
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="timeline-builder-card timeline-builder-card-wide">
+                                        <div class="timeline-builder-step">2. Write Segment</div>
+                                        <p class="timeline-builder-copy">Pick a track, enter the spoken line, then place it at the end of that track automatically or set the timing manually.</p>
+                                        <div class="form-group">
+                                            <label for="timeline-inline-segment-text">Segment Text:</label>
+                                            <textarea id="timeline-inline-segment-text" rows="4" placeholder="Enter the line you want this speaker to say..."></textarea>
+                                        </div>
+                                        <div class="timeline-builder-segment-grid">
+                                            <div class="form-group">
+                                                <label for="timeline-inline-segment-track">Track:</label>
+                                                <select id="timeline-inline-segment-track">
+                                                    <option value="">Select track...</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="timeline-inline-segment-emotion">Emotion:</label>
+                                                <select id="timeline-inline-segment-emotion">
+                                                    <option value="neutral">Neutral</option>
+                                                    <option value="happy">Happy</option>
+                                                    <option value="sad">Sad</option>
+                                                    <option value="angry">Angry</option>
+                                                    <option value="excited">Excited</option>
+                                                    <option value="calm">Calm</option>
+                                                    <option value="whisper">Whisper</option>
+                                                    <option value="shout">Shout</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="timeline-inline-segment-start-time">Start Time (s):</label>
+                                                <input type="number" id="timeline-inline-segment-start-time" min="0" step="0.1" value="0">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="timeline-inline-segment-duration">Visual Duration (s):</label>
+                                                <input type="number" id="timeline-inline-segment-duration" min="0.1" step="0.1" value="2.0">
+                                            </div>
+                                        </div>
+                                        <label class="timeline-export-checkbox timeline-inline-checkbox" for="timeline-inline-segment-autoplace">
+                                            <input type="checkbox" id="timeline-inline-segment-autoplace" checked>
+                                            <span>Place the new segment at the end of the chosen track automatically</span>
+                                        </label>
+                                        <div class="form-actions">
+                                            <button class="btn btn-primary" id="timeline-inline-add-segment-btn">
+                                                <i class="fas fa-wave-square"></i> Add Segment To Track
+                                            </button>
+                                            <button class="btn btn-secondary" id="timeline-inline-add-track-segment-btn">
+                                                <i class="fas fa-layer-group"></i> Add Track + Segment
+                                            </button>
+                                            <button class="btn btn-secondary" id="timeline-add-segment-btn">
+                                                <i class="fas fa-sliders"></i> Open Advanced Segment Modal
+                                            </button>
+                                        </div>
+                                        <div class="help-text timeline-builder-status" id="timeline-builder-status">
+                                            Create a blank timeline first, then add a speaker track and your first segment here.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="workflow-section">
+                            <div class="section-header">
+                                <h3><i class="fas fa-layer-group"></i> Render & Export</h3>
+                            </div>
+                            <div class="section-content">
+                                <div class="timeline-export-settings">
+                                    <label class="timeline-export-control" for="timeline-output-format">
+                                        <span>Output format</span>
+                                        <select id="timeline-output-format">
+                                            <option value="wav" selected>WAV</option>
+                                            <option value="mp3">MP3</option>
+                                            <option value="ogg">OGG</option>
+                                        </select>
+                                    </label>
+                                    <label class="timeline-export-control" for="timeline-output-bitrate">
+                                        <span>MP3 bitrate</span>
+                                        <select id="timeline-output-bitrate">
+                                            <option value="128">128 kbps</option>
+                                            <option value="192" selected>192 kbps</option>
+                                            <option value="256">256 kbps</option>
+                                            <option value="320">320 kbps</option>
+                                        </select>
+                                    </label>
+                                    <label class="timeline-export-checkbox" for="timeline-duck-overlaps">
+                                        <input type="checkbox" id="timeline-duck-overlaps" checked>
+                                        <span>Duck interrupting overlaps on export</span>
+                                    </label>
+                                    <label class="timeline-export-checkbox" for="timeline-normalize-segments">
+                                        <input type="checkbox" id="timeline-normalize-segments" checked>
+                                        <span>Match segment volumes before mixing</span>
+                                    </label>
+                                    <label class="timeline-export-control" for="timeline-duck-amount">
+                                        <span>Overlap ducking</span>
+                                        <input type="range" id="timeline-duck-amount" min="0" max="18" step="0.5" value="6">
+                                        <strong id="timeline-duck-amount-value">6.0 dB</strong>
+                                    </label>
+                                    <label class="timeline-export-control" for="timeline-duck-fade-ms">
+                                        <span>Ducking fade</span>
+                                        <input type="range" id="timeline-duck-fade-ms" min="0" max="600" step="20" value="120">
+                                        <strong id="timeline-duck-fade-value">120 ms</strong>
+                                    </label>
+                                    <label class="timeline-export-control" for="timeline-target-level-dbfs">
+                                        <span>Target loudness</span>
+                                        <input type="range" id="timeline-target-level-dbfs" min="-30" max="-12" step="0.5" value="-19">
+                                        <strong id="timeline-target-level-dbfs-value">-19.0 dBFS</strong>
+                                    </label>
+                                    <label class="timeline-export-control" for="timeline-peak-limit-dbfs">
+                                        <span>Peak safety limit</span>
+                                        <input type="range" id="timeline-peak-limit-dbfs" min="-6" max="0" step="0.5" value="-1">
+                                        <strong id="timeline-peak-limit-dbfs-value">-1.0 dBFS</strong>
+                                    </label>
+                                    <label class="timeline-export-checkbox" for="timeline-normalize-final-mix">
+                                        <input type="checkbox" id="timeline-normalize-final-mix" checked>
+                                        <span>Trim the final mix if overlaps push it too loud</span>
+                                    </label>
+                                    <label class="timeline-export-checkbox" for="timeline-trim-leading-silence">
+                                        <input type="checkbox" id="timeline-trim-leading-silence" checked>
+                                        <span>Trim leading silence from the finished export</span>
+                                    </label>
+                                    <label class="timeline-export-checkbox" for="timeline-trim-trailing-silence">
+                                        <input type="checkbox" id="timeline-trim-trailing-silence" checked>
+                                        <span>Trim trailing silence from the finished export</span>
+                                    </label>
+                                    <label class="timeline-export-control" for="timeline-fade-in-ms">
+                                        <span>Fade in</span>
+                                        <input type="range" id="timeline-fade-in-ms" min="0" max="500" step="10" value="0">
+                                        <strong id="timeline-fade-in-value">0 ms</strong>
+                                    </label>
+                                    <label class="timeline-export-control" for="timeline-fade-out-ms">
+                                        <span>Fade out</span>
+                                        <input type="range" id="timeline-fade-out-ms" min="0" max="500" step="10" value="60">
+                                        <strong id="timeline-fade-out-value">60 ms</strong>
+                                    </label>
+                                </div>
+                                <div class="form-actions">
+                                    <button class="btn btn-secondary" id="timeline-generate-selected-btn">
+                                        <i class="fas fa-microphone-lines"></i> Generate Selected Audio
+                                    </button>
+                                    <button class="btn btn-secondary" id="timeline-generate-missing-btn">
+                                        <i class="fas fa-bolt"></i> Generate Missing Audio
+                                    </button>
+                                    <button class="btn btn-primary" id="timeline-export-btn">
+                                        <i class="fas fa-file-export"></i> Export Timeline
+                                    </button>
+                                    <button class="btn btn-secondary" id="timeline-play-export-btn">
+                                        <i class="fas fa-play"></i> Preview Timeline
+                                    </button>
+                                    <button class="btn btn-secondary" id="timeline-download-export-btn">
+                                        <i class="fas fa-download"></i> Download Mix
+                                    </button>
+                                    <button class="btn btn-secondary" id="timeline-popout-btn">
+                                        <i class="fas fa-up-right-from-square"></i> Pop Out Editor
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="workflow-section">
+                            <div class="section-header">
+                                <h3><i class="fas fa-ruler-horizontal"></i> Timeline Canvas</h3>
+                            </div>
+                            <div class="section-content">
+                                <div class="help-text">
+                                    Drag segments horizontally to change timing. Double-click a segment to edit it, or select it below and use the action buttons.
+                                </div>
+                                <div class="timeline-editor-shell" id="timeline-editor-shell">
+                                    <div class="empty-state">
+                                        <i class="fas fa-grip-lines"></i>
+                                        <p>No timeline loaded yet.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="workflow-section">
+                            <div class="section-header">
+                                <h3><i class="fas fa-pen-to-square"></i> Selected Segment</h3>
+                            </div>
+                            <div class="section-content" id="timeline-selected-panel">
+                                <div class="empty-state">
+                                    <i class="fas fa-arrow-pointer"></i>
+                                    <p>Select a segment to edit, play, generate audio, or delete it.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Conversation Results Tab -->
+                <div class="tab-pane" id="conversation-results">
+                    <div class="tab-header">
+                        <h2>Conversation Results</h2>
+                        <p>Review, select, and export generated conversation versions</p>
+                    </div>
+
+                    <div class="results-container">
+                        <!-- Conversation Selection -->
+                        <div class="results-section">
+                            <div class="section-header">
+                                <h3><i class="fas fa-list"></i> Select Conversation</h3>
+                                <div class="section-actions">
+                                    <button class="btn btn-secondary" id="open-selected-in-timeline-btn">
+                                        <i class="fas fa-grip-lines"></i> Open In Timeline
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="section-content">
+                                <div class="conversations-list" id="conversations-list">
+                                    <div class="empty-state">
+                                        <i class="fas fa-comments"></i>
+                                        <p>No conversations found. Generate a conversation first.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Line Versions Selection -->
+                        <div class="results-section" id="line-versions-section" style="display: none;">
+                            <div class="section-header">
+                                <h3><i class="fas fa-layer-group"></i> Line Versions</h3>
+                                <div class="section-actions">
+                                    <button class="btn btn-secondary" id="auto-select-best-btn">
+                                        <i class="fas fa-magic"></i> Auto-Select Best
+                                    </button>
+                                    <button class="btn btn-secondary" id="clear-selections-btn">
+                                        <i class="fas fa-times"></i> Clear Selections
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="section-content">
+                                <div class="lines-container" id="lines-container">
+                                    <!-- Line versions will be populated here -->
+                                    <template id="line-template">
+                                        <div class="line-item" data-line-index="">
+                                            <div class="line-header">
+                                                <h4 class="line-title">Line <span class="line-number"></span></h4>
+                                                <div class="line-info">
+                                                    <span class="line-speaker"></span>
+                                                    <span class="line-text"></span>
+                                                </div>
+                                            </div>
+                                            <div class="line-versions">
+                                                <div class="versions-grid">
+                                                    <!-- Version items will be populated here -->
+                                                </div>
+                                            </div>
+                                            <div class="line-regeneration">
+                                                <div class="regeneration-controls">
+                                                    <div class="form-group">
+                                                        <label for="regen-count-<line-index>">New versions to generate:</label>
+                                                        <input type="number" class="regen-count-input" min="1" max="5" value="1" id="regen-count-<line-index>">
+                                                    </div>
+                                                    <button class="btn btn-secondary regen-btn" data-line-index="">
+                                                        <i class="fas fa-redo"></i> Regenerate Line
+                                                    </button>
+                                                </div>
+                                                <div class="regeneration-progress" style="display: none;">
+                                                    <div class="progress-bar">
+                                                        <div class="progress-fill"></div>
+                                                    </div>
+                                                    <div class="progress-text">Regenerating...</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="results-section" id="listening-feedback-section" style="display: none;">
+                            <div class="section-header">
+                                <h3><i class="fas fa-headphones"></i> Listening Review Export</h3>
+                                <div class="section-actions">
+                                    <button class="btn btn-secondary" id="copy-listening-feedback-btn">
+                                        <i class="fas fa-copy"></i> Copy Reviews
+                                    </button>
+                                    <button class="btn btn-secondary" id="download-listening-feedback-btn">
+                                        <i class="fas fa-download"></i> Download Reviews
+                                    </button>
+                                    <button class="btn btn-secondary" id="clear-listening-feedback-btn">
+                                        <i class="fas fa-trash"></i> Clear Reviews
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="section-content">
+                                <div class="help-text">
+                                    Rate the versions you listen to, then copy the export block and paste it back into chat. Reviews are stored locally in this browser.
+                                </div>
+                                <div class="listening-feedback-meta" id="listening-feedback-meta">
+                                    No listening reviews saved for this conversation yet.
+                                </div>
+                                <textarea
+                                    id="listening-feedback-export"
+                                    class="listening-feedback-export"
+                                    rows="10"
+                                    readonly
+                                    placeholder="Saved listening reviews will appear here."
+                                ></textarea>
+                            </div>
+                        </div>
+
+                        <div class="results-section" id="seed-report-section" style="display: none;">
+                            <div class="section-header">
+                                <h3><i class="fas fa-dice"></i> Seed Reproducibility Export</h3>
+                                <div class="section-actions">
+                                    <button class="btn btn-secondary" id="copy-seed-report-btn">
+                                        <i class="fas fa-copy"></i> Copy Seed Report
+                                    </button>
+                                    <button class="btn btn-secondary" id="download-seed-report-btn">
+                                        <i class="fas fa-download"></i> Download Seed Report
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="section-content">
+                                <div class="help-text">
+                                    Save this JSON if you want to recreate the exact seed plan for a conversation later.
+                                </div>
+                                <div class="listening-feedback-meta" id="seed-report-meta">
+                                    No conversation selected.
+                                </div>
+                                <textarea
+                                    id="seed-report-export"
+                                    class="listening-feedback-export"
+                                    rows="10"
+                                    readonly
+                                    placeholder="Resolved seed strategy, base seed, and per-version seeds will appear here."
+                                ></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Concatenation and Export -->
+                        <div class="results-section" id="concatenation-section" style="display: none;">
+                            <div class="section-header">
+                                <h3><i class="fas fa-link"></i> Concatenation & Export</h3>
+                            </div>
+                            <div class="section-content">
+                                <div class="concatenation-info">
+                                    <p>Selected <span id="selected-lines-count">0</span> of <span id="total-lines-count">0</span> lines</p>
+                                </div>
+                                <div class="selection-readiness-summary is-blocked" id="selection-readiness-summary">
+                                    Pick exactly one version for every line before export.
+                                </div>
+                                <div class="overlap-plan-panel">
+                                    <div class="form-group">
+                                        <label for="overlap-plan-file">Optional overlap planning document:</label>
+                                        <input
+                                            type="file"
+                                            id="overlap-plan-file"
+                                            accept=".md,.markdown,.yaml,.yml,.json,.txt"
+                                        >
+                                        <div class="help-text">
+                                            Leave this empty for the normal straight-through export. Upload or paste a companion plan only when you want controlled interruptions or overlap.
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="overlap-plan-text">Overlap plan text:</label>
+                                        <textarea
+                                            id="overlap-plan-text"
+                                            class="overlap-plan-textarea"
+                                            rows="10"
+                                            placeholder="Example:
+scene:
+  title: Argument pass
+  overlap_policy: explicit_only
+  default_gap_ms: 120
+
+lines:
+  - id: L02
+    start_mode: overlap_previous
+    overlap_prev_ms: 180
+    allow_overlap: true
+    duck_prev_db: -4"
+                                        ></textarea>
+                                    </div>
+                                </div>
+                                <div class="timeline-export-settings">
+                                    <label class="timeline-export-control" for="concat-scene-pacing-profile">
+                                        <span>Scene pacing</span>
+                                        <select id="concat-scene-pacing-profile">
+                                            <option value="relaxed">Relaxed</option>
+                                            <option value="balanced" selected>Balanced</option>
+                                            <option value="snappy">Snappy</option>
+                                            <option value="tense">Tense</option>
+                                        </select>
+                                    </label>
+                                    <label class="timeline-export-control" for="concat-scene-gap-ms">
+                                        <span>Base gap</span>
+                                        <input type="range" id="concat-scene-gap-ms" min="0" max="1200" step="5" value="140">
+                                        <strong id="concat-scene-gap-ms-value">140 ms</strong>
+                                    </label>
+                                    <label class="timeline-export-checkbox" for="concat-respect-punctuation-pauses">
+                                        <input type="checkbox" id="concat-respect-punctuation-pauses" checked>
+                                        <span>Respect punctuation pauses in the final mix</span>
+                                    </label>
+                                    <label class="timeline-export-control" for="concat-output-format">
+                                        <span>Output format</span>
+                                        <select id="concat-output-format">
+                                            <option value="wav" selected>WAV</option>
+                                            <option value="mp3">MP3</option>
+                                            <option value="ogg">OGG</option>
+                                        </select>
+                                    </label>
+                                    <label class="timeline-export-control" for="concat-output-bitrate">
+                                        <span>MP3 bitrate</span>
+                                        <select id="concat-output-bitrate">
+                                            <option value="128">128 kbps</option>
+                                            <option value="192" selected>192 kbps</option>
+                                            <option value="256">256 kbps</option>
+                                            <option value="320">320 kbps</option>
+                                        </select>
+                                    </label>
+                                    <label class="timeline-export-checkbox" for="concat-normalize-segments">
+                                        <input type="checkbox" id="concat-normalize-segments" checked>
+                                        <span>Match line volumes on export</span>
+                                    </label>
+                                    <label class="timeline-export-control" for="concat-target-level-dbfs">
+                                        <span>Target loudness</span>
+                                        <input type="range" id="concat-target-level-dbfs" min="-30" max="-12" step="0.5" value="-19">
+                                        <strong id="concat-target-level-dbfs-value">-19.0 dBFS</strong>
+                                    </label>
+                                    <label class="timeline-export-control" for="concat-peak-limit-dbfs">
+                                        <span>Peak safety limit</span>
+                                        <input type="range" id="concat-peak-limit-dbfs" min="-6" max="0" step="0.5" value="-1">
+                                        <strong id="concat-peak-limit-dbfs-value">-1.0 dBFS</strong>
+                                    </label>
+                                    <label class="timeline-export-checkbox" for="concat-normalize-final-mix">
+                                        <input type="checkbox" id="concat-normalize-final-mix" checked>
+                                        <span>Trim the final mix if overlap peaks get too hot</span>
+                                    </label>
+                                    <label class="timeline-export-checkbox" for="concat-trim-leading-silence">
+                                        <input type="checkbox" id="concat-trim-leading-silence" checked>
+                                        <span>Trim leading silence from the finished export</span>
+                                    </label>
+                                    <label class="timeline-export-checkbox" for="concat-trim-trailing-silence">
+                                        <input type="checkbox" id="concat-trim-trailing-silence" checked>
+                                        <span>Trim trailing silence from the finished export</span>
+                                    </label>
+                                    <label class="timeline-export-control" for="concat-fade-in-ms">
+                                        <span>Fade in</span>
+                                        <input type="range" id="concat-fade-in-ms" min="0" max="500" step="10" value="0">
+                                        <strong id="concat-fade-in-value">0 ms</strong>
+                                    </label>
+                                    <label class="timeline-export-control" for="concat-fade-out-ms">
+                                        <span>Fade out</span>
+                                        <input type="range" id="concat-fade-out-ms" min="0" max="500" step="10" value="60">
+                                        <strong id="concat-fade-out-value">60 ms</strong>
+                                    </label>
+                                </div>
+                                <div class="help-text" id="concat-scene-pacing-help">
+                                    Conversation export starts from the pacing used during generation, but you can tighten or loosen the final scene flow here before exporting.
+                                </div>
+                                <div class="form-actions">
+                                    <button class="btn btn-primary" id="concatenate-btn">
+                                        <i class="fas fa-link"></i> Concatenate Audio
+                                    </button>
+                                    <button class="btn btn-secondary" id="download-selected-btn">
+                                        <i class="fas fa-download"></i> Download Selected
+                                    </button>
+                                </div>
+                                <div class="progress-container" id="concatenation-progress" style="display: none;">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill"></div>
+                                    </div>
+                                    <div class="progress-text">Concatenating...</div>
+                                </div>
+                                <div class="result-container" id="concatenation-result"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <div class="footer-content">
+                <p>&copy; 2024 IndexTTS2. Advanced Text-to-Speech Application.</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Custom Media Player Modal -->
+    <div class="modal" id="audio-player-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Audio Player</h3>
+                <button class="modal-close" id="close-audio-player">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="customMediaPlayer" class="custom-media-player">
+                    <!-- Custom media player will be initialized here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Line Editor Modal -->
+    <div class="line-editor-modal" id="line-editor-modal">
+        <div class="line-editor-modal-content">
+            <div class="line-editor-modal-header">
+                <h3><i class="fas fa-plus-circle"></i> Create Timeline Segment</h3>
+                <button class="line-editor-modal-close" id="close-line-editor">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="line-editor-modal-body">
+                <div class="line-editor-form">
+                    <div class="form-group">
+                        <label for="line-text-input">Text:</label>
+                        <textarea id="line-text-input" class="line-editor-textarea" placeholder="Enter the text for this segment..."></textarea>
+                        <div class="line-editor-help-text">Enter the text that will be spoken in this segment.</div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="line-speaker-select">Track / Speaker:</label>
+                            <select id="line-speaker-select" class="line-editor-speaker-select">
+                                <option value="">Select a track...</option>
+                            </select>
+                            <div class="line-editor-help-text">Choose which timeline track this segment belongs to.</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="line-emotion-select">Emotion:</label>
+                            <select id="line-emotion-select" class="line-editor-emotion-select">
+                                <option value="neutral">Neutral</option>
+                                <option value="happy">Happy</option>
+                                <option value="sad">Sad</option>
+                                <option value="angry">Angry</option>
+                                <option value="excited">Excited</option>
+                                <option value="calm">Calm</option>
+                                <option value="whisper">Whisper</option>
+                                <option value="shout">Shout</option>
+                            </select>
+                            <div class="line-editor-help-text">Set the emotional tone for this segment.</div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="line-start-time-input">Start Time (seconds):</label>
+                            <input type="number" id="line-start-time-input" class="line-editor-duration-input" min="0" step="0.1" value="0">
+                            <div class="line-editor-help-text">Initial position before you drag it around.</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="line-duration-input">Duration (seconds):</label>
+                            <input type="number" id="line-duration-input" class="line-editor-duration-input" min="0.1" step="0.1" value="2.0">
+                            <div class="line-editor-help-text">Used for placement and collision checks on the timeline.</div>
+                        </div>
+                    </div>
+                    
+                    
+                    <div class="line-editor-preview" id="line-editor-preview" style="display: none;">
+                        <h5>Preview</h5>
+                        <div class="line-editor-preview-content" id="line-editor-preview-content">
+                            <!-- Preview content will be generated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="line-editor-modal-footer">
+                <div class="line-editor-drag-instructions">
+                    <i class="fas fa-info-circle"></i>
+                    <span>After creating, drag the segment to place it on the timeline</span>
+                </div>
+                <div class="line-editor-modal-actions">
+                    <button class="btn btn-secondary" id="cancel-line-editor">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button class="btn btn-primary" id="create-line-segment">
+                        <i class="fas fa-plus"></i> Create Segment
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Segment Modal -->
+    <div class="modal" id="edit-segment-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Segment</h3>
+                <button class="modal-close" id="close-edit-segment-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="edit-segment-text">Text:</label>
+                    <textarea id="edit-segment-text" class="form-control" placeholder="Enter text for segment" rows="4"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit-segment-start-time">Start Time (seconds):</label>
+                        <input type="number" id="edit-segment-start-time" class="form-control" min="0" step="0.1" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-segment-duration">Duration (seconds):</label>
+                        <input type="number" id="edit-segment-duration" class="form-control" min="0.1" step="0.1" value="2.0">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-segment-track">Track:</label>
+                        <select id="edit-segment-track" class="form-control">
+                            <option value="">Select track...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="edit-segment-emotion">Emotion:</label>
+                    <select id="edit-segment-emotion" class="form-control">
+                        <option value="neutral">Neutral</option>
+                        <option value="happy">Happy</option>
+                        <option value="sad">Sad</option>
+                        <option value="angry">Angry</option>
+                        <option value="excited">Excited</option>
+                        <option value="calm">Calm</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="edit-segment-regenerate-audio">
+                        <input type="checkbox" id="edit-segment-regenerate-audio"> Regenerate audio after saving
+                    </label>
+                    <div class="help-text">Check this to regenerate the audio with the updated text and settings</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="cancel-edit-segment-btn" class="btn btn-secondary">Cancel</button>
+                <button id="save-edit-segment-btn" class="btn btn-primary">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Keyboard Shortcuts Help Modal -->
+    <div class="keyboard-shortcuts-modal" id="keyboard-shortcuts-modal">
+        <div class="keyboard-shortcuts-content">
+            <div class="keyboard-shortcuts-header">
+                <h3><i class="fas fa-keyboard"></i> Keyboard Shortcuts</h3>
+                <button class="keyboard-shortcuts-close" id="close-keyboard-shortcuts">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="keyboard-shortcuts-body">
+                <div class="keyboard-shortcuts-grid">
+                    <!-- Navigation Shortcuts -->
+                    <div class="keyboard-shortcuts-category">
+                        <h4><i class="fas fa-arrows-alt"></i> Navigation</h4>
+                        <div class="keyboard-shortcut-item">
+                            <div class="keyboard-shortcut-desc">Select previous segment</div>
+                            <div class="keyboard-shortcut-keys">
+                                <span class="keyboard-key">Ctrl</span>
+                                <span class="keyboard-key-separator">+</span>
+                                <span class="keyboard-key">←</span>
+                            </div>
+                        </div>
+                        <div class="keyboard-shortcut-item">
+                            <div class="keyboard-shortcut-desc">Select next segment</div>
+                            <div class="keyboard-shortcut-keys">
+                                <span class="keyboard-key">Ctrl</span>
+                                <span class="keyboard-key-separator">+</span>
+                                <span class="keyboard-key">→</span>
+                            </div>
+                        </div>
+                        <div class="keyboard-shortcut-item">
+                            <div class="keyboard-shortcut-desc">Select segment in previous track</div>
+                            <div class="keyboard-shortcut-keys">
+                                <span class="keyboard-key">Ctrl</span>
+                                <span class="keyboard-key-separator">+</span>
+                                <span class="keyboard-key">↑</span>
+                            </div>
+                        </div>
+                        <div class="keyboard-shortcut-item">
+                            <div class="keyboard-shortcut-desc">Select segment in next track</div>
+                            <div class="keyboard-shortcut-keys">
+                                <span class="keyboard-key">Ctrl</span>
+                                <span class="keyboard-key-separator">+</span>
+                                <span class="keyboard-key">↓</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Segment Manipulation Shortcuts -->
+                    <div class="keyboard-shortcuts-category">
+                        <h4><i class="fas fa-edit"></i> Segment Manipulation</h4>
+                        <div class="keyboard-shortcut-item">
+                            <div class="keyboard-shortcut-desc">Delete selected segment</div>
+                            <div class="keyboard-shortcut-keys">
+                                <span class="keyboard-key">Delete</span>
+                            </div>
+                        </div>
+                        <div class="keyboard-shortcut-item">
+                            <div class="keyboard-shortcut-desc">Edit selected segment</div>
+                            <div class="keyboard-shortcut-keys">
+                                <span class="keyboard-key">Enter</span>
+                            </div>
+                        </div>
+                        <div class="keyboard-shortcut-item">
+                            <div class="keyboard-shortcut-desc">Duplicate selected segment</div>
+                            <div class="keyboard-shortcut-keys">
+                                <span class="keyboard-key">Ctrl</span>
+                                <span class="keyboard-key-separator">+</span>
+                                <span class="keyboard-key">D</span>
+                            </div>
+                        </div>
+                        <div class="keyboard-shortcut-item">
+                            <div class="keyboard-shortcut-desc">Copy selected segment</div>
+                            <div class="keyboard-shortcut-keys">
+                                <span class="keyboard-key">Ctrl</span>
+                                <span class="keyboard-key-separator">+</span>
+                                <span class="keyboard-key">C</span>
+                            </div>
+                        </div>
+                        <div class="keyboard-shortcut-item">
+                            <div class="keyboard-shortcut-desc">Paste segment</div>
+                            <div class="keyboard-shortcut-keys">
+                                <span class="keyboard-key">Ctrl</span>
+                                <span class="keyboard-key-separator">+</span>
+                                <span class="keyboard-key">V</span>
+                            </div>
+                        </div>
+                        <div class="keyboard-shortcut-item">
+                            <div class="keyboard-shortcut-desc">Nudge segment left</div>
+                            <div class="keyboard-shortcut-keys">
+                                <span class="keyboard-key">Alt</span>
+                                <span class="keyboard-key-separator">+</span>
+                                <span class="keyboard-key">←</span>
+                            </div>
+                        </div>
+                        <div class="keyboard-shortcut-item">
+                            <div class="keyboard-shortcut-desc">Nudge segment right</div>
+                            <div class="keyboard-shortcut-keys">
+                                <span class="keyboard-key">Alt</span>
+                                <span class="keyboard-key-separator">+</span>
+                                <span class="keyboard-key">→</span>
+                            </div>
+                        </div>
+                        <div class="keyboard-shortcut-item">
+                            <div class="keyboard-shortcut-desc">Move to previous track</div>
+                            <div class="keyboard-shortcut-keys">
+                                <span class="keyboard-key">Alt</span>
+                                <span class="keyboard-key-separator">+</span>
+                                <span class="keyboard-key">↑</span>
+                            </div>
+                        </div>
+                        <div class="keyboard-shortcut-item">
+                            <div class="keyboard-shortcut-desc">Move to next track</div>
+                            <div class="keyboard-shortcut-keys">
+                                <span class="keyboard-key">Alt</span>
+                                <span class="keyboard-key-separator">+</span>
+                                <span class="keyboard-key">↓</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Playback Shortcuts -->
+                    <div class="keyboard-shortcuts-category">
+                        <h4><i class="fas fa-play"></i> Playback</h4>
+                        <div class="keyboard-shortcut-item">
+                            <div class="keyboard-shortcut-desc">Play/Pause</div>
+                            <div class="keyboard-shortcut-keys">
+                                <span class="keyboard-key">Space</span>
+                            </div>
+                        </div>
+                        <div class="keyboard-shortcut-item">
+                            <div class="keyboard-shortcut-desc">Seek backward</div>
+                            <div class="keyboard-shortcut-keys">
+                                <span class="keyboard-key">←</span>
+                            </div>
+                        </div>
+                        <div class="keyboard-shortcut-item">
+                            <div class="keyboard-shortcut-desc">Seek forward</div>
+                            <div class="keyboard-shortcut-keys">
+                                <span class="keyboard-key">→</span>
+                            </div>
+                        </div>
+                        <div class="keyboard-shortcut-item">
+                            <div class="keyboard-shortcut-desc">Go to beginning</div>
+                            <div class="keyboard-shortcut-keys">
+                                <span class="keyboard-key">Home</span>
+                            </div>
+                        </div>
+                        <div class="keyboard-shortcut-item">
+                            <div class="keyboard-shortcut-desc">Go to end</div>
+                            <div class="keyboard-shortcut-keys">
+                                <span class="keyboard-key">End</span>
+                            </div>
+                        </div>
+                        <div class="keyboard-shortcut-item">
+                            <div class="keyboard-shortcut-desc">Toggle mute</div>
+                            <div class="keyboard-shortcut-keys">
+                                <span class="keyboard-key">M</span>
+                            </div>
+                        </div>
+                        <div class="keyboard-shortcut-item">
+                            <div class="keyboard-shortcut-desc">Toggle loop</div>
+                            <div class="keyboard-shortcut-keys">
+                                <span class="keyboard-key">L</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- View Shortcuts -->
+                    <div class="keyboard-shortcuts-category">
+                        <h4><i class="fas fa-eye"></i> View</h4>
+                        <div class="keyboard-shortcut-item">
+                            <div class="keyboard-shortcut-desc">Zoom in</div>
+                            <div class="keyboard-shortcut-keys">
+                                <span class="keyboard-key">Ctrl</span>
+                                <span class="keyboard-key-separator">+</span>
+                                <span class="keyboard-key">+</span>
+                            </div>
+                        </div>
+                        <div class="keyboard-shortcut-item">
+                            <div class="keyboard-shortcut-desc">Zoom out</div>
+                            <div class="keyboard-shortcut-keys">
+                                <span class="keyboard-key">Ctrl</span>
+                                <span class="keyboard-key-separator">+</span>
+                                <span class="keyboard-key">-</span>
+                            </div>
+                        </div>
+                        <div class="keyboard-shortcut-item">
+                            <div class="keyboard-shortcut-desc">Show keyboard shortcuts</div>
+                            <div class="keyboard-shortcut-keys">
+                                <span class="keyboard-key">H</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="keyboard-shortcuts-footer">
+                <div class="keyboard-shortcuts-tip">
+                    <i class="fas fa-lightbulb"></i>
+                    Tip: Press <span class="keyboard-key">Esc</span> to close this modal
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div class="notification-container" id="notification-container"></div>
+
+    <!-- JavaScript Modules -->
+    <script type="module" src="src/app.js?v=2026-04-08-timeline-standalone-2"></script>
+    <script src="src/custom-media-player.js?v=2026-04-08-timeline-standalone-2"></script>
+</body>
+</html>

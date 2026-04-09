@@ -1,0 +1,395 @@
+/* Line Editor Styles */
+.line-editor-panel {
+    background-color: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-4);
+    margin-bottom: var(--spacing-4);
+}
+
+.line-editor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-4);
+    padding-bottom: var(--spacing-3);
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.line-editor-header h4 {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--gray-900);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+}
+
+.line-editor-header i {
+    color: var(--primary-color);
+}
+
+.line-editor-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
+}
+
+.line-editor-actions {
+    display: flex;
+    gap: var(--spacing-2);
+    margin-top: var(--spacing-3);
+}
+
+.line-editor-preview {
+    margin-top: var(--spacing-4);
+    padding: var(--spacing-3);
+    background-color: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+}
+
+.line-editor-preview h5 {
+    font-size: var(--font-size-base);
+    font-weight: 500;
+    color: var(--gray-900);
+    margin-bottom: var(--spacing-2);
+}
+
+.line-editor-preview-content {
+    padding: var(--spacing-2);
+    background-color: var(--gray-50);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-sm);
+    color: var(--gray-700);
+}
+
+/* Line Editor Modal */
+.line-editor-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.line-editor-modal.show {
+    display: flex;
+}
+
+.line-editor-modal-content {
+    background-color: var(--white);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xl);
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.line-editor-modal-header {
+    padding: var(--spacing-5);
+    background-color: var(--gray-50);
+    border-bottom: 1px solid var(--gray-200);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.line-editor-modal-header h3 {
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+    color: var(--gray-900);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+}
+
+.line-editor-modal-close {
+    background: none;
+    border: none;
+    font-size: var(--font-size-lg);
+    color: var(--gray-500);
+    cursor: pointer;
+    padding: var(--spacing-1);
+    border-radius: var(--radius-sm);
+    transition: color var(--transition-fast);
+}
+
+.line-editor-modal-close:hover {
+    color: var(--gray-700);
+}
+
+.line-editor-modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--spacing-5);
+}
+
+.line-editor-modal-footer {
+    padding: var(--spacing-4) var(--spacing-5);
+    background-color: var(--gray-50);
+    border-top: 1px solid var(--gray-200);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.line-editor-modal-actions {
+    display: flex;
+    gap: var(--spacing-3);
+}
+
+/* Draggable Segment Styles */
+.draggable-segment {
+    position: absolute;
+    background-color: var(--primary-color);
+    color: var(--white);
+    padding: var(--spacing-2) var(--spacing-3);
+    border-radius: var(--radius-md);
+    cursor: grab;
+    z-index: 1000;
+    box-shadow: var(--shadow-lg);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    transition: all var(--transition-fast);
+    user-select: none;
+}
+
+.draggable-segment:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-xl);
+}
+
+.draggable-segment:active {
+    cursor: grabbing;
+}
+
+.draggable-segment .segment-icon {
+    font-size: var(--font-size-base);
+}
+
+.draggable-segment .segment-text {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+}
+
+.draggable-segment .segment-duration {
+    font-size: var(--font-size-xs);
+    opacity: 0.8;
+}
+
+/* Preview Segment Styles */
+.preview-segment {
+    position: absolute;
+    background-color: var(--info-color);
+    color: var(--white);
+    padding: var(--spacing-2) var(--spacing-3);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    z-index: 999;
+    opacity: 0.8;
+    border: 2px dashed var(--white);
+    pointer-events: none;
+}
+
+.preview-segment .segment-icon {
+    font-size: var(--font-size-base);
+}
+
+.preview-segment .segment-text {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+}
+
+.preview-segment .segment-duration {
+    font-size: var(--font-size-xs);
+    opacity: 0.8;
+}
+
+/* Drop Zone Styles */
+.drop-zone {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(79, 70, 229, 0.1);
+    border: 2px dashed var(--primary-color);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 998;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+}
+
+.drop-zone.active {
+    opacity: 1;
+}
+
+.drop-zone .drop-zone-text {
+    font-size: var(--font-size-lg);
+    font-weight: 500;
+    color: var(--primary-color);
+    text-align: center;
+}
+
+.drop-zone .drop-zone-icon {
+    font-size: var(--font-size-3xl);
+    margin-bottom: var(--spacing-2);
+}
+
+/* Line Editor Button */
+.line-editor-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    padding: var(--spacing-3) var(--spacing-4);
+    background-color: var(--primary-color);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-base);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.line-editor-btn:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-1px);
+}
+
+.line-editor-btn i {
+    font-size: var(--font-size-lg);
+}
+
+/* Line Editor Form Enhancements */
+.line-editor-textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.line-editor-speaker-select,
+.line-editor-emotion-select {
+    width: 100%;
+}
+
+.line-editor-duration-input {
+    width: 100%;
+}
+
+.line-editor-help-text {
+    font-size: var(--font-size-xs);
+    color: var(--gray-500);
+    margin-top: var(--spacing-1);
+}
+
+/* Line Editor Drag Instructions */
+.line-editor-drag-instructions {
+    margin-top: var(--spacing-4);
+    padding: var(--spacing-3);
+    background-color: var(--primary-light);
+    border: 1px solid var(--primary-color);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+}
+
+.line-editor-drag-instructions i {
+    font-size: var(--font-size-lg);
+}
+
+/* Dark Mode Line Editor Styles */
+body.dark-mode .line-editor-panel {
+    background-color: var(--dm-gray-200);
+    border-color: var(--dm-gray-300);
+}
+
+body.dark-mode .line-editor-header {
+    border-bottom-color: var(--dm-gray-300);
+}
+
+body.dark-mode .line-editor-header h4 {
+    color: var(--dm-gray-900);
+}
+
+body.dark-mode .line-editor-header i {
+    color: var(--dm-primary-color);
+}
+
+body.dark-mode .line-editor-preview {
+    background-color: var(--dm-gray-100);
+    border-color: var(--dm-gray-300);
+}
+
+body.dark-mode .line-editor-preview h5 {
+    color: var(--dm-gray-900);
+}
+
+body.dark-mode .line-editor-preview-content {
+    background-color: var(--dm-gray-200);
+    color: var(--dm-gray-700);
+}
+
+body.dark-mode .line-editor-modal-content {
+    background-color: var(--dm-gray-100);
+}
+
+body.dark-mode .line-editor-modal-header {
+    background-color: var(--dm-gray-200);
+    border-bottom-color: var(--dm-gray-300);
+}
+
+body.dark-mode .line-editor-modal-header h3 {
+    color: var(--dm-gray-900);
+}
+
+body.dark-mode .line-editor-modal-close {
+    color: var(--dm-gray-500);
+}
+
+body.dark-mode .line-editor-modal-close:hover {
+    color: var(--dm-gray-700);
+}
+
+body.dark-mode .line-editor-modal-footer {
+    background-color: var(--dm-gray-200);
+    border-top-color: var(--dm-gray-300);
+}
+
+body.dark-mode .line-editor-drag-instructions {
+    background-color: var(--dm-primary-light);
+    border-color: var(--dm-primary-color);
+    color: var(--dm-primary-color);
+}
+
+body.dark-mode .line-editor-help-text {
+    color: var(--dm-gray-500);
+}

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CORS API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>CORS API Test</h1>
+    <p>This page tests CORS functionality between the frontend (localhost:3000) and backend (localhost:8000).</p>
+    
+    <div id="test-results">
+        <div class="test-result info">Running tests...</div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8000/api';
+        const resultsDiv = document.getElementById('test-results');
+
+        function addResult(message, type = 'info', data = null) {
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `test-result ${type}`;
+            resultDiv.innerHTML = message;
+            
+            if (data) {
+                const pre = document.createElement('pre');
+                pre.textContent = JSON.stringify(data, null, 2);
+                resultDiv.appendChild(pre);
+            }
+            
+            resultsDiv.appendChild(resultDiv);
+        }
+
+        async function testEndpoint(name, endpoint, method = 'GET', body = null) {
+            try {
+                const options = {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                };
+
+                if (body) {
+                    options.body = JSON.stringify(body);
+                }
+
+                const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
+                const data = await response.json();
+
+                if (response.ok) {
+                    addResult(`✅ ${name}: SUCCESS (${response.status})`, 'success', data);
+                    return true;
+                } else {
+                    addResult(`❌ ${name}: FAILED (${response.status}) - ${data.detail || data.message || 'Unknown error'}`, 'error', data);
+                    return false;
+                }
+            } catch (error) {
+                addResult(`❌ ${name}: ERROR - ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        async function runTests() {
+            resultsDiv.innerHTML = '';
+            addResult('🧪 Starting CORS API tests...', 'info');
+
+            let passed = 0;
+            let total = 0;
+
+            // Test health endpoint
+            total++;
+            if (await testEndpoint('Health Check', '/health')) {
+                passed++;
+            }
+
+            // Test speakers endpoint
+            total++;
+            if (await testEndpoint('List Speakers', '/speakers/')) {
+                passed++;
+            }
+
+            // Test emotion detection emotions endpoint
+            total++;
+            if (await testEndpoint('Get Supported Emotions', '/emotion-detection/emotions')) {
+                passed++;
+            }
+
+            // Test emotion detection with POST
+            total++;
+            if (await testEndpoint('Detect Emotion', '/emotion-detection/detect', 'POST', {
+                text: "I am feeling very happy today!"
+            })) {
+                passed++;
+            }
+
+            // Test conversation endpoint
+            total++;
+            if (await testEndpoint('List Conversations', '/conversation/')) {
+                passed++;
+            }
+
+            // Summary
+            addResult(`📊 Test Results: ${passed}/${total} tests passed`, passed === total ? 'success' : 'error');
+            
+            if (passed === total) {
+                addResult('🎉 All CORS tests passed! The frontend can successfully communicate with the backend.', 'success');
+            } else {
+                addResult('⚠️ Some tests failed. Check the errors above for details.', 'error');
+            }
+        }
+
+        // Run tests when page loads
+        window.addEventListener('load', runTests);
+    </script>
+</body>
+</html>

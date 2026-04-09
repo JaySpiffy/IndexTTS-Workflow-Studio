@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotion Detection Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-result {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 3px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin-bottom: 10px;
+        }
+        .emotion-vector {
+            font-family: monospace;
+            background-color: #f8f9fa;
+            padding: 5px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Emotion Detection Integration Test</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: Single Text Emotion Detection</h2>
+        <textarea id="test-text" placeholder="Enter text to test emotion detection...">I am so happy and excited today!</textarea>
+        <button onclick="testSingleEmotionDetection()">Test Single Detection</button>
+        <div id="single-result" class="test-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 2: Batch Emotion Detection</h2>
+        <textarea id="batch-text" placeholder="Enter multiple lines to test batch detection...">I am so happy and excited today!
+I feel very sad about what happened.
+This makes me angry and frustrated.</textarea>
+        <button onclick="testBatchEmotionDetection()">Test Batch Detection</button>
+        <div id="batch-result" class="test-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 3: Script Parsing with Auto Emotion Detection</h2>
+        <textarea id="script-text" placeholder="Enter script in format speaker: text...">Speaker1: I am so happy and excited today!
+Speaker2: That's wonderful news!
+Speaker1: I feel very sad about what happened though.
+Speaker2: Don't worry, everything will be okay.</textarea>
+        <button onclick="testScriptParsing()">Test Script Parsing</button>
+        <div id="script-result" class="test-result"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:8000/api';
+        
+        async function testSingleEmotionDetection() {
+            const resultDiv = document.getElementById('single-result');
+            const text = document.getElementById('test-text').value.trim();
+            
+            if (!text) {
+                resultDiv.innerHTML = '<div class="error">Please enter text to test</div>';
+                return;
+            }
+            
+            resultDiv.innerHTML = 'Testing...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/emotion-detection/detect`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text: text })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const emotionVectors = data.details.emotionVectors;
+                    const emotionDict = data.details.emotionDict;
+                    
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <h3>Emotion Detection Successful!</h3>
+                            <p><strong>Text:</strong> "${text}"</p>
+                            <p><strong>Emotion Vector:</strong> <span class="emotion-vector">[${emotionVectors.join(', ')}]</span></p>
+                            <p><strong>Emotion Breakdown:</strong></p>
+                            <ul>
+                                ${Object.entries(emotionDict).map(([emotion, value]) => 
+                                    `<li>${emotion}: ${value.toFixed(3)}</li>`
+                                ).join('')}
+                            </ul>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">Error: ${data.message}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">Network error: ${error.message}</div>`;
+            }
+        }
+        
+        async function testBatchEmotionDetection() {
+            const resultDiv = document.getElementById('batch-result');
+            const text = document.getElementById('batch-text').value.trim();
+            
+            if (!text) {
+                resultDiv.innerHTML = '<div class="error">Please enter text to test</div>';
+                return;
+            }
+            
+            const lines = text.split('\n').filter(line => line.trim());
+            
+            resultDiv.innerHTML = 'Testing...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/emotion-detection/detect`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ batchTexts: lines })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const results = data.details;
+                    
+                    let html = '<div class="success"><h3>Batch Emotion Detection Successful!</h3>';
+                    
+                    results.forEach((result, index) => {
+                        html += `
+                            <div style="margin-bottom: 15px; padding: 10px; border: 1px solid #ddd; border-radius: 3px;">
+                                <p><strong>Line ${index + 1}:</strong> "${lines[index]}"</p>
+                                <p><strong>Emotion Vector:</strong> <span class="emotion-vector">[${result.emotionVectors.join(', ')}]</span></p>
+                                <p><strong>Dominant Emotion:</strong> ${getDominantEmotion(result.emotionDict)}</p>
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div>';
+                    resultDiv.innerHTML = html;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">Error: ${data.message}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">Network error: ${error.message}</div>`;
+            }
+        }
+        
+        async function testScriptParsing() {
+            const resultDiv = document.getElementById('script-result');
+            const scriptText = document.getElementById('script-text').value.trim();
+            
+            if (!scriptText) {
+                resultDiv.innerHTML = '<div class="error">Please enter script to test</div>';
+                return;
+            }
+            
+            resultDiv.innerHTML = 'Testing script parsing with emotion detection...';
+            
+            try {
+                // Parse script lines
+                const lines = [];
+                const scriptLines = scriptText.split('\n').filter(line => line.trim());
+                
+                for (let i = 0; i < scriptLines.length; i++) {
+                    const line = scriptLines[i].trim();
+                    const match = line.match(/^([^:]+):\s*(.+)$/);
+                    
+                    if (match) {
+                        const speaker = match[1].trim();
+                        const text = match[2].trim();
+                        
+                        lines.push({
+                            line: lines.length + 1,
+                            speaker: speaker,
+                            text: text,
+                            line_number: i,
+                            emo_vector: [0, 0, 0, 0, 0, 0, 0, 0.8], // Default to 'calm' emotion
+                            emo_auto_detected: false
+                        });
+                    }
+                }
+                
+                if (lines.length === 0) {
+                    resultDiv.innerHTML = '<div class="error">No valid script lines found</div>';
+                    return;
+                }
+                
+                // Detect emotions for all lines
+                const texts = lines.map(line => line.text);
+                const response = await fetch(`${API_BASE}/emotion-detection/detect`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ batchTexts: texts })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const emotionResults = data.details;
+                    
+                    // Apply detected emotions to lines
+                    emotionResults.forEach((result, index) => {
+                        if (index < lines.length) {
+                            lines[index].emo_vector = result.emotionVectors;
+                            lines[index].emo_auto_detected = true;
+                            lines[index].emo_detected_dict = result.emotionDict;
+                        }
+                    });
+                    
+                    let html = '<div class="success"><h3>Script Parsing with Emotion Detection Successful!</h3>';
+                    
+                    lines.forEach((line, index) => {
+                        const emotionIndicator = line.emo_auto_detected ? '🤖' : '👤';
+                        html += `
+                            <div style="margin-bottom: 15px; padding: 10px; border: 1px solid #ddd; border-radius: 3px;">
+                                <p><strong>Line ${index + 1}:</strong> ${emotionIndicator} <strong>${line.speaker}:</strong> "${line.text}"</p>
+                                <p><strong>Emotion Vector:</strong> <span class="emotion-vector">[${line.emo_vector.join(', ')}]</span></p>
+                                <p><strong>Dominant Emotion:</strong> ${getDominantEmotion(line.emo_detected_dict)}</p>
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div>';
+                    resultDiv.innerHTML = html;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">Emotion detection error: ${data.message}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">Network error: ${error.message}</div>`;
+            }
+        }
+        
+        function getDominantEmotion(emotionDict) {
+            if (!emotionDict) return 'Unknown';
+            
+            let maxEmotion = 'neutral';
+            let maxValue = 0;
+            
+            Object.entries(emotionDict).forEach(([emotion, value]) => {
+                if (value > maxValue) {
+                    maxValue = value;
+                    maxEmotion = emotion;
+                }
+            });
+            
+            return `${maxEmotion} (${maxValue.toFixed(3)})`;
+        }
+    </script>
+</body>
+</html>

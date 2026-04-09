@@ -1,29 +1,60 @@
-# Python
-venv/
+# Python caches and environments
 __pycache__/
-*.pyc
-*.egg-info
-build/
-dist/
-*.log
+*.py[cod]
+.venv/
+.ipynb_checkpoints/
 
-# OS / Editor specific
-*.DS_Store
-.idea/
+# Editor and local tooling state
 .vscode/
+.playwright-cli/
+.roo/
+.pytest_cache/
+tools/manual/node_modules/
 
-# Project specific outputs & data
-api_outputs/
-conversation_outputs/
-conversations/
+# Generated outputs and runtime state
+output/
 outputs/
-project_saves/
-prompts/
-Speakers/
+temp/
+temp_conversation_segments/
+uploads/
+shared/audio/outputs/
+shared/audio/temp/
+shared/audio/temp_conversation_segments/
+shared/audio/uploads/
+shared/audio/conversation_outputs/
+shared/data/project_saves/
+shared/data/timeline_projects/
 
-# Downloaded Models & Cache
-checkpoints/*.pth
-checkpoints/*.vocab
-checkpoints/*.model
-checkpoints/.cache
-pretrained_models/
+# Local source and speaker assets
+speakers/
+source_clips/
+shared/audio/speakers/*
+!shared/audio/speakers/README.md
+!shared/audio/speakers/.gitkeep
+shared/audio/source_clips/*
+!shared/audio/source_clips/README.md
+!shared/audio/source_clips/.gitkeep
+shared/audio/speakers_backups/*
+!shared/audio/speakers_backups/README.md
+!shared/audio/speakers_backups/LATEST_BACKUP.md
+!shared/audio/speakers_backups/.gitkeep
+
+# Local model/cache data
+checkpoints/
+models/pretrained/
+backend/checkpoints/
+backend/models/
+backend/outputs/
+backend/shared/
+backend/source_clips/
+backend/speakers/
+backend/temp/
+backend/temp_conversation_segments/
+backend/uploads/
+backend/utils/
+shared/models/checkpoints/
+shared/models/pretrained/
+
+# OS clutter
+Thumbs.db
+Desktop.ini

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module Loading Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <h1>IndexTTS2 Module Loading Test</h1>
+    <div id="test-results"></div>
+    
+    <script type="module">
+        const results = document.getElementById('test-results');
+        
+        function addResult(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.textContent = message;
+            results.appendChild(div);
+        }
+        
+        async function testModuleLoading() {
+            try {
+                addResult('Starting module loading test...', 'info');
+                
+                // Import core module first
+                addResult('Importing core.js...', 'info');
+                await import('./src/modules/core.js');
+                
+                // Check if IndexTTSApp is available
+                if (typeof IndexTTSApp === 'undefined') {
+                    addResult('FAILED: IndexTTSApp is not defined after importing core.js', 'error');
+                    return;
+                }
+                addResult('SUCCESS: IndexTTSApp is available', 'success');
+                
+                // Import other modules
+                addResult('Importing api.js...', 'info');
+                await import('./src/modules/api.js');
+                addResult('SUCCESS: api.js imported without errors', 'success');
+                
+                addResult('Importing uiUtils.js...', 'info');
+                await import('./src/modules/uiUtils.js');
+                addResult('SUCCESS: uiUtils.js imported without errors', 'success');
+                
+                addResult('Importing eventListeners.js...', 'info');
+                await import('./src/modules/eventListeners.js');
+                addResult('SUCCESS: eventListeners.js imported without errors', 'success');
+                
+                addResult('Importing conversationWorkflow.js...', 'info');
+                await import('./src/modules/conversationWorkflow.js');
+                addResult('SUCCESS: conversationWorkflow.js imported without errors', 'success');
+                
+                addResult('Importing conversationResults.js...', 'info');
+                await import('./src/modules/conversationResults.js');
+                addResult('SUCCESS: conversationResults.js imported without errors', 'success');
+                
+                // Create app instance
+                addResult('Creating IndexTTSApp instance...', 'info');
+                window.app = new IndexTTSApp();
+                addResult('SUCCESS: IndexTTSApp instance created', 'success');
+                
+                // Test basic functionality
+                addResult('Testing basic functionality...', 'info');
+                if (typeof app.switchTab === 'function') {
+                    addResult('SUCCESS: switchTab method is available', 'success');
+                } else {
+                    addResult('FAILED: switchTab method is not available', 'error');
+                }
+                
+                if (typeof app.apiRequest === 'function') {
+                    addResult('SUCCESS: apiRequest method is available', 'success');
+                } else {
+                    addResult('FAILED: apiRequest method is not available', 'error');
+                }
+                
+                if (typeof app.showNotification === 'function') {
+                    addResult('SUCCESS: showNotification method is available', 'success');
+                } else {
+                    addResult('FAILED: showNotification method is not available', 'error');
+                }
+                
+                addResult('All tests completed successfully!', 'success');
+                
+            } catch (error) {
+                addResult(`FAILED: ${error.message}`, 'error');
+                console.error('Test failed:', error);
+            }
+        }
+        
+        // Run the test
+        testModuleLoading();
+    </script>
+</body>
+</html>

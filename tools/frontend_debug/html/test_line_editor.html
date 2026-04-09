@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Line Editor Test</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .test-pass {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .test-fail {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .test-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .console-log {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        button {
+            padding: 8px 16px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Line Editor Functionality Test</h1>
+        
+        <div class="test-section">
+            <h2>1. DOM Elements Check</h2>
+            <button class="btn-primary" onclick="testDOMElements()">Test DOM Elements</button>
+            <div id="dom-test-result" class="test-result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>2. Event Listeners Check</h2>
+            <button class="btn-primary" onclick="testEventListeners()">Test Event Listeners</button>
+            <div id="event-test-result" class="test-result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>3. Modal Display Test</h2>
+            <button class="btn-primary" onclick="testModalDisplay()">Test Modal Display</button>
+            <div id="modal-test-result" class="test-result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>4. Line Editor Functions Test</h2>
+            <button class="btn-primary" onclick="testLineEditorFunctions()">Test Line Editor Functions</button>
+            <div id="functions-test-result" class="test-result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>5. Drag and Drop Test</h2>
+            <button class="btn-primary" onclick="testDragAndDrop()">Test Drag and Drop</button>
+            <div id="drag-test-result" class="test-result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Console Log</h2>
+            <div id="console-log" class="console-log"></div>
+            <button class="btn-secondary" onclick="clearConsoleLog()">Clear Log</button>
+        </div>
+    </div>
+
+    <!-- Include Timeline Editor -->
+    <div id="timeline-container" style="display: none;"></div>
+    
+    <script src="src/store/timelineStore.js"></script>
+    <script src="src/components/timeline/AudioPlaybackEngine.js"></script>
+    <script src="src/components/timeline/TimelineEditor.js"></script>
+    
+    <script>
+        // Override console.log to display in our test console
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        function addToConsole(message, type = 'log') {
+            const consoleLog = document.getElementById('console-log');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.style.color = type === 'error' ? 'red' : type === 'warn' ? 'orange' : 'black';
+            logEntry.textContent = `[${timestamp}] ${type.toUpperCase()}: ${message}`;
+            consoleLog.appendChild(logEntry);
+            consoleLog.scrollTop = consoleLog.scrollHeight;
+        }
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addToConsole(args.join(' '), 'log');
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addToConsole(args.join(' '), 'error');
+        };
+        
+        console.warn = function(...args) {
+            originalWarn.apply(console, args);
+            addToConsole(args.join(' '), 'warn');
+        };
+        
+        function clearConsoleLog() {
+            document.getElementById('console-log').innerHTML = '';
+        }
+        
+        function showTestResult(elementId, message, isPass) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `test-result ${isPass ? 'test-pass' : 'test-fail'}`;
+        }
+        
+        function showTestInfo(elementId, message) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = 'test-result test-info';
+        }
+        
+        function testDOMElements() {
+            console.log('Testing DOM Elements...');
+            
+            const requiredElements = [
+                'line-editor-btn',
+                'line-editor-modal',
+                'modal-line-text-input',
+                'modal-line-speaker-select',
+                'modal-line-emotion-select',
+                'preview-line-btn',
+                'add-line-btn',
+                'modal-preview-line-btn',
+                'modal-add-line-btn',
+                'close-line-editor-modal',
+                'cancel-line-editor-btn'
+            ];
+            
+            const missingElements = [];
+            const foundElements = [];
+            
+            requiredElements.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    foundElements.push(id);
+                } else {
+                    missingElements.push(id);
+                }
+            });
+            
+            if (missingElements.length === 0) {
+                showTestResult('dom-test-result', `All ${requiredElements.length} required DOM elements found.`, true);
+            } else {
+                showTestResult('dom-test-result', `Missing ${missingElements.length} elements: ${missingElements.join(', ')}`, false);
+            }
+            
+            console.log(`DOM Elements Test: ${foundElements.length} found, ${missingElements.length} missing`);
+        }
+        
+        function testEventListeners() {
+            console.log('Testing Event Listeners...');
+            
+            try {
+                // Check if TimelineEditor is initialized
+                if (typeof window.timelineEditor === 'undefined') {
+                    showTestResult('event-test-result', 'TimelineEditor not initialized', false);
+                    return;
+                }
+                
+                // Test if event listeners are set up
+                const timelineEditor = window.timelineEditor;
+                
+                // Check if the showLineEditorModal method exists
+                if (typeof timelineEditor.showLineEditorModal === 'function') {
+                    showTestResult('event-test-result', 'Event listeners appear to be set up correctly', true);
+                } else {
+                    showTestResult('event-test-result', 'showLineEditorModal method not found', false);
+                }
+            } catch (error) {
+                showTestResult('event-test-result', `Error testing event listeners: ${error.message}`, false);
+                console.error('Event Listeners Test Error:', error);
+            }
+        }
+        
+        function testModalDisplay() {
+            console.log('Testing Modal Display...');
+            
+            try {
+                if (typeof window.timelineEditor === 'undefined') {
+                    showTestResult('modal-test-result', 'TimelineEditor not initialized', false);
+                    return;
+                }
+                
+                const modal = document.getElementById('line-editor-modal');
+                if (!modal) {
+                    showTestResult('modal-test-result', 'Modal element not found', false);
+                    return;
+                }
+                
+                // Test showing modal
+                window.timelineEditor.showLineEditorModal();
+                
+                // Check if modal is visible
+                if (modal.classList.contains('show')) {
+                    showTestResult('modal-test-result', 'Modal displayed successfully', true);
+                    
+                    // Hide modal after 2 seconds
+                    setTimeout(() => {
+                        window.timelineEditor.hideModal('line-editor-modal');
+                        showTestInfo('modal-test-result', 'Modal hidden after test');
+                    }, 2000);
+                } else {
+                    showTestResult('modal-test-result', 'Modal did not display correctly', false);
+                }
+            } catch (error) {
+                showTestResult('modal-test-result', `Error testing modal display: ${error.message}`, false);
+                console.error('Modal Display Test Error:', error);
+            }
+        }
+        
+        function testLineEditorFunctions() {
+            console.log('Testing Line Editor Functions...');
+            
+            try {
+                if (typeof window.timelineEditor === 'undefined') {
+                    showTestResult('functions-test-result', 'TimelineEditor not initialized', false);
+                    return;
+                }
+                
+                const timelineEditor = window.timelineEditor;
+                const requiredFunctions = [
+                    'showLineEditorModal',
+                    'updateLineEditorSpeakersDropdown',
+                    'previewLine',
+                    'previewLineModal',
+                    'addLineToTimeline',
+                    'addLineToTimelineModal',
+                    'createDraggableSegment',
+                    'handleSegmentDrop',
+                    'createDroppedSegment'
+                ];
+                
+                const missingFunctions = [];
+                const foundFunctions = [];
+                
+                requiredFunctions.forEach(funcName => {
+                    if (typeof timelineEditor[funcName] === 'function') {
+                        foundFunctions.push(funcName);
+                    } else {
+                        missingFunctions.push(funcName);
+                    }
+                });
+                
+                if (missingFunctions.length === 0) {
+                    showTestResult('functions-test-result', `All ${requiredFunctions.length} required functions found.`, true);
+                } else {
+                    showTestResult('functions-test-result', `Missing ${missingFunctions.length} functions: ${missingFunctions.join(', ')}`, false);
+                }
+                
+                console.log(`Line Editor Functions Test: ${foundFunctions.length} found, ${missingFunctions.length} missing`);
+            } catch (error) {
+                showTestResult('functions-test-result', `Error testing line editor functions: ${error.message}`, false);
+                console.error('Line Editor Functions Test Error:', error);
+            }
+        }
+        
+        function testDragAndDrop() {
+            console.log('Testing Drag and Drop...');
+            
+            try {
+                if (typeof window.timelineEditor === 'undefined') {
+                    showTestResult('drag-test-result', 'TimelineEditor not initialized', false);
+                    return;
+                }
+                
+                const timelineEditor = window.timelineEditor;
+                
+                // Test creating a draggable segment
+                const testSegmentData = {
+                    text: 'Test segment',
+                    speaker: '',
+                    emotion: 'neutral',
+                    emotion_control_method: 'from_speaker',
+                    emotion_weight: 1.0
+                };
+                
+                timelineEditor.createDraggableSegment(testSegmentData);
+                
+                // Check if draggable segment was created
+                const draggableSegment = document.querySelector('.floating-segment');
+                if (draggableSegment) {
+                    showTestResult('drag-test-result', 'Draggable segment created successfully', true);
+                    
+                    // Remove the test segment after 2 seconds
+                    setTimeout(() => {
+                        if (draggableSegment.parentNode) {
+                            draggableSegment.parentNode.removeChild(draggableSegment);
+                        }
+                        showTestInfo('drag-test-result', 'Test segment removed');
+                    }, 2000);
+                } else {
+                    showTestResult('drag-test-result', 'Draggable segment was not created', false);
+                }
+            } catch (error) {
+                showTestResult('drag-test-result', `Error testing drag and drop: ${error.message}`, false);
+                console.error('Drag and Drop Test Error:', error);
+            }
+        }
+        
+        // Wait for DOM to load before running tests
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing test environment...');
+            
+            // Initialize mock app object for TimelineEditor
+            window.app = {
+                showNotification: function(title, message, type) {
+                    console.log(`Notification [${type}]: ${title} - ${message}`);
+                },
+                apiRequest: function(endpoint, options) {
+                    console.log(`Mock API Request: ${endpoint}`, options);
+                    return Promise.resolve({ success: true });
+                }
+            };
+            
+            // Initialize mock timeline store
+            window.timelineStore = {
+                currentProject: {
+                    project_id: 'test-project',
+                    tracks: [
+                        {
+                            track_id: 'test-track',
+                            track_name: 'Test Track',
+                            segments: []
+                        }
+                    ]
+                },
+                addSegment: function(trackId, segmentData) {
+                    console.log(`Mock addSegment: ${trackId}`, segmentData);
+                    return Promise.resolve({ segment_id: 'test-segment', ...segmentData });
+                }
+            };
+            
+            // Initialize TimelineEditor
+            setTimeout(() => {
+                try {
+                    window.timelineEditor = new TimelineEditor('timeline-container');
+                    console.log('TimelineEditor initialized successfully');
+                    showTestInfo('dom-test-result', 'TimelineEditor initialized. Run tests to check functionality.');
+                } catch (error) {
+                    console.error('Failed to initialize TimelineEditor:', error);
+                    showTestResult('dom-test-result', `Failed to initialize TimelineEditor: ${error.message}`, false);
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

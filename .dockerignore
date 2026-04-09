@@ -1,0 +1,83 @@
+﻿# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.py[cod]
+*.class
+*.so
+.Python
+.venv
+venv
+ENV
+
+# IDE
+.vscode
+.idea
+.roo
+
+# Test files
+test_*.py
+test_*.html
+test_*.js
+debug_*
+!tests/
+!tests/backend/
+!tests/backend/test_*.py
+
+# Documentation
+*.md
+!README.md
+
+# Misc
+.DS_Store
+*.log
+*.tmp
+
+# Large model files (mount as volumes instead)
+# Note: shared/models/checkpoints/* is excluded from build
+# but we copy the config files
+shared/models/checkpoints/**
+!shared/models/checkpoints/
+!shared/models/checkpoints/.gitattributes
+!shared/models/checkpoints/README.md
+!shared/models/checkpoints/config.yaml
+!shared/models/checkpoints/config.yaml.backup
+!shared/models/checkpoints/config.yaml.backup2
+!shared/models/checkpoints/vocoder_config_backup.yaml
+
+# Alternate local model/cache locations
+backend/checkpoints/**
+backend/models/**
+checkpoints/**
+models/**
+shared/models/.cache/**
+
+# Output/user data (mount as volumes)
+uploads/*
+outputs/*
+temp/*
+speakers/*
+source_clips/*
+temp_conversation_segments/*
+backend/outputs/*
+backend/uploads/*
+backend/temp/*
+backend/temp_conversation_segments/*
+shared/audio/**
+!shared/audio/README.md
+!shared/audio/speakers/
+!shared/audio/speakers/README.md
+!shared/audio/source_clips/
+!shared/audio/source_clips/README.md
+!shared/audio/speakers_backups/
+!shared/audio/speakers_backups/README.md
+!shared/audio/speakers_backups/LATEST_BACKUP.md
+shared/data/**
+!shared/data/
+
+# Binary caches
+backend/__pycache__/
+backend/**/*.pyc
+shared/**/*.pyc

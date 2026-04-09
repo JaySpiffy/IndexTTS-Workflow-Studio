@@ -1,0 +1,306 @@
+/* Responsive Design */
+
+/* Tablet and below */
+@media (max-width: 768px) {
+    .header-content {
+        padding: var(--spacing-3) var(--spacing-4);
+    }
+    
+    .main-content {
+        padding: var(--spacing-4);
+    }
+    
+    .tab-navigation {
+        flex-wrap: wrap;
+    }
+    
+    .tab-button {
+        flex: 1;
+        min-width: 120px;
+        justify-content: center;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .settings-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .vectors-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .versions-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .progress-header {
+        flex-direction: column;
+        gap: var(--spacing-3);
+        align-items: flex-start;
+    }
+    
+    .result-header {
+        flex-direction: column;
+        gap: var(--spacing-3);
+        align-items: center;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        gap: var(--spacing-3);
+        align-items: flex-start;
+    }
+    
+    .line-header {
+        flex-direction: column;
+        gap: var(--spacing-3);
+        align-items: flex-start;
+    }
+    
+    .modal-content {
+        width: 95%;
+        margin: var(--spacing-4);
+    }
+    
+    .notification-container {
+        left: var(--spacing-4);
+        right: var(--spacing-4);
+    }
+    
+    .notification {
+        min-width: auto;
+        max-width: none;
+    }
+    
+    /* Batch Processing Responsive */
+    .batch-modal-content {
+        width: 95%;
+        max-height: 95vh;
+    }
+    
+    .batch-modal-header {
+        padding: var(--spacing-4);
+    }
+    
+    .batch-modal-body {
+        padding: var(--spacing-4);
+    }
+    
+    .batch-parsing-options {
+        grid-template-columns: 1fr;
+    }
+    
+    .batch-settings-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .batch-template-presets {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .batch-preview-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .batch-modal-actions {
+        flex-direction: column;
+        gap: var(--spacing-3);
+    }
+    
+    .batch-modal-actions-left,
+    .batch-modal-actions-right {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .batch-text-actions {
+        flex-direction: column;
+    }
+    
+    /* Line Editor Responsive */
+    .line-editor-panel {
+        padding: var(--spacing-3);
+    }
+    
+    .line-editor-header {
+        flex-direction: column;
+        gap: var(--spacing-2);
+        align-items: flex-start;
+    }
+    
+    .line-editor-actions {
+        flex-direction: column;
+    }
+    
+    .line-editor-modal-content {
+        width: 95%;
+        max-height: 95vh;
+    }
+    
+    .line-editor-modal-header {
+        padding: var(--spacing-4);
+    }
+    
+    .line-editor-modal-body {
+        padding: var(--spacing-4);
+    }
+    
+    .line-editor-modal-footer {
+        flex-direction: column;
+        gap: var(--spacing-3);
+    }
+    
+    .line-editor-modal-actions {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .draggable-segment .segment-text {
+        max-width: 150px;
+    }
+    
+    .preview-segment .segment-text {
+        max-width: 150px;
+    }
+    
+    /* Edit Segment Modal Responsive */
+    .edit-segment-modal-content {
+        width: 95%;
+        max-height: 95vh;
+    }
+    
+    .edit-segment-modal-header {
+        padding: var(--spacing-4);
+    }
+    
+    .edit-segment-modal-body {
+        padding: var(--spacing-4);
+    }
+    
+    .edit-segment-modal-footer {
+        flex-direction: column;
+        gap: var(--spacing-3);
+    }
+    
+    .edit-segment-modal-actions {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    /* Keyboard Shortcuts Modal Responsive */
+    .keyboard-shortcuts-content {
+        width: 95%;
+        max-height: 95vh;
+    }
+    
+    .keyboard-shortcuts-header {
+        padding: var(--spacing-4);
+    }
+    
+    .keyboard-shortcuts-body {
+        padding: var(--spacing-4);
+    }
+    
+    .keyboard-shortcuts-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .keyboard-shortcuts-footer {
+        padding: var(--spacing-4);
+    }
+    
+    /* Emotion Timeline Responsive */
+    .emotion-control-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .emotion-presets {
+        grid-template-columns: 1fr;
+    }
+    
+    .emotion-keyframe-editor-content {
+        width: 95%;
+        max-height: 95vh;
+    }
+    
+    .emotion-keyframe-editor-header {
+        padding: var(--spacing-4);
+    }
+    
+    .emotion-keyframe-editor-body {
+        padding: var(--spacing-4);
+    }
+    
+    .emotion-keyframe-editor-footer {
+        flex-direction: column;
+        gap: var(--spacing-3);
+    }
+    
+    .emotion-keyframe-editor-actions {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .emotion-preview-controls {
+        flex-direction: column;
+        gap: var(--spacing-3);
+    }
+    
+    .emotion-preview-progress {
+        width: 100%;
+    }
+    
+    .emotion-preview-time {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+    .tab-header h2 {
+        font-size: var(--font-size-2xl);
+    }
+    
+    .tab-header p {
+        font-size: var(--font-size-base);
+    }
+    
+    .tool-header h3 {
+        font-size: var(--font-size-lg);
+    }
+    
+    .section-header h3 {
+        font-size: var(--font-size-lg);
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    /* Batch Processing Mobile */
+    .batch-template-presets {
+        grid-template-columns: 1fr;
+    }
+    
+    .batch-preview-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .batch-tab-button {
+        padding: var(--spacing-3) var(--spacing-2);
+        font-size: var(--font-size-sm);
+    }
+    
+    .batch-tab-button i {
+        display: none;
+    }
+}

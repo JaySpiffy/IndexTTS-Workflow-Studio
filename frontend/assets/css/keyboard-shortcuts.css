@@ -1,0 +1,217 @@
+/* Keyboard Shortcuts Help Modal */
+.keyboard-shortcuts-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.keyboard-shortcuts-modal.show {
+    display: flex;
+}
+
+.keyboard-shortcuts-content {
+    background-color: var(--white);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xl);
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.keyboard-shortcuts-header {
+    padding: var(--spacing-5);
+    background-color: var(--gray-50);
+    border-bottom: 1px solid var(--gray-200);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.keyboard-shortcuts-header h3 {
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+    color: var(--gray-900);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+}
+
+.keyboard-shortcuts-header i {
+    color: var(--primary-color);
+}
+
+.keyboard-shortcuts-close {
+    background: none;
+    border: none;
+    font-size: var(--font-size-lg);
+    color: var(--gray-500);
+    cursor: pointer;
+    padding: var(--spacing-1);
+    border-radius: var(--radius-sm);
+    transition: color var(--transition-fast);
+}
+
+.keyboard-shortcuts-close:hover {
+    color: var(--gray-700);
+}
+
+.keyboard-shortcuts-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--spacing-5);
+}
+
+.keyboard-shortcuts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-4);
+}
+
+.keyboard-shortcuts-category {
+    background-color: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-4);
+}
+
+.keyboard-shortcuts-category h4 {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: var(--spacing-3);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+}
+
+.keyboard-shortcuts-category i {
+    color: var(--primary-color);
+}
+
+.keyboard-shortcut-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-2) 0;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.keyboard-shortcut-item:last-child {
+    border-bottom: none;
+}
+
+.keyboard-shortcut-desc {
+    font-size: var(--font-size-sm);
+    color: var(--gray-700);
+    flex: 1;
+}
+
+.keyboard-shortcut-keys {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-1);
+}
+
+.keyboard-key {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    padding: 0 var(--spacing-1);
+    background-color: var(--white);
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+    color: var(--gray-700);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.keyboard-key-separator {
+    font-size: var(--font-size-xs);
+    color: var(--gray-500);
+    margin: 0 2px;
+}
+
+.keyboard-shortcuts-footer {
+    padding: var(--spacing-4) var(--spacing-5);
+    background-color: var(--gray-50);
+    border-top: 1px solid var(--gray-200);
+    display: flex;
+    justify-content: center;
+}
+
+.keyboard-shortcuts-tip {
+    font-size: var(--font-size-sm);
+    color: var(--gray-600);
+    font-style: italic;
+}
+
+/* Dark Mode Keyboard Shortcuts Modal */
+body.dark-mode .keyboard-shortcuts-content {
+    background-color: var(--dm-gray-100);
+}
+
+body.dark-mode .keyboard-shortcuts-header {
+    background-color: var(--dm-gray-200);
+    border-bottom-color: var(--dm-gray-300);
+}
+
+body.dark-mode .keyboard-shortcuts-header h3 {
+    color: var(--dm-gray-900);
+}
+
+body.dark-mode .keyboard-shortcuts-close {
+    color: var(--dm-gray-500);
+}
+
+body.dark-mode .keyboard-shortcuts-close:hover {
+    color: var(--dm-gray-700);
+}
+
+body.dark-mode .keyboard-shortcuts-category {
+    background-color: var(--dm-gray-200);
+    border-color: var(--dm-gray-300);
+}
+
+body.dark-mode .keyboard-shortcuts-category h4 {
+    color: var(--dm-gray-900);
+}
+
+body.dark-mode .keyboard-shortcut-item {
+    border-bottom-color: var(--dm-gray-300);
+}
+
+body.dark-mode .keyboard-shortcut-desc {
+    color: var(--dm-gray-600);
+}
+
+body.dark-mode .keyboard-key {
+    background-color: var(--dm-gray-100);
+    border-color: var(--dm-gray-300);
+    color: var(--dm-gray-700);
+}
+
+body.dark-mode .keyboard-key-separator {
+    color: var(--dm-gray-500);
+}
+
+body.dark-mode .keyboard-shortcuts-footer {
+    background-color: var(--dm-gray-200);
+    border-top-color: var(--dm-gray-300);
+}
+
+body.dark-mode .keyboard-shortcuts-tip {
+    color: var(--dm-gray-500);
+}

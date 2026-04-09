@@ -1,0 +1,75 @@
+﻿# IndexTTS2 Backend - FastAPI with CUDA support
+FROM nvidia/cuda:12.8.0-devel-ubuntu22.04
+
+# Prevent interactive prompts during build
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Set working directory
+WORKDIR /app
+
+ARG INSTALL_DEEPSPEED=true
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.10 \
+    python3.10-dev \
+    python3.10-venv \
+    python3-pip \
+    ffmpeg \
+    git \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install pip tooling
+RUN python3.10 -m pip install --no-cache-dir --upgrade pip setuptools wheel
+ENV HF_HOME="/app/shared/models/checkpoints/hf_cache"
+ENV HF_HUB_CACHE="/app/shared/models/checkpoints/hf_cache"
+
+# Copy project metadata first.
+COPY pyproject.toml README.md LICENSE LICENSE_ZH.txt ./
+
+# Install CUDA-enabled PyTorch first, then install the local project and remaining deps.
+RUN python3.10 -m pip install --no-cache-dir \
+    --index-url https://download.pytorch.org/whl/cu128 \
+    --extra-index-url https://pypi.org/simple \
+    torch==2.8.0+cu128 torchaudio==2.8.0+cu128
+
+# Copy application code
+COPY backend ./backend
+COPY tests ./tests
+COPY indextts ./indextts
+COPY docker/download_models.py ./docker/download_models.py
+COPY docker/backend-entrypoint.sh ./docker/backend-entrypoint.sh
+
+RUN if [ "$INSTALL_DEEPSPEED" = "true" ] || [ "$INSTALL_DEEPSPEED" = "1" ]; then \
+        python3.10 -m pip install --no-cache-dir ".[webui,deepspeed]"; \
+    else \
+        python3.10 -m pip install --no-cache-dir ".[webui]"; \
+    fi
+
+# Create required directories
+RUN mkdir -p /app/shared/audio/uploads /app/shared/audio/outputs /app/shared/audio/temp /app/shared/audio/speakers /app/shared/audio/source_clips /app/shared/audio/temp_conversation_segments /app/shared/data/project_saves /app/shared/data/timeline_projects /app/shared/models/checkpoints /app/shared/models/pretrained /app/shared/models/checkpoints/hf_cache /root/.cache/torch_extensions /root/.triton/autotune \
+    && chmod +x /app/docker/backend-entrypoint.sh
+
+# Set environment variables
+ENV INDTEXTS_HOST=0.0.0.0
+ENV INDTEXTS_PORT=8000
+ENV INDTEXTS_USE_GPU=true
+ENV INDTEXTS_DEVICE=auto
+ENV INDTEXTS_USE_FP16=auto
+ENV INDTEXTS_USE_DEEPSPEED=true
+ENV INDTEXTS_SPEAKER_ANALYSIS_DEVICE=cpu
+ENV INDTEXTS_AUTO_DOWNLOAD_MODELS=true
+ENV INDTEXTS_MODEL_REPO=IndexTeam/IndexTTS-2
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH="/app/backend:/app"
+
+# Expose port
+EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD /bin/sh -c "curl -fsS http://localhost:8000/health | grep -q '\"model_loaded\":true'" || exit 1
+
+# Run the FastAPI server
+CMD ["/app/docker/backend-entrypoint.sh"]

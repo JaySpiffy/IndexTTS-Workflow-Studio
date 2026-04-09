@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Duration Fix</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .test-pass {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .test-fail {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .test-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        button {
+            background-color: #4f46e5;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #4338ca;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        textarea {
+            height: 80px;
+            resize: vertical;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Duration Field Removal Test</h1>
+        <p>This page tests that the line editor works correctly without the duration field.</p>
+        
+        <div class="test-section">
+            <h2>Test 1: Line Editor Modal</h2>
+            <p>Tests that the line editor modal opens and doesn't have a duration field.</p>
+            <button id="test-line-editor-modal">Open Line Editor Modal</button>
+            <div id="test1-result" class="test-result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Test 2: Segment Creation</h2>
+            <p>Tests that segments can be created without specifying a duration.</p>
+            <div class="form-group">
+                <label for="test-text">Text:</label>
+                <textarea id="test-text" placeholder="Enter test text">This is a test segment without a duration field.</textarea>
+            </div>
+            <div class="form-group">
+                <label for="test-speaker">Speaker:</label>
+                <select id="test-speaker">
+                    <option value="">Select speaker...</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="test-emotion">Emotion:</label>
+                <select id="test-emotion">
+                    <option value="neutral">Neutral</option>
+                    <option value="happy">Happy</option>
+                    <option value="sad">Sad</option>
+                    <option value="angry">Angry</option>
+                    <option value="excited">Excited</option>
+                    <option value="calm">Calm</option>
+                </select>
+            </div>
+            <button id="test-create-segment">Create Segment</button>
+            <div id="test2-result" class="test-result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Test 3: Batch Processing</h2>
+            <p>Tests that batch processing works without duration fields.</p>
+            <div class="form-group">
+                <label for="test-batch-text">Batch Text:</label>
+                <textarea id="test-batch-text" placeholder="Enter multiple lines of text">Line 1: This is the first line.
+Line 2: This is the second line.
+Line 3: This is the third line.</textarea>
+            </div>
+            <button id="test-batch-process">Test Batch Processing</button>
+            <div id="test3-result" class="test-result"></div>
+        </div>
+        
+        <div id="timeline-container"></div>
+    </div>
+
+    <script>
+        // Mock app and store for testing
+        window.app = {
+            showNotification: function(title, message, type) {
+                console.log(`[${type}] ${title}: ${message}`);
+            },
+            apiRequest: async function(endpoint, options) {
+                console.log('Mock API request to:', endpoint);
+                return { success: true };
+            }
+        };
+
+        window.timelineStore = {
+            currentProject: null,
+            addSegment: async function(trackId, segmentData) {
+                console.log('Mock addSegment:', trackId, segmentData);
+                // Check that duration is not required
+                if (segmentData.duration !== undefined) {
+                    throw new Error('Duration should not be provided');
+                }
+                return { segment_id: 'test-segment-' + Date.now() };
+            },
+            addTrack: async function(trackData) {
+                console.log('Mock addTrack:', trackData);
+                return { track_id: 'test-track-' + Date.now() };
+            },
+            subscribe: function(callback) {
+                return function() {}; // Unsubscribe function
+            },
+            getState: function() {
+                return { projects: [], currentProject: null, isLoading: false, error: null };
+            }
+        };
+
+        // Load TimelineEditor
+        let script = document.createElement('script');
+        script.src = 'src/components/timeline/TimelineEditor.js';
+        script.onload = function() {
+            console.log('TimelineEditor loaded');
+            runTests();
+        };
+        document.head.appendChild(script);
+
+        function runTests() {
+            // Initialize timeline editor
+            window.timelineEditor = new TimelineEditor('timeline-container');
+            
+            // Test 1: Line Editor Modal
+            document.getElementById('test-line-editor-modal').addEventListener('click', function() {
+                const result = document.getElementById('test1-result');
+                try {
+                    timelineEditor.showLineEditorModal();
+                    
+                    // Check if modal exists
+                    const modal = document.getElementById('line-editor-modal');
+                    if (!modal) {
+                        throw new Error('Line editor modal not found');
+                    }
+                    
+                    // Check if duration field is removed
+                    const durationField = modal.querySelector('#modal-line-duration-input');
+                    if (durationField) {
+                        throw new Error('Duration field still exists in modal');
+                    }
+                    
+                    result.className = 'test-result test-pass';
+                    result.textContent = 'PASS: Line editor modal opened successfully without duration field';
+                } catch (error) {
+                    result.className = 'test-result test-fail';
+                    result.textContent = 'FAIL: ' + error.message;
+                }
+            });
+            
+            // Test 2: Segment Creation
+            document.getElementById('test-create-segment').addEventListener('click', function() {
+                const result = document.getElementById('test2-result');
+                try {
+                    const text = document.getElementById('test-text').value;
+                    const speaker = document.getElementById('test-speaker').value;
+                    const emotion = document.getElementById('test-emotion').value;
+                    
+                    if (!text) {
+                        throw new Error('Text is required');
+                    }
+                    
+                    // Create draggable segment
+                    timelineEditor.createDraggableSegment({
+                        text: text,
+                        speaker: speaker,
+                        emotion: emotion,
+                        emotion_control_method: 'from_speaker',
+                        emotion_weight: 1.0
+                    });
+                    
+                    result.className = 'test-result test-pass';
+                    result.textContent = 'PASS: Segment created successfully without duration';
+                } catch (error) {
+                    result.className = 'test-result test-fail';
+                    result.textContent = 'FAIL: ' + error.message;
+                }
+            });
+            
+            // Test 3: Batch Processing
+            document.getElementById('test-batch-process').addEventListener('click', function() {
+                const result = document.getElementById('test3-result');
+                try {
+                    const text = document.getElementById('test-batch-text').value;
+                    
+                    if (!text) {
+                        throw new Error('Batch text is required');
+                    }
+                    
+                    // Test batch preview
+                    timelineEditor.batchParsedSegments = timelineEditor.parseByLines(text);
+                    timelineEditor.updateBatchPreview();
+                    
+                    // Check if preview was generated without duration errors
+                    const previewList = document.getElementById('batch-preview-list');
+                    if (!previewList) {
+                        throw new Error('Batch preview list not found');
+                    }
+                    
+                    result.className = 'test-result test-pass';
+                    result.textContent = 'PASS: Batch processing works without duration field';
+                } catch (error) {
+                    result.className = 'test-result test-fail';
+                    result.textContent = 'FAIL: ' + error.message;
+                }
+            });
+            
+            // Add mock speakers
+            timelineEditor.speakers = [
+                { name: 'Test Speaker 1', filename: 'speaker1.wav' },
+                { name: 'Test Speaker 2', filename: 'speaker2.wav' }
+            ];
+            
+            // Update speaker dropdowns
+            timelineEditor.updateLineEditorSpeakersDropdown();
+            
+            // Update test speaker dropdown
+            const testSpeakerSelect = document.getElementById('test-speaker');
+            timelineEditor.speakers.forEach(speaker => {
+                const option = document.createElement('option');
+                option.value = speaker.filename;
+                option.textContent = speaker.name;
+                testSpeakerSelect.appendChild(option);
+            });
+        }
+    </script>
+</body>
+</html>

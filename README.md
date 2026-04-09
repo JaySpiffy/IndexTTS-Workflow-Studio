@@ -1,210 +1,229 @@
-
 <div align="center">
-<img src='assets/index_icon.png' width="250"/>
+<img src="assets/index_icon.png" width="220" alt="IndexTTS2 app icon"/>
 </div>
 
+# IndexTTS2 App Toolkit
 
-<h2><center>IndexTTS Workflow Studio: An Enhanced Zero-Shot TTS System with Advanced Workflow Tools</h2>
+This repository is **not** the official IndexTTS model repository.
 
-<p align="center">
-<a href='https://arxiv.org/abs/2502.05512'><img src='https://img.shields.io/badge/ArXiv-2502.05512-red'></a>
+It is a practical web app and workflow tool built **on top of** the official IndexTTS models, with a Dockerized frontend/backend setup, conversation generation, project save/load, review and regeneration tools, and speaker-preparation utilities.
 
-## 👉🏻 IndexTTS Workflow Studio 👈🏻
+## What This Repo Is
 
-[[HuggingFace Demo]](https://huggingface.co/spaces/IndexTeam/IndexTTS)   [[ModelScope Demo]](https://modelscope.cn/studios/IndexTeam/IndexTTS-Demo) \
-[[Original IndexTTS Paper]](https://arxiv.org/abs/2502.05512)  [[Original IndexTTS Demos]](https://index-tts.github.io)
+- A FastAPI + HTML frontend app for working with IndexTTS2 models
+- A conversation workflow tool for multi-speaker generation
+- A review UI for version comparison, regeneration, and export
+- A Docker-first local setup with GPU-aware runtime options
+- A workspace for speaker prep, source clip processing, and project saves
 
-**IndexTTS Workflow Studio** builds upon the original **IndexTTS** (a GPT-style text-to-speech model based on XTTS and Tortoise) and adds a comprehensive user interface and workflow tools for generating, reviewing, and post-processing speech. It retains the core capabilities of the original model while providing significant enhancements for practical use cases.
+## What This Repo Is Not
 
-This version includes major additions such as a multi-tab Gradio UI, advanced seed management, interactive audio review with speaker similarity feedback, audio concatenation, and extensive post-processing effects. See the `NOTICE` file for a detailed breakdown of modifications. *Coming Soon: Keep an eye out for DialogueLab, a related project designed to work seamlessly with the API provided by IndexTTS Workflow Studio for creating interactive dialogues (Release expected soon!)*
+- Not the upstream research/code release from the IndexTTS team
+- Not the canonical place for model papers, demos, or base inference docs
+- Not a drop-in replacement for every upstream Gradio/webui workflow
 
-### Author & Contact
+## Upstream IndexTTS Links
 
-*   **Author:** James A Whittaker-Bent
-*   **Email:** Whittakerbent@googlemail.com
-*   **Development Note:** This Workflow Studio, featuring a comprehensive Gradio UI, audio post-processing pipeline, and FastAPI integration, represents a significant expansion developed in an intensive 3-day sprint, effectively leveraging modern AI development tools.
-*   Feel free to reach out regarding potential collaborations or questions about the Workflow Studio additions.
+This tool uses the official IndexTTS ecosystem. For the original project, papers, and hosted demos, use:
 
-*Original IndexTTS Contact (for questions about the core model):*
-*   QQ Group: 553460296
-*   Discord: https://discord.gg/uT32E7KDmy
+- Official code: [index-tts/index-tts](https://github.com/index-tts/index-tts)
+- IndexTTS2 model: [Hugging Face](https://huggingface.co/IndexTeam/IndexTTS-2)
+- IndexTTS2 demo: [Hugging Face Space](https://huggingface.co/spaces/IndexTeam/IndexTTS-2-Demo)
+- IndexTTS2 paper: [arXiv 2506.21619](https://arxiv.org/abs/2506.21619)
 
-## License and Attribution
+## What This App Adds
 
-This project, **IndexTTS Workflow Studio**, is licensed under the **Apache License, Version 2.0** (see the `LICENSE` file).
+- Docker stack with named frontend/backend services
+- Browser-based conversation workflow
+- Save/load project state
+- Review-time text editing and manual regeneration
+- Similarity scoring and selection workflow
+- Speaker/source-clip prep endpoints
+- Better runtime device selection for local deployment
 
-It is based on the original **IndexTTS** project by Wei Deng, Siyi Zhou, Jingchen Shu, Jinchao Wang, Lu Wang (Repository: https://github.com/index-tts/index-tts), which is also licensed under Apache 2.0.
+## Quick Start
 
-Significant modifications and additions were made by James A Whittaker-Bent. Please see the `NOTICE` file for detailed attribution, a summary of changes, and information regarding the licensing of the original pre-trained models (see `INDEX_MODEL_LICENSE`).
-## 📣 Updates
+### Option 1: Docker (Recommended)
 
-- `2025/03/25` 🔥🔥 We release the model parameters and inference code.
-- `2025/02/12` 🔥 We submitted our paper on arXiv, and released our demos and test sets.
+This is the easiest and most repeatable way to run the app.
 
-## 🖥️ Method
+The default behavior is:
 
-The overview of IndexTTS is shown as follows.
+- use your NVIDIA GPU when Docker can access it
+- fall back to CPU only when GPU runtime is unavailable
 
-<picture>
-  <img src="assets/IndexTTS.png"  width="800"/>
-</picture>
+1. Put your model files in:
 
-
-The main improvements and contributions are summarized as follows:
- - In Chinese scenarios, we have introduced a character-pinyin hybrid modeling approach. This allows for quick correction of mispronounced characters.
- - **IndexTTS** incorporate a conformer conditioning encoder and a BigVGAN2-based speechcode decoder. This improves training stability, voice timbre similarity, and sound quality.
- - We release all test sets here, including those for polysyllabic words, subjective and objective test sets.
-
-
-
-## Model Download
-| **HuggingFace**                                          | **ModelScope** |
-|----------------------------------------------------------|----------------------------------------------------------|
-| [Original IndexTTS Models (HuggingFace)](https://huggingface.co/IndexTeam/Index-TTS) | [Original IndexTTS Models (ModelScope)](https://modelscope.cn/models/IndexTeam/Index-TTS) |
-
-
-## 📑 Evaluation
-
-**Word Error Rate (WER) Results for IndexTTS and Baseline Models**
-
-
-|    **Model**    | **aishell1_test** | **commonvoice_20_test_zh** | **commonvoice_20_test_en** | **librispeech_test_clean** |  **avg** |
-|:---------------:|:-----------------:|:--------------------------:|:--------------------------:|:--------------------------:|:--------:|
-|    **Human**    |        2.0        |            9.5             |            10.0            |            2.4             |   5.1    |
-| **CosyVoice 2** |        1.8        |            9.1             |            7.3             |            4.9             |   5.9    |
-|    **F5TTS**    |        3.9        |            11.7            |            5.4             |            7.8             |   8.2    |
-|  **Fishspeech** |        2.4        |            11.4            |            8.8             |            8.0             |   8.3    |
-|  **FireRedTTS** |        2.2        |            11.0            |            16.3            |            5.7             |   7.7    |
-|     **XTTS**    |        3.0        |            11.4            |            7.1             |            3.5             |   6.0    |
-|   **IndexTTS**  |      **1.3**     |          **7.0**          |          **5.3**          |          **2.1**          | **3.7** |
-
-
-**Speaker Similarity (SS) Results for IndexTTS and Baseline Models**
-
-|    **Model**    | **aishell1_test** | **commonvoice_20_test_zh** | **commonvoice_20_test_en** | **librispeech_test_clean** |  **avg**  |
-|:---------------:|:-----------------:|:--------------------------:|:--------------------------:|:--------------------------:|:---------:|
-|    **Human**    |       0.846       |            0.809           |            0.820           |            0.858           |   0.836   |
-| **CosyVoice 2** |     **0.796**     |            0.743           |            0.742           |          **0.837**         | **0.788** |
-|    **F5TTS**    |       0.743       |          **0.747**         |            0.746           |            0.828           |   0.779   |
-|  **Fishspeech** |       0.488       |            0.552           |            0.622           |            0.701           |   0.612   |
-|  **FireRedTTS** |       0.579       |            0.593           |            0.587           |            0.698           |   0.631   |
-|     **XTTS**    |       0.573       |            0.586           |            0.648           |            0.761           |   0.663   |
-|   **IndexTTS**  |       0.744       |            0.742           |          **0.758**         |            0.823           |   0.776   |
-
-
-
-**MOS Scores for Zero-Shot Cloned Voice**
-
-| **Model**       | **Prosody** | **Timbre** | **Quality** |  **AVG**  |
-|-----------------|:-----------:|:----------:|:-----------:|:---------:|
-| **CosyVoice 2** |    3.67     |    4.05    |    3.73     |   3.81    |
-| **F5TTS**       |    3.56     |    3.88    |    3.56     |   3.66    |
-| **Fishspeech**  |    3.40     |    3.63    |    3.69     |   3.57    |
-| **FireRedTTS**  |    3.79     |    3.72    |    3.60     |   3.70    |
-| **XTTS**        |    3.23     |    2.99    |    3.10     |   3.11    |
-| **IndexTTS**    |    **3.79**     |    **4.20**    |    **4.05**     |   **4.01**    |
-
-
-## Usage Instructions
-
-**Important Note on Models:** This repository contains the code for IndexTTS Workflow Studio. The large pre-trained model files (`.pth`, `.vocab`, `.model`) are **not** included here. You must download them separately from the original IndexTTS project resources (HuggingFace or ModelScope, see Model Download section above) and place them in the `checkpoints` directory. These models are subject to the `INDEX_MODEL_LICENSE` file included in this repository.
-
-### Environment Setup
-
-**Prerequisites:**
-*   Git
-*   Conda (Miniconda or Anaconda)
-*   Python 3.10
-
-1.  **Clone this repository:**
-    ```bash
-            # Replace with your actual repository URL after uploading to GitHub
-            git clone https://github.com/JaySpiffy/IndexTTS-Workflow-Studio.git
-            cd IndexTTS-Workflow-Studio
-    ```
-2.  **Create Conda Environment:**
-    ```bash
-    conda create -n index-tts-studio python=3.10
-    conda activate index-tts-studio
-    ```
-3.  **Install Dependencies:**
-    ```bash
-    pip install -r requirements.txt
-    ```
-    *   **FFmpeg:** You also need FFmpeg installed.
-        *   Linux (Debian/Ubuntu): `sudo apt-get update && sudo apt-get install ffmpeg`
-        *   macOS (using Homebrew): `brew install ffmpeg`
-        *   Windows (using Chocolatey): `choco install ffmpeg` or download from the official FFmpeg website and add to your PATH.
-    *   **Windows `pynini` Note:** If you encounter errors installing `pynini` on Windows (`Failed building wheel for pynini`), install it via conda *before* running `pip install -r requirements.txt`:
-        ```bash
-        conda install -c conda-forge pynini==2.1.5
-        # Then run: pip install -r requirements.txt
-        ```
-
-4.  **Download Models:** Download the required model files (`bigvgan_discriminator.pth`, `bigvgan_generator.pth`, `bpe.model`, `dvae.pth`, `gpt.pth`, `unigram_12000.vocab`) from the links in the "Model Download" section above and place them into the `checkpoints/` directory within this project. You can use `wget` or `huggingface-cli`:
-    *   Using `huggingface-cli`:
-        ```bash
-        # Recommended for China users: export HF_ENDPOINT="https://hf-mirror.com"
-        huggingface-cli download IndexTeam/Index-TTS \
-          bigvgan_discriminator.pth bigvgan_generator.pth bpe.model dvae.pth gpt.pth unigram_12000.vocab \
-          --local-dir checkpoints --local-dir-use-symlinks False
-        ```
-    *   Using `wget`:
-        ```bash
-        wget https://huggingface.co/IndexTeam/Index-TTS/resolve/main/bigvgan_discriminator.pth -P checkpoints
-        wget https://huggingface.co/IndexTeam/Index-TTS/resolve/main/bigvgan_generator.pth -P checkpoints
-        wget https://huggingface.co/IndexTeam/Index-TTS/resolve/main/bpe.model -P checkpoints
-        wget https://huggingface.co/IndexTeam/Index-TTS/resolve/main/dvae.pth -P checkpoints
-        wget https://huggingface.co/IndexTeam/Index-TTS/resolve/main/gpt.pth -P checkpoints
-        wget https://huggingface.co/IndexTeam/Index-TTS/resolve/main/unigram_12000.vocab -P checkpoints
-        ```
-
-### Running the Web Demo (Workflow Studio)
-
-```bash
-python webui.py
-```
-Open your browser and visit `http://127.0.0.1:7860` (or the URL provided in the terminal) to access the Gradio interface.
-
-**For detailed instructions on using the UI features, please see the [Gradio UI Guide](GRADIO_UI_GUIDE.md).**
-
-### Running the API Server
-
-```bash
-# Ensure you are in the project root directory with the conda environment activated
-uvicorn tts_api:app --host 0.0.0.0 --port 8000
-```
-The API will be available at `http://localhost:8000`. See `tts_api.py` for endpoint details (e.g., `/synthesize`).
-
-### Basic Inference (Sample Code)
-```python
-from indextts.infer import IndexTTS
-tts = IndexTTS(model_dir="checkpoints",cfg_path="checkpoints/config.yaml")
-voice="reference_voice.wav"
-text="大家好，我现在正在bilibili 体验 ai 科技，说实话，来之前我绝对想不到！AI技术已经发展到这样匪夷所思的地步了！比如说，现在正在说话的其实是B站为我现场复刻的数字分身，简直就是平行宇宙的另一个我了。如果大家也想体验更多深入的AIGC功能，可以访问 bilibili studio，相信我，你们也会吃惊的。"
-tts.infer(voice, text, output_path)
+```text
+shared/models/checkpoints
 ```
 
-## Dialogue Generation Prompt
+2. Start the stack:
 
-For those interested in the methodology, the detailed system prompt used to guide AI (like Cline) in generating the formatted dialogue scripts for the TTS engine can be found in the file [`DIALOGUE_GENERATION_PROMPT.md`](DIALOGUE_GENERATION_PROMPT.md).
-
-## Acknowledge (Core Dependencies)
-1. [tortoise-tts](https://github.com/neonbjb/tortoise-tts)
-2. [XTTSv2](https://github.com/coqui-ai/TTS)
-3. [BigVGAN](https://github.com/NVIDIA/BigVGAN)
-4. [wenet](https://github.com/wenet-e2e/wenet/tree/main)
-5. [icefall](https://github.com/k2-fsa/icefall)
-
-## 📚 Citation (Original IndexTTS Paper)
-
-🌟 If you find our work helpful, please leave us a star and cite our paper.
-
+```powershell
+docker\start.bat
 ```
-@article{deng2025indextts,
-  title={IndexTTS: An Industrial-Level Controllable and Efficient Zero-Shot Text-To-Speech System},
-  author={Wei Deng, Siyi Zhou, Jingchen Shu, Jinchao Wang, Lu Wang},
-  journal={arXiv preprint arXiv:2502.05512},
-  year={2025}
-}
+
+Or manually:
+
+```powershell
+docker compose -f docker/docker-compose.yml -f docker/docker-compose.gpu.yml up -d --build
 ```
+
+3. Open:
+
+- Frontend UI: [http://localhost:3000](http://localhost:3000)
+- Backend API: [http://localhost:8001](http://localhost:8001)
+- API docs: [http://localhost:8001/docs](http://localhost:8001/docs)
+
+If `shared/models/checkpoints` is empty, the backend will automatically download the official IndexTTS2 model bundle into that folder on first start.
+
+To stop it:
+
+```powershell
+docker\stop.bat
+```
+
+More Docker details are in [docker/README.md](docker/README.md).
+
+## User Guide And Walkthroughs
+
+If you want a guided tour of the app before using it, start here:
+
+- Full user manual with screenshots: [docs/manual/USER_MANUAL.md](docs/manual/USER_MANUAL.md)
+- Speaker Prep video: [docs/assets/manual/videos/speaker-prep-tab.webm](docs/assets/manual/videos/speaker-prep-tab.webm)
+- Conversation Workflow video: [docs/assets/manual/videos/conversation-workflow-tab.webm](docs/assets/manual/videos/conversation-workflow-tab.webm)
+- Conversation Results video: [docs/assets/manual/videos/conversation-results-tab.webm](docs/assets/manual/videos/conversation-results-tab.webm)
+- Timeline Editor video: [docs/assets/manual/videos/timeline-editor-tab.webm](docs/assets/manual/videos/timeline-editor-tab.webm)
+
+The manual and videos cover the four main tabs in the app:
+
+1. `Speaker Prep`
+2. `Conversation Workflow`
+3. `Conversation Results`
+4. `Timeline Editor`
+
+## Model Setup
+
+The Docker stack can download the official IndexTTS2 model automatically on first backend start.
+
+If you prefer to pre-seed it yourself, place the model files in:
+
+```text
+shared/models/checkpoints
+```
+
+If you keep models somewhere else, set:
+
+```powershell
+$env:INDTEXTS_MODEL_PATH="C:\path\to\your\checkpoints"
+```
+
+## Main Workflow
+
+This app does **not** ship with bundled voice clones. Users are expected to bring their own legal reference audio.
+
+1. Put finished reference voices in `shared/audio/speakers/`
+2. Put raw clips you want to prep in `shared/audio/source_clips/`
+3. Open the app
+4. Paste a multi-speaker script like:
+
+```text
+SpeakerOne: Hello there.
+SpeakerTwo: Hi, how are you?
+```
+
+4. Parse the script
+5. Generate versions
+6. Review line versions
+7. Regenerate weak lines if needed
+8. Concatenate or download selected audio
+
+## Important Directories
+
+- `shared/audio/speakers/`: live speaker reference audio files the app uses for cloning, supplied locally by the user
+- `shared/audio/speakers_backups/`: backups of original speaker files before prep/replacement
+- `shared/audio/source_clips/`: raw clips for preparation or batch processing, supplied locally by the user
+- `shared/models/checkpoints/`: official IndexTTS model files
+- `shared/audio/outputs/`: generated outputs
+- `shared/audio/temp_conversation_segments/`: per-line conversation audio
+- `shared/audio/uploads/`: temporary imported files only
+- `shared/data/project_saves/`: saved projects
+- `shared/data/timeline_projects/`: timeline editor projects
+- `frontend/`: browser UI
+- `backend/`: FastAPI app plus wrapped IndexTTS runtime
+- `docs/`: supporting docs, research notes, and planning files
+- `tools/`: one-off debug helpers and manual checks
+- `examples/`: reusable sample inputs and saved examples
+
+## CLI Usage
+
+If you want a CLI-style run without installing Python tooling on the host, use the backend container:
+
+```powershell
+docker compose -f docker/docker-compose.yml exec backend python backend/indextts/cli.py "Your text here" -v /app/shared/audio/speakers/YourVoice.wav -o output.wav --model_dir /app/shared/models/checkpoints -c /app/shared/models/checkpoints/config.yaml
+```
+
+## Runtime Notes
+
+- Docker is the supported runtime path for this repo
+- The default startup path is GPU-first with CPU fallback
+- The backend can auto-download the official model bundle on first start
+- `INDTEXTS_DEVICE=auto` is the default runtime mode
+- `INDTEXTS_USE_FP16=auto` is supported
+- Docker uses DeepSpeed by default on the GPU path
+- The first DeepSpeed-enabled startup can take longer while extensions warm up or compile
+- If DeepSpeed fails to initialize, the backend falls back to normal GPU inference automatically
+- Random sampling can reduce voice-cloning fidelity
+- The current Docker image is NVIDIA/CUDA-based
+- Speaker and source audio are intentionally local-only and are not meant to be redistributed with the app
+
+## Quality Tuning
+
+If a voice sounds too fast, robotic, or less faithful than expected:
+
+- use the `Clone Fidelity` preset in the UI
+- keep random sampling off
+- use normal punctuation and sentence casing in the script
+- prefer a clean 10-20 second reference clip with one speaker and low background noise
+
+There is also a benchmark helper in [backend/scripts/quality_benchmark.py](backend/scripts/quality_benchmark.py) and a human listening review format in [docs/research/LISTENING_FEEDBACK_SYNTAX.md](docs/research/LISTENING_FEEDBACK_SYNTAX.md) so we can compare what the metrics say with what you actually hear.
+
+## App Features
+
+- Multi-speaker conversation generation
+- Available voices panel
+- Auto emotion detection and editable line emotions
+- Review-time text editing
+- Manual regeneration by threshold
+- Project save/load
+- Audio playback and comparison
+- Concatenation and export
+- Speaker tool APIs for extraction, trimming, and batch prep
+
+## Docs
+
+- Docs index: [docs/README.md](docs/README.md)
+- User manual with screenshots: [docs/manual/USER_MANUAL.md](docs/manual/USER_MANUAL.md)
+- Manual videos folder: [docs/assets/manual/videos/](docs/assets/manual/videos/)
+- App deployment notes: [docs/deployment/DEPLOYMENT_GUIDE.md](docs/deployment/DEPLOYMENT_GUIDE.md)
+- Docker usage: [docker/README.md](docker/README.md)
+- API summary: [docs/api/API_README.md](docs/api/API_README.md)
+- V1 to V2 parity tracker: [docs/project/V1_TO_V2_PARITY_CHECKLIST.md](docs/project/V1_TO_V2_PARITY_CHECKLIST.md)
+- Release hygiene checklist: [docs/project/RELEASE_HYGIENE_CHECKLIST.md](docs/project/RELEASE_HYGIENE_CHECKLIST.md)
+- Known limitations: [docs/project/KNOWN_LIMITATIONS.md](docs/project/KNOWN_LIMITATIONS.md)
+- Release readiness status: [docs/project/RELEASE_READINESS_STATUS.md](docs/project/RELEASE_READINESS_STATUS.md)
+- Audio folder guide: [shared/audio/README.md](shared/audio/README.md)
+- Voice fidelity research note: [docs/research/INDEXTTS2_VOICE_FIDELITY_RESEARCH_SYNTHESIS_NEXT_ACTIONS.md](docs/research/INDEXTTS2_VOICE_FIDELITY_RESEARCH_SYNTHESIS_NEXT_ACTIONS.md)
+
+## Credit
+
+The underlying model technology, papers, and official pretrained checkpoints belong to the IndexTTS team. This repository packages those models into a more deployment-focused local application workflow.
+
+## Acknowledgements
+
+- [index-tts/index-tts](https://github.com/index-tts/index-tts)
+- [tortoise-tts](https://github.com/neonbjb/tortoise-tts)
+- [XTTSv2](https://github.com/coqui-ai/TTS)
+- [BigVGAN](https://github.com/NVIDIA/BigVGAN)
+- [maskgct](https://github.com/open-mmlab/Amphion/tree/main/models/tts/maskgct)

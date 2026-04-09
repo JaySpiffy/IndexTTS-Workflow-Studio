@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IndexTTS2 - Emotion Timeline Workflow Test</title>
+    <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
+    
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --primary-hover: #3730a3;
+            --primary-light: #e0e7ff;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-900: #111827;
+            --white: #ffffff;
+            --success-color: #10b981;
+            --error-color: #ef4444;
+            --warning-color: #f59e0b;
+            --info-color: #3b82f6;
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+            --spacing-1: 0.25rem;
+            --spacing-2: 0.5rem;
+            --spacing-3: 0.75rem;
+            --spacing-4: 1rem;
+            --spacing-5: 1.25rem;
+            --transition-fast: 150ms ease-in-out;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            --font-size-sm: 0.875rem;
+            --font-size-lg: 1.125rem;
+            --font-size-xl: 1.25rem;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--gray-50);
+            color: var(--gray-900);
+        }
+
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: var(--gray-900);
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: var(--gray-600);
+            margin-bottom: 20px;
+        }
+
+        .test-section {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-5);
+            margin-bottom: var(--spacing-5);
+            box-shadow: var(--shadow-md);
+        }
+
+        .test-section h2 {
+            color: var(--gray-900);
+            margin-bottom: var(--spacing-3);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-2);
+        }
+
+        .test-section h2 i {
+            color: var(--primary-color);
+        }
+
+        .test-script {
+            width: 100%;
+            height: 150px;
+            font-family: 'Courier New', monospace;
+            border: 1px solid var(--gray-300);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-3);
+            font-size: var(--font-size-sm);
+            resize: vertical;
+        }
+
+        .test-script:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: var(--spacing-2);
+            margin-top: var(--spacing-3);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-2);
+            padding: var(--spacing-2) var(--spacing-4);
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background-color: var(--gray-200);
+            color: var(--gray-700);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--gray-300);
+        }
+
+        .status-message {
+            padding: var(--spacing-3);
+            border-radius: var(--radius-md);
+            margin-top: var(--spacing-3);
+            font-size: var(--font-size-sm);
+        }
+
+        .status-success {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .status-error {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--error-color);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .status-info {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: var(--info-color);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        /* Timeline Styles */
+        .emotion-timeline-container {
+            background-color: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-4);
+            margin-top: var(--spacing-4);
+        }
+
+        .emotion-timeline-header {
+            margin-bottom: var(--spacing-4);
+            padding-bottom: var(--spacing-3);
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .emotion-timeline-header h3 {
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+            color: var(--gray-900);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-2);
+            margin-bottom: var(--spacing-2);
+        }
+
+        .emotion-timeline-header h3 i {
+            color: var(--primary-color);
+        }
+
+        .emotion-timeline-header p {
+            color: var(--gray-600);
+            font-size: var(--font-size-sm);
+            margin: 0;
+        }
+
+        .emotion-timeline-content {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-3);
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: var(--spacing-2);
+        }
+
+        .timeline-block {
+            background-color: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-3);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .timeline-block:hover {
+            border-color: var(--primary-color);
+            background-color: var(--primary-light);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .timeline-block.selected {
+            border-color: var(--primary-color);
+            background-color: var(--primary-light);
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+        }
+
+        .timeline-block-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-2);
+        }
+
+        .timeline-line-number {
+            font-weight: 600;
+            color: var(--primary-color);
+            font-size: var(--font-size-sm);
+        }
+
+        .timeline-speaker {
+            font-weight: 500;
+            color: var(--gray-700);
+            font-size: var(--font-size-sm);
+            background-color: var(--gray-100);
+            padding: var(--spacing-1) var(--spacing-2);
+            border-radius: var(--radius-sm);
+        }
+
+        .timeline-block-content {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-2);
+        }
+
+        .timeline-text {
+            color: var(--gray-700);
+            font-style: italic;
+            line-height: 1.4;
+        }
+
+        .timeline-emotion-visualization {
+            display: flex;
+            height: 8px;
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            background-color: var(--gray-200);
+        }
+
+        .emotion-bar {
+            height: 100%;
+            transition: width var(--transition-fast);
+        }
+
+        .emotion-neutral {
+            background-color: var(--gray-400);
+        }
+
+        .emotion-happy { background-color: #FFD700; }
+        .emotion-sad { background-color: #0000FF; }
+        .emotion-angry { background-color: #FF0000; }
+        .emotion-surprised { background-color: #FFC0CB; }
+        .emotion-calm { background-color: #90EE90; }
+
+        /* Emotion Control Panel */
+        .emotion-control-panel {
+            margin-top: var(--spacing-4);
+            background-color: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-4);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .emotion-control-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-4);
+            padding-bottom: var(--spacing-3);
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .emotion-control-header h4 {
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+            color: var(--gray-900);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-2);
+            margin: 0;
+        }
+
+        .emotion-control-header i {
+            color: var(--primary-color);
+        }
+
+        .emotion-sliders {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-3);
+            margin-bottom: var(--spacing-4);
+        }
+
+        .emotion-slider-group {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-2);
+        }
+
+        .emotion-slider-label {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-1);
+            min-width: 100px;
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            color: var(--gray-700);
+        }
+
+        .emotion-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .emotion-slider {
+            flex: 1;
+            height: 4px;
+            -webkit-appearance: none;
+            appearance: none;
+            background-color: var(--gray-300);
+            border-radius: 2px;
+            outline: none;
+        }
+
+        .emotion-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid var(--white);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .emotion-slider::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid var(--white);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .emotion-slider-value {
+            min-width: 40px;
+            text-align: right;
+            font-weight: 500;
+            color: var(--primary-color);
+            font-size: var(--font-size-sm);
+        }
+
+        .emotion-presets {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-2);
+            margin-bottom: var(--spacing-4);
+        }
+
+        .emotion-preset-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-2);
+            padding: var(--spacing-2);
+            background-color: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+        }
+
+        .emotion-preset-btn:hover {
+            border-color: var(--primary-color);
+            background-color: var(--primary-light);
+            transform: translateY(-1px);
+        }
+
+        .emotion-actions {
+            display: flex;
+            gap: var(--spacing-2);
+            justify-content: flex-end;
+        }
+
+        .test-results {
+            background-color: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-3);
+            margin-top: var(--spacing-3);
+        }
+
+        .test-results pre {
+            background-color: var(--gray-900);
+            color: var(--gray-100);
+            padding: var(--spacing-3);
+            border-radius: var(--radius-md);
+            overflow-x: auto;
+            font-size: var(--font-size-sm);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: var(--spacing-5);
+            color: var(--gray-500);
+        }
+
+        .empty-state i {
+            font-size: 2rem;
+            margin-bottom: var(--spacing-2);
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>IndexTTS2 - Emotion Timeline Workflow Test</h1>
+        <p>This page tests the new emotion timeline functionality for conversation workflow.</p>
+        
+        <div class="test-section">
+            <h2><i class="fas fa-file-alt"></i> Test Script Input</h2>
+            <p>Enter a conversation script in the format: speaker_name: dialogue text</p>
+            <textarea id="test-script" class="test-script" placeholder="Narrator: The city was quiet...
+John: I can't believe it's over.
+Sarah: (Surprised) You're here! I thought you were...">Narrator: The city was quiet...
+John: I can't believe it's over.
+Sarah: (Surprised) You're here! I thought you were...</textarea>
+            <div class="form-actions">
+                <button class="btn btn-primary" id="parse-script-btn">
+                    <i class="fas fa-check"></i> Parse Script
+                </button>
+                <button class="btn btn-secondary" id="clear-script-btn">
+                    <i class="fas fa-times"></i> Clear
+                </button>
+            </div>
+            <div id="parse-status"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2><i class="fas fa-chart-line"></i> Emotion Timeline</h2>
+            <p>Click on any line to adjust emotions for that specific part of the conversation</p>
+            <div id="emotion-timeline-container">
+                <div class="empty-state">
+                    <i class="fas fa-comments"></i>
+                    <p>Parse a script to see the emotion timeline</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2><i class="fas fa-flask"></i> Test Results</h2>
+            <div id="test-results">
+                <p>Test results will appear here...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mock IndexTTSApp class for testing
+        class IndexTTSApp {
+            constructor() {
+                this.speakers = [
+                    { filename: 'narrator.wav', name: 'Narrator' },
+                    { filename: 'John.wav', name: 'John' },
+                    { filename: 'Sarah.wav', name: 'Sarah' }
+                ];
+                this.conversationScript = [];
+                this.parsedScript = null;
+                this.selectedTimelineLine = null;
+            }
+
+            parseScript() {
+                const scriptText = document.getElementById('test-script').value.trim();
+                
+                if (!scriptText) {
+                    this.showStatus('error', 'Please enter a conversation script');
+                    return;
+                }
+                
+                // Parse script lines
+                const lines = [];
+                const scriptLines = scriptText.split('\n').filter(line => line.trim());
+                
+                for (let i = 0; i < scriptLines.length; i++) {
+                    const line = scriptLines[i].trim();
+                    const match = line.match(/^([^:]+):\s*(.+)$/);
+                    
+                    if (match) {
+                        const speaker = match[1].trim();
+                        const text = match[2].trim();
+                        
+                        // Simple speaker matching for test
+                        let matchedSpeaker = this.speakers.find(s => 
+                            s.name.toLowerCase() === speaker.toLowerCase() ||
+                            s.filename.toLowerCase().replace('.wav', '') === speaker.toLowerCase()
+                        );
+                        
+                        if (!matchedSpeaker) {
+                            // Create a mock speaker if not found
+                            matchedSpeaker = { filename: `${speaker}.wav`, name: speaker };
+                        }
+                        
+                        // Create line object with default emotion vector (calm)
+                        lines.push({
+                            line: lines.length + 1,
+                            speaker: matchedSpeaker.name,
+                            speaker_filename: matchedSpeaker.filename,
+                            text: text,
+                            line_number: i,
+                            emo_vector: [0, 0, 0, 0, 0, 0, 0, 0.8] // Default to 'calm' emotion
+                        });
+                    } else {
+                        this.showStatus('error', `Invalid line format: ${line}`);
+                        return;
+                    }
+                }
+                
+                if (lines.length === 0) {
+                    this.showStatus('error', 'No valid conversation lines found');
+                    return;
+                }
+                
+                // Store conversation script with emotion vectors
+                this.conversationScript = lines;
+                
+                // Generate timeline
+                this.generateTimeline();
+                
+                // Store parsed script for generation
+                this.parsedScript = {
+                    title: 'Test Conversation',
+                    lines: lines
+                };
+                
+                this.showStatus('success', `Parsed ${lines.length} conversation lines`);
+                this.updateTestResults();
+            }
+
+            generateTimeline() {
+                const timelineContainer = document.getElementById('emotion-timeline-container');
+                
+                // Generate timeline HTML
+                timelineContainer.innerHTML = `
+                    <div class="emotion-timeline-header">
+                        <h3><i class="fas fa-chart-line"></i> Emotion Timeline</h3>
+                        <p>Click on any line to adjust emotions for that specific part of the conversation</p>
+                    </div>
+                    <div class="emotion-timeline-content" id="emotion-timeline-content">
+                        <!-- Timeline blocks will be generated here -->
+                    </div>
+                    <div class="emotion-control-panel" id="emotion-control-panel" style="display: none;">
+                        <div class="emotion-control-header">
+                            <h4><i class="fas fa-sliders-h"></i> Emotion Control for Line <span id="selected-line-number"></span></h4>
+                            <button class="btn btn-secondary" id="close-emotion-control">
+                                <i class="fas fa-times"></i> Close
+                            </button>
+                        </div>
+                        <div class="emotion-control-content">
+                            <div class="emotion-sliders">
+                                <div class="emotion-slider-group">
+                                    <label class="emotion-slider-label">
+                                        <span class="emotion-dot emotion-happy"></span>
+                                        Happy
+                                    </label>
+                                    <input type="range" class="emotion-slider" id="emotion-slider-happy" min="-1" max="1" step="0.1" value="0">
+                                    <span class="emotion-slider-value">0</span>
+                                </div>
+                                <div class="emotion-slider-group">
+                                    <label class="emotion-slider-label">
+                                        <span class="emotion-dot emotion-sad"></span>
+                                        Sad
+                                    </label>
+                                    <input type="range" class="emotion-slider" id="emotion-slider-sad" min="-1" max="1" step="0.1" value="0">
+                                    <span class="emotion-slider-value">0</span>
+                                </div>
+                                <div class="emotion-slider-group">
+                                    <label class="emotion-slider-label">
+                                        <span class="emotion-dot emotion-angry"></span>
+                                        Angry
+                                    </label>
+                                    <input type="range" class="emotion-slider" id="emotion-slider-angry" min="-1" max="1" step="0.1" value="0">
+                                    <span class="emotion-slider-value">0</span>
+                                </div>
+                                <div class="emotion-slider-group">
+                                    <label class="emotion-slider-label">
+                                        <span class="emotion-dot emotion-surprised"></span>
+                                        Surprised
+                                    </label>
+                                    <input type="range" class="emotion-slider" id="emotion-slider-surprised" min="-1" max="1" step="0.1" value="0">
+                                    <span class="emotion-slider-value">0</span>
+                                </div>
+                                <div class="emotion-slider-group">
+                                    <label class="emotion-slider-label">
+                                        <span class="emotion-dot emotion-calm"></span>
+                                        Calm
+                                    </label>
+                                    <input type="range" class="emotion-slider" id="emotion-slider-calm" min="-1" max="1" step="0.1" value="0.8">
+                                    <span class="emotion-slider-value">0.8</span>
+                                </div>
+                            </div>
+                            <div class="emotion-presets">
+                                <button class="emotion-preset-btn" data-emotion="neutral">
+                                    <span class="emotion-dot emotion-neutral"></span>
+                                    Neutral
+                                </button>
+                                <button class="emotion-preset-btn" data-emotion="happy">
+                                    <span class="emotion-dot emotion-happy"></span>
+                                    Happy
+                                </button>
+                                <button class="emotion-preset-btn" data-emotion="sad">
+                                    <span class="emotion-dot emotion-sad"></span>
+                                    Sad
+                                </button>
+                                <button class="emotion-preset-btn" data-emotion="angry">
+                                    <span class="emotion-dot emotion-angry"></span>
+                                    Angry
+                                </button>
+                                <button class="emotion-preset-btn" data-emotion="surprised">
+                                    <span class="emotion-dot emotion-surprised"></span>
+                                    Surprised
+                                </button>
+                                <button class="emotion-preset-btn" data-emotion="calm">
+                                    <span class="emotion-dot emotion-calm"></span>
+                                    Calm
+                                </button>
+                            </div>
+                            <div class="emotion-actions">
+                                <button class="btn btn-secondary" id="reset-emotion-btn">
+                                    <i class="fas fa-undo"></i> Reset
+                                </button>
+                                <button class="btn btn-primary" id="apply-emotion-btn">
+                                    <i class="fas fa-check"></i> Apply Changes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Generate timeline blocks
+                const timelineContent = document.getElementById('emotion-timeline-content');
+                timelineContent.innerHTML = '';
+                
+                this.conversationScript.forEach((line, index) => {
+                    const timelineBlock = document.createElement('div');
+                    timelineBlock.className = 'timeline-block';
+                    timelineBlock.dataset.lineIndex = index;
+                    
+                    // Create emotion visualization
+                    const emotionColors = this.getEmotionColors(line.emo_vector);
+                    
+                    timelineBlock.innerHTML = `
+                        <div class="timeline-block-header">
+                            <span class="timeline-line-number">Line ${index + 1}</span>
+                            <span class="timeline-speaker">${line.speaker}</span>
+                        </div>
+                        <div class="timeline-block-content">
+                            <div class="timeline-text">"${line.text}"</div>
+                            <div class="timeline-emotion-visualization">
+                                ${emotionColors}
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Add click event listener
+                    timelineBlock.addEventListener('click', () => {
+                        this.selectTimelineLine(index);
+                    });
+                    
+                    timelineContent.appendChild(timelineBlock);
+                });
+                
+                // Setup emotion control event listeners
+                this.setupEmotionControlListeners();
+            }
+
+            getEmotionColors(emoVector) {
+                if (!emoVector || emoVector.length !== 8) {
+                    return '<div class="emotion-bar emotion-neutral" style="width: 100%;"></div>';
+                }
+                
+                // Map emotion vector indices to emotions
+                const emotionMap = [
+                    { name: 'happy', color: '#FFD700' },
+                    { name: 'sad', color: '#0000FF' },
+                    { name: 'angry', color: '#FF0000' },
+                    { name: 'afraid', color: '#800080' },
+                    { name: 'disgusted', color: '#8B4513' },
+                    { name: 'melancholic', color: '#808080' },
+                    { name: 'surprised', color: '#FFC0CB' },
+                    { name: 'calm', color: '#90EE90' }
+                ];
+                
+                let emotionBars = '';
+                emotionMap.forEach((emotion, index) => {
+                    const intensity = Math.abs(emoVector[index]);
+                    if (intensity > 0.1) {
+                        const width = `${intensity * 100}%`;
+                        emotionBars += `<div class="emotion-bar emotion-${emotion.name}" style="width: ${width}; background-color: ${emotion.color};"></div>`;
+                    }
+                });
+                
+                return emotionBars || '<div class="emotion-bar emotion-neutral" style="width: 100%;"></div>';
+            }
+
+            selectTimelineLine(lineIndex) {
+                if (!this.conversationScript || lineIndex < 0 || lineIndex >= this.conversationScript.length) {
+                    return;
+                }
+                
+                // Update selected state
+                document.querySelectorAll('.timeline-block').forEach(block => {
+                    block.classList.remove('selected');
+                });
+                
+                const selectedBlock = document.querySelector(`.timeline-block[data-line-index="${lineIndex}"]`);
+                if (selectedBlock) {
+                    selectedBlock.classList.add('selected');
+                }
+                
+                // Show emotion control panel
+                const emotionControlPanel = document.getElementById('emotion-control-panel');
+                emotionControlPanel.style.display = 'block';
+                
+                // Update selected line number
+                document.getElementById('selected-line-number').textContent = lineIndex + 1;
+                
+                // Load current emotion vector into sliders
+                const line = this.conversationScript[lineIndex];
+                const emoVector = line.emo_vector || [0, 0, 0, 0, 0, 0, 0, 0.8];
+                
+                // Map sliders to emotion vector indices
+                const sliderMapping = {
+                    'emotion-slider-happy': 0,
+                    'emotion-slider-sad': 1,
+                    'emotion-slider-angry': 2,
+                    'emotion-slider-surprised': 6,
+                    'emotion-slider-calm': 7
+                };
+                
+                Object.entries(sliderMapping).forEach(([sliderId, vectorIndex]) => {
+                    const slider = document.getElementById(sliderId);
+                    const valueDisplay = slider.nextElementSibling;
+                    if (slider && valueDisplay) {
+                        slider.value = emoVector[vectorIndex];
+                        valueDisplay.textContent = emoVector[vectorIndex].toFixed(1);
+                    }
+                });
+                
+                // Store selected line index
+                this.selectedTimelineLine = lineIndex;
+            }
+
+            setupEmotionControlListeners() {
+                // Close button
+                const closeBtn = document.getElementById('close-emotion-control');
+                if (closeBtn) {
+                    closeBtn.onclick = () => {
+                        document.getElementById('emotion-control-panel').style.display = 'none';
+                        document.querySelectorAll('.timeline-block').forEach(block => {
+                            block.classList.remove('selected');
+                        });
+                    };
+                }
+                
+                // Emotion sliders
+                document.querySelectorAll('.emotion-slider').forEach(slider => {
+                    slider.oninput = (e) => {
+                        const valueDisplay = e.target.nextElementSibling;
+                        if (valueDisplay) {
+                            valueDisplay.textContent = parseFloat(e.target.value).toFixed(1);
+                        }
+                    };
+                });
+                
+                // Emotion preset buttons
+                document.querySelectorAll('.emotion-preset-btn').forEach(btn => {
+                    btn.onclick = (e) => {
+                        const emotion = e.currentTarget.dataset.emotion;
+                        this.applyEmotionPreset(emotion);
+                    };
+                });
+                
+                // Reset button
+                const resetBtn = document.getElementById('reset-emotion-btn');
+                if (resetBtn) {
+                    resetBtn.onclick = () => {
+                        this.resetEmotionForSelectedLine();
+                    };
+                }
+                
+                // Apply button
+                const applyBtn = document.getElementById('apply-emotion-btn');
+                if (applyBtn) {
+                    applyBtn.onclick = () => {
+                        this.applyEmotionToSelectedLine();
+                    };
+                }
+            }
+
+            applyEmotionPreset(emotion) {
+                const presets = {
+                    neutral: [0, 0, 0, 0, 0, 0, 0, 0],
+                    happy: [0.8, 0, 0, 0, 0, 0, 0.2, 0],
+                    sad: [0, 0.8, 0, 0, 0, 0.3, 0, 0],
+                    angry: [0, 0, 0.8, 0, 0.2, 0, 0, 0],
+                    surprised: [0.2, 0, 0, 0, 0, 0, 0.9, 0],
+                    calm: [0, 0, 0, 0, 0, 0, 0, 0.8]
+                };
+                
+                const presetVector = presets[emotion] || presets.neutral;
+                
+                // Update sliders
+                const sliderMapping = {
+                    'emotion-slider-happy': 0,
+                    'emotion-slider-sad': 1,
+                    'emotion-slider-angry': 2,
+                    'emotion-slider-surprised': 6,
+                    'emotion-slider-calm': 7
+                };
+                
+                Object.entries(sliderMapping).forEach(([sliderId, vectorIndex]) => {
+                    const slider = document.getElementById(sliderId);
+                    const valueDisplay = slider.nextElementSibling;
+                    if (slider && valueDisplay) {
+                        slider.value = presetVector[vectorIndex];
+                        valueDisplay.textContent = presetVector[vectorIndex].toFixed(1);
+                    }
+                });
+            }
+
+            resetEmotionForSelectedLine() {
+                this.applyEmotionPreset('calm');
+            }
+
+            applyEmotionToSelectedLine() {
+                if (this.selectedTimelineLine === null || !this.conversationScript) {
+                    return;
+                }
+                
+                const lineIndex = this.selectedTimelineLine;
+                const line = this.conversationScript[lineIndex];
+                
+                // Collect values from sliders
+                const sliderMapping = {
+                    'emotion-slider-happy': 0,
+                    'emotion-slider-sad': 1,
+                    'emotion-slider-angry': 2,
+                    'emotion-slider-surprised': 6,
+                    'emotion-slider-calm': 7
+                };
+                
+                const newEmoVector = [0, 0, 0, 0, 0, 0, 0, 0];
+                
+                Object.entries(sliderMapping).forEach(([sliderId, vectorIndex]) => {
+                    const slider = document.getElementById(sliderId);
+                    if (slider) {
+                        newEmoVector[vectorIndex] = parseFloat(slider.value);
+                    }
+                });
+                
+                // Update the line's emotion vector
+                line.emo_vector = newEmoVector;
+                
+                // Update the timeline visualization
+                this.updateTimelineVisualization(lineIndex);
+                
+                // Update the parsed script as well
+                if (this.parsedScript && this.parsedScript.lines[lineIndex]) {
+                    this.parsedScript.lines[lineIndex].emo_vector = newEmoVector;
+                }
+                
+                this.showStatus('success', `Emotion updated for line ${lineIndex + 1}`);
+                this.updateTestResults();
+            }
+
+            updateTimelineVisualization(lineIndex) {
+                const timelineBlock = document.querySelector(`.timeline-block[data-line-index="${lineIndex}"]`);
+                if (!timelineBlock || !this.conversationScript[lineIndex]) {
+                    return;
+                }
+                
+                const line = this.conversationScript[lineIndex];
+                const emotionVisualization = timelineBlock.querySelector('.timeline-emotion-visualization');
+                
+                if (emotionVisualization) {
+                    emotionVisualization.innerHTML = this.getEmotionColors(line.emo_vector);
+                }
+            }
+
+            clearScript() {
+                document.getElementById('test-script').value = '';
+                document.getElementById('emotion-timeline-container').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-comments"></i>
+                        <p>Parse a script to see the emotion timeline</p>
+                    </div>
+                `;
+                document.getElementById('test-results').innerHTML = '<p>Test results will appear here...</p>';
+                document.getElementById('parse-status').innerHTML = '';
+                this.conversationScript = [];
+                this.parsedScript = null;
+                this.selectedTimelineLine = null;
+            }
+
+            showStatus(type, message) {
+                const statusDiv = document.getElementById('parse-status');
+                statusDiv.className = `status-message status-${type}`;
+                statusDiv.textContent = message;
+                
+                // Auto-hide after 5 seconds
+                setTimeout(() => {
+                    statusDiv.textContent = '';
+                    statusDiv.className = '';
+                }, 5000);
+            }
+
+            updateTestResults() {
+                const results = document.getElementById('test-results');
+                results.innerHTML = `
+                    <div class="test-results">
+                        <h3>Parsed Script Results:</h3>
+                        <pre>${JSON.stringify(this.conversationScript, null, 2)}</pre>
+                        <h3>Emotion Vectors:</h3>
+                        <pre>${this.conversationScript.map(line => 
+                            `Line ${line.line}: [${line.emo_vector.join(', ')}]`
+                        ).join('\n')}</pre>
+                    </div>
+                `;
+            }
+        }
+
+        // Initialize the test app
+        let testApp;
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            testApp = new IndexTTSApp();
+            
+            // Setup button event listeners
+            document.getElementById('parse-script-btn').addEventListener('click', () => {
+                testApp.parseScript();
+            });
+            
+            document.getElementById('clear-script-btn').addEventListener('click', () => {
+                testApp.clearScript();
+            });
+            
+            // Show initial status
+            testApp.showStatus('info', 'Test page loaded. Enter a script and click "Parse Script" to test the emotion timeline functionality.');
+        });
+    </script>
+</body>
+</html>
