@@ -3,10 +3,27 @@
 
 # IndexTTS2 Workflow Studio
 
-Docker-first local workflow studio for speaker prep, multi-speaker generation, review and regeneration, timeline editing, and polished export on top of the official IndexTTS2 models.
+**Create natural, multi-speaker conversations with IndexTTS2 - fast.**
+
+Turn scripts into realistic dialogue with speaker prep, line-by-line review, regeneration, timeline editing, and polished local export on top of the official IndexTTS2 models.
 
 **Bring your own voices.** This repo does not ship bundled voice clones or private speaker files.
 </div>
+
+## Start In 2 Minutes
+
+If you already have Docker and an NVIDIA-ready setup, the fastest path is:
+
+1. Put your models in `shared/models/checkpoints`
+2. Run `docker\start.bat`
+3. Open [http://localhost:3000](http://localhost:3000)
+4. Start in `Speaker Prep`, then move through `Conversation Workflow`, `Conversation Results`, and `Timeline Editor`
+
+Good entry points:
+
+- Quick start: [Quick Start](#quick-start)
+- Manual with screenshots: [docs/manual/USER_MANUAL.md](docs/manual/USER_MANUAL.md)
+- Docker details: [docker/README.md](docker/README.md)
 
 ## What This Repo Is
 
@@ -38,6 +55,15 @@ Example use cases:
 - generate narration with multiple takes, then compare and regenerate weak lines
 - clean source clips before cloning so the voices sound more stable
 - arrange interruptions, overlaps, and scene timing in a timeline before export
+
+## Why This Workflow Is Different
+
+| What you want to do | Where you do it | Why it matters |
+| --- | --- | --- |
+| Clean bad source audio before cloning | `Speaker Prep` | Better prompt clips usually mean better voice match, less noise, and fewer robotic takes |
+| Turn a script into multi-speaker dialogue quickly | `Conversation Workflow` | Fastest path from script to first usable versions |
+| Keep only the lines that actually sound right | `Conversation Results` | Review, compare, edit, regenerate, and lock final takes before export |
+| Shape interruptions, timing, and full scenes | `Timeline Editor` | Useful when a plain linear conversation is not enough |
 
 ## Main Workspaces
 
@@ -136,6 +162,17 @@ docker\stop.bat
 
 If `shared/models/checkpoints` is empty, the backend can automatically download the official IndexTTS2 model bundle on first start.
 
+## What You Get Out Of The Box
+
+- Docker-first startup with GPU-first behavior and CPU fallback
+- DeepSpeed-enabled local inference path
+- Speaker prep and diagnostics before cloning
+- Multi-speaker script generation
+- Review, regeneration, and final selection gating
+- Timeline-based arrangement and scene export
+- Project save/load for longer sessions
+- Manual, screenshots, and short walkthrough videos
+
 ## Hardware And Runtime Guidance
 
 Practical guidance for a good local experience:
@@ -177,22 +214,6 @@ There is also:
 - a benchmark helper in [backend/scripts/quality_benchmark.py](backend/scripts/quality_benchmark.py)
 - a listening review format in [docs/research/LISTENING_FEEDBACK_SYNTAX.md](docs/research/LISTENING_FEEDBACK_SYNTAX.md)
 - a scripting guide in [docs/research/INDEXTTS2_SCRIPTING_PLAYBOOK.md](docs/research/INDEXTTS2_SCRIPTING_PLAYBOOK.md)
-
-## Demo Audio
-
-Add your showcase audio links here when you are ready. A good public demo set would include:
-
-- a short multi-speaker roundtable sample
-- a cleaner single-speaker narration sample
-- a review/regeneration before-vs-after sample
-- a timeline overlap or interruption sample
-
-Example structure:
-
-- `Podcast Roundtable Demo` - replace with your link
-- `Narration Demo` - replace with your link
-- `Regeneration Comparison Demo` - replace with your link
-- `Timeline Interruption Demo` - replace with your link
 
 ## User Manual And Walkthrough Videos
 
@@ -247,6 +268,16 @@ docker compose -f docker/docker-compose.yml exec backend python backend/indextts
 - Known limitations: [docs/project/KNOWN_LIMITATIONS.md](docs/project/KNOWN_LIMITATIONS.md)
 - Release readiness: [docs/project/RELEASE_READINESS_STATUS.md](docs/project/RELEASE_READINESS_STATUS.md)
 - Audio folder guide: [shared/audio/README.md](shared/audio/README.md)
+
+## Ready To Try It
+
+If you want the shortest path from install to first result:
+
+1. Start the stack with `docker\start.bat`
+2. Open [http://localhost:3000](http://localhost:3000)
+3. Prep or add a voice
+4. Generate a short conversation
+5. Review, regenerate, and export
 
 ## Credit
 
