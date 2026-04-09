@@ -162,6 +162,21 @@ docker\stop.bat
 
 If `shared/models/checkpoints` is empty, the backend can automatically download the official IndexTTS2 model bundle on first start.
 
+## Official Model Downloads
+
+If you prefer to download the models yourself instead of using the app's automatic bootstrap, use the official upstream links:
+
+- IndexTTS-2 on Hugging Face: [IndexTeam/IndexTTS-2](https://huggingface.co/IndexTeam/IndexTTS-2)
+- IndexTTS-2 on ModelScope: [IndexTTS-2](https://modelscope.cn/models/IndexTeam/IndexTTS-2)
+
+For this app, place the downloaded files in:
+
+```text
+shared/models/checkpoints
+```
+
+The app is built around **IndexTTS2**. Older upstream model releases exist, but this repo's current workflow and docs are centered on the v2 model line.
+
 ## What You Get Out Of The Box
 
 - Docker-first startup with GPU-first behavior and CPU fallback
