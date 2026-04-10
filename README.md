@@ -24,6 +24,8 @@ Good entry points:
 - Quick start: [Quick Start](#quick-start)
 - Manual with screenshots: [docs/manual/USER_MANUAL.md](docs/manual/USER_MANUAL.md)
 - Docker details: [docker/README.md](docker/README.md)
+- Contributing: [CONTRIBUTING.md](CONTRIBUTING.md)
+- Security reporting: [SECURITY.md](SECURITY.md)
 
 ## What This Repo Is
 
@@ -187,6 +189,13 @@ The app is built around **IndexTTS2**. Older upstream model releases exist, but 
 - Timeline-based arrangement and scene export
 - Project save/load for longer sessions
 - Manual, screenshots, and short walkthrough videos
+
+## Community And Support
+
+- Start with the pinned support issue for common first-run help and runtime fixes
+- Use the built-in GitHub issue templates for bug reports, setup help, and feature requests
+- Read [CONTRIBUTING.md](CONTRIBUTING.md) if you want to send changes back
+- Read [SECURITY.md](SECURITY.md) for responsible vulnerability reporting
 
 ## Hardware And Runtime Guidance
 
