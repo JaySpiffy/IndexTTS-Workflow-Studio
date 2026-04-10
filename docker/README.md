@@ -153,27 +153,29 @@ environment:
 
 ### Common Overrides
 
+Run these from the `docker/` folder. Keep the `docker-compose.gpu.yml` override in GPU commands so Docker passes the NVIDIA device into the backend container.
+
 ```powershell
 # Force CPU mode inside the container
-$env:INDTEXTS_USE_GPU="false"; $env:INDTEXTS_DEVICE="cpu"; docker compose up -d
+$env:INDTEXTS_USE_GPU="false"; $env:INDTEXTS_DEVICE="cpu"; docker compose -f docker-compose.yml up -d
 
 # Force a specific NVIDIA GPU
-$env:INDTEXTS_DEVICE="cuda:1"; docker compose up -d
+$env:INDTEXTS_DEVICE="cuda:1"; docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d
 
 # Force FP16 on supported accelerators
-$env:INDTEXTS_USE_FP16="true"; docker compose up -d
+$env:INDTEXTS_USE_FP16="true"; docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d
 
 # Disable DeepSpeed but keep GPU inference enabled
-$env:INDTEXTS_USE_DEEPSPEED="false"; docker compose up -d
+$env:INDTEXTS_USE_DEEPSPEED="false"; docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d
 
 # Build a smaller backend image without DeepSpeed installed
-$env:INDTEXTS_INSTALL_DEEPSPEED="false"; docker compose up -d --build
+$env:INDTEXTS_INSTALL_DEEPSPEED="false"; docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d --build
 
 # Override the host ports if you do want the classic mappings
-$env:INDTEXTS_FRONTEND_HOST_PORT="80"; $env:INDTEXTS_BACKEND_HOST_PORT="8000"; docker compose up -d
+$env:INDTEXTS_FRONTEND_HOST_PORT="80"; $env:INDTEXTS_BACKEND_HOST_PORT="8000"; docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d
 
 # Disable automatic model download
-$env:INDTEXTS_AUTO_DOWNLOAD_MODELS="false"; docker compose up -d
+$env:INDTEXTS_AUTO_DOWNLOAD_MODELS="false"; docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d
 ```
 
 ## Troubleshooting

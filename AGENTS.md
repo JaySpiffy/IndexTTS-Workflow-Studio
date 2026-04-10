@@ -18,6 +18,7 @@ Avoid teaching or reintroducing a host-managed Python setup unless the user expl
 - Backend: `backend/main.py`
 - Frontend: `frontend/`
 - Docker stack: `docker/docker-compose.yml`
+- Docker GPU override: `docker/docker-compose.gpu.yml`
 - Backend image build: `docker/Dockerfile.backend`
 - Model bootstrap: `docker/download_models.py`
 
@@ -27,17 +28,17 @@ Avoid teaching or reintroducing a host-managed Python setup unless the user expl
 # Start the full app
 docker\start.bat
 
-# Start the stack manually
-docker compose -f docker/docker-compose.yml up -d --build
+# Start the stack manually with NVIDIA GPU support
+docker compose -f docker/docker-compose.yml -f docker/docker-compose.gpu.yml up -d --build
 
-# Start only the backend
-docker compose -f docker/docker-compose.yml up -d --build backend
+# Start only the backend with NVIDIA GPU support
+docker compose -f docker/docker-compose.yml -f docker/docker-compose.gpu.yml up -d --build backend
 
 # View backend logs
-docker compose -f docker/docker-compose.yml logs -f backend
+docker compose -f docker/docker-compose.yml -f docker/docker-compose.gpu.yml logs -f backend
 
 # Run a backend test inside the container
-docker compose -f docker/docker-compose.yml exec backend python tests/backend/test_line_emotion_contract.py
+docker compose -f docker/docker-compose.yml -f docker/docker-compose.gpu.yml exec backend python3 tests/backend/test_line_emotion_contract.py
 ```
 
 ## Model Notes
@@ -52,6 +53,7 @@ docker compose -f docker/docker-compose.yml exec backend python tests/backend/te
 - Frontend default host port: `3000`
 - Backend default host port: `8001`
 - `INDTEXTS_DEVICE=auto` is the default device-selection mode
+- Use `docker/docker-compose.gpu.yml` whenever manually starting or recreating the backend, otherwise Docker will not pass the NVIDIA GPU into the container and the app will report CPU fallback.
 - The Docker image is NVIDIA/CUDA-based today
 - CPU fallback works, but startup and generation are much slower
 - Random sampling lowers voice-cloning fidelity
