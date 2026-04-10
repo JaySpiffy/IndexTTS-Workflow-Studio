@@ -8,6 +8,8 @@
 Turn scripts into realistic dialogue with speaker prep, line-by-line review, regeneration, timeline editing, and polished local export on top of the official IndexTTS2 models.
 
 **Bring your own voices.** This repo does not ship bundled voice clones or private speaker files.
+
+[![Sponsor JaySpiffy](https://img.shields.io/badge/Sponsor-JaySpiffy-ea4aaa?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/JaySpiffy)
 </div>
 
 ## Start In 2 Minutes
