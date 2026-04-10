@@ -1,0 +1,64 @@
+name: Setup help
+description: Get help with installation, Docker startup, models, or first-run setup.
+title: "[Setup]: "
+labels:
+  - setup
+  - support
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for trying the app.
+
+        Before opening a setup issue, please check:
+        - [README.md](../README.md)
+        - [docker/README.md](../docker/README.md)
+        - [docs/manual/USER_MANUAL.md](../docs/manual/USER_MANUAL.md)
+        - The pinned support issue for common fixes and first-run notes
+  - type: dropdown
+    id: setup-area
+    attributes:
+      label: What do you need help with?
+      options:
+        - Docker startup
+        - Model download / placement
+        - GPU / CUDA / NVIDIA runtime
+        - Voices / source clips
+        - Browser / frontend connection
+        - Generation workflow
+        - Timeline workflow
+        - Something else
+    validations:
+      required: true
+  - type: textarea
+    id: trying
+    attributes:
+      label: What are you trying to do?
+      placeholder: I am trying to start the app for the first time and get the backend to load on my GPU.
+    validations:
+      required: true
+  - type: textarea
+    id: blocked
+    attributes:
+      label: Where are you blocked?
+      description: Include the exact error, message, or point where things stop working.
+      placeholder: The frontend loads, but the API stays disconnected and the backend never becomes healthy.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: System details
+      placeholder: |
+        OS:
+        GPU:
+        Docker version:
+        Are you using the Docker-first path from the repo? yes/no
+    validations:
+      required: true
+  - type: textarea
+    id: tried
+    attributes:
+      label: What have you already tried?
+      placeholder: I restarted Docker, ran docker\start.bat again, and checked the backend logs.
+

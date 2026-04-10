@@ -1,0 +1,83 @@
+name: Bug report
+description: Report a reproducible app bug or regression.
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug.
+
+        Before filing:
+        - Make sure you are using the latest `main` or the latest release.
+        - If this is a startup problem, check the Docker-first setup docs in [docker/README.md](../docker/README.md).
+        - If this is a UI workflow problem, check the manual in [docs/manual/USER_MANUAL.md](../docs/manual/USER_MANUAL.md).
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened?
+      description: Describe the bug clearly and briefly.
+      placeholder: The app connected, but generation stayed queued forever after clicking Generate Conversation.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Give the shortest set of steps needed to reproduce the problem.
+      placeholder: |
+        1. Run docker\start.bat
+        2. Open http://localhost:3000
+        3. Go to Conversation Workflow
+        4. Paste script and click Generate Conversation
+        5. See error
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+      placeholder: The conversation should generate and move to the results tab.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which part of the app is affected?
+      options:
+        - Speaker Prep
+        - Conversation Workflow
+        - Conversation Results
+        - Timeline Editor
+        - Docker / Startup
+        - Models / Downloads
+        - Documentation
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: App version or commit
+      description: Release version, tag, or commit if known.
+      placeholder: v2.0.0
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Include OS, GPU, and Docker details if relevant.
+      placeholder: |
+        Windows 11
+        NVIDIA RTX 3060 Ti
+        Docker Desktop 4.x
+        CUDA/NVIDIA container runtime working
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs, screenshots, or console output
+      description: Paste any useful backend logs, browser errors, or screenshots.
+      render: shell
+

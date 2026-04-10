@@ -1,0 +1,40 @@
+name: Feature request
+description: Suggest an improvement or new workflow feature.
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you trying to solve?
+      placeholder: It is hard to compare multiple candidate lines when building long conversations.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like to see?
+      placeholder: A side-by-side compare queue with keyboard shortcuts for accepting the best line.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which area does this relate to?
+      options:
+        - Speaker Prep
+        - Conversation Workflow
+        - Conversation Results
+        - Timeline Editor
+        - Docker / Startup
+        - Documentation
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: benefit
+    attributes:
+      label: Why would this help?
+      placeholder: It would make review faster for longer projects and reduce repetitive clicking.
+
