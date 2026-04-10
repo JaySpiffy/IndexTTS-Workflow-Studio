@@ -60,10 +60,13 @@ class Settings(BaseSettings):
     similarity_threshold: float = Field(default=0.60, validation_alias="INDTEXTS_SIMILARITY_THRESHOLD")
     robotic_threshold: float = Field(default=0.70, validation_alias="INDTEXTS_ROBOTIC_THRESHOLD")
     auto_regen_attempts: int = Field(default=1, validation_alias="INDTEXTS_AUTO_REGEN_ATTEMPTS")
+    similarity_backend: str = Field(default="speechbrain", validation_alias="INDTEXTS_SIMILARITY_BACKEND")
     
     # Conversation settings
     max_conversation_length: int = Field(default=1000, validation_alias="INDTEXTS_MAX_CONVERSATION_LENGTH")
     max_versions_per_line: int = Field(default=5, validation_alias="INDTEXTS_MAX_VERSIONS_PER_LINE")
+    generation_worker_slots: int = Field(default=1, validation_alias="INDTEXTS_GENERATION_WORKER_SLOTS")
+    generation_max_pending_tasks: int = Field(default=4, validation_alias="INDTEXTS_GENERATION_MAX_PENDING_TASKS")
 
     def resolve_device(self) -> Optional[str]:
         """

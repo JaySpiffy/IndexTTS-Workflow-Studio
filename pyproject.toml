@@ -27,6 +27,7 @@ dependencies = [
   "accelerate==1.8.1",
   "cn2an==0.5.22",
   "cython==3.0.7",
+  "deepfilternet==0.5.6",
   "descript-audiotools==0.7.2",
   "einops>=0.8.1",
   "ffmpeg-python==0.2.0",

@@ -71,7 +71,8 @@ class AudioProcessingService:
     def analyze_speaker_similarity(
         self,
         reference_filename: str,
-        generated_filename: str
+        generated_filename: str,
+        similarity_backend: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Analyze speaker similarity between reference and generated audio.
@@ -90,9 +91,6 @@ class AudioProcessingService:
                 analyze_speaker_similarity_with_quality
             )
             
-            if speaker_similarity_model is None:
-                raise ModelNotLoadedError("Speaker similarity model not loaded")
-            
             # Find audio files
             reference_path = self.find_audio_file(reference_filename)
             generated_path = self.find_audio_file(generated_filename)
@@ -101,7 +99,8 @@ class AudioProcessingService:
             result = analyze_speaker_similarity_with_quality(
                 speaker_similarity_model,
                 str(reference_path),
-                str(generated_path)
+                str(generated_path),
+                similarity_backend=similarity_backend or settings.similarity_backend,
             )
             
             return {
@@ -111,6 +110,9 @@ class AudioProcessingService:
                 "similarity_score": result['similarity'],
                 "robotic_score": result['robotic_score'],
                 "quality_score": result['quality_score'],
+                "similarity_backend_used": result.get("similarity_backend_used"),
+                "similarity_requested_backend": result.get("similarity_requested_backend"),
+                "similarity_breakdown": result.get("similarity_breakdown"),
                 "meets_similarity_threshold": result['similarity'] >= settings.similarity_threshold,
                 "meets_robotic_threshold": result['robotic_score'] <= settings.robotic_threshold,
                 "overall_quality_acceptable": result['quality_score'] >= (settings.similarity_threshold * 0.8),
@@ -128,7 +130,8 @@ class AudioProcessingService:
     def batch_similarity_analysis(
         self,
         reference_filename: str,
-        generated_filenames: List[str]
+        generated_filenames: List[str],
+        similarity_backend: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Perform batch similarity analysis on multiple generated audio files.
@@ -147,12 +150,6 @@ class AudioProcessingService:
             raise ValidationError("Too many files for batch analysis (max 50)")
         
         try:
-            # Import here to avoid circular imports
-            from api.core.audio_processing import speaker_similarity_model
-            
-            if speaker_similarity_model is None:
-                raise ModelNotLoadedError("Speaker similarity model not loaded")
-            
             # Find reference file
             reference_path = self.find_audio_file(reference_filename)
             
@@ -160,7 +157,11 @@ class AudioProcessingService:
             
             for filename in generated_filenames:
                 try:
-                    analysis = self.analyze_speaker_similarity(reference_filename, filename)
+                    analysis = self.analyze_speaker_similarity(
+                        reference_filename,
+                        filename,
+                        similarity_backend=similarity_backend,
+                    )
                     results.append(analysis)
                     
                 except Exception as e:
@@ -509,7 +510,8 @@ class AudioProcessingService:
         use_noise_reduction: bool = False,
         use_vocal_separation: bool = False,
         normalization_strength: float = 0.5,
-        noise_reduction_strength: float = 0.5
+        noise_reduction_strength: float = 0.5,
+        noise_reduction_backend: str = "auto",
     ) -> Dict[str, Any]:
         """
         Process all source clips through vocal separation and normalization.
@@ -532,7 +534,8 @@ class AudioProcessingService:
                 use_noise_reduction=use_noise_reduction,
                 use_vocal_separation=use_vocal_separation,
                 normalization_strength=normalization_strength,
-                noise_reduction_strength=noise_reduction_strength
+                noise_reduction_strength=noise_reduction_strength,
+                noise_reduction_backend=noise_reduction_backend,
             )
             
             # Collect all progress updates
@@ -548,7 +551,8 @@ class AudioProcessingService:
                     "use_noise_reduction": use_noise_reduction,
                     "use_vocal_separation": use_vocal_separation,
                     "normalization_strength": normalization_strength,
-                    "noise_reduction_strength": noise_reduction_strength
+                    "noise_reduction_strength": noise_reduction_strength,
+                    "noise_reduction_backend": noise_reduction_backend,
                 }
             }
             
@@ -612,6 +616,7 @@ class AudioProcessingService:
         target_peak_dbfs: float = -1.0,
         use_noise_reduction: bool = False,
         noise_reduction_strength: float = 0.35,
+        noise_reduction_backend: str = "auto",
         use_vocal_separation: bool = False,
     ) -> Dict[str, Any]:
         """
@@ -645,6 +650,7 @@ class AudioProcessingService:
                 target_peak_dbfs=target_peak_dbfs,
                 use_noise_reduction=use_noise_reduction,
                 noise_reduction_strength=noise_reduction_strength,
+                noise_reduction_backend=noise_reduction_backend,
                 use_vocal_separation=use_vocal_separation,
             )
 

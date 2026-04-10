@@ -15,6 +15,7 @@ Use this checklist before promoting v2 as the default public version.
 - Confirm missing checkpoints trigger automatic model download when `INDTEXTS_AUTO_DOWNLOAD_MODELS=true`.
 
 ## Functional Verification
+- Run the manual smoke packs in [../testing/README.md](../testing/README.md) for startup plus each major tab.
 - Run focused backend contract tests:
   - `docker compose -f docker/docker-compose.yml exec backend python tests/backend/test_line_emotion_contract.py`
   - `docker compose -f docker/docker-compose.yml exec backend python tests/backend/test_seed_strategy_contract.py`

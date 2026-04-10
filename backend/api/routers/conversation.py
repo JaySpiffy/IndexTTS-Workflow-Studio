@@ -434,6 +434,10 @@ async def get_conversation_status(conversation_id: str, http_request: Request):
                 status=status["status"],
                 progress_percent=status["progress_percent"],
                 current_step=status["current_step"],
+                queue_position=status.get("queue_position"),
+                queued_jobs_ahead=status.get("queued_jobs_ahead"),
+                active_generation_slots=status.get("active_generation_slots"),
+                queued_generation_tasks=status.get("queued_generation_tasks"),
                 estimated_time_remaining=status.get("estimated_time_remaining"),
                 result={
                     "lines": status.get("lines", []),

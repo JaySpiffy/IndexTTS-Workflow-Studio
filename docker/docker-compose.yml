@@ -22,6 +22,7 @@ services:
       - ../shared/audio:/app/shared/audio
       - ../shared/data:/app/shared/data
       - indextts-torch-extensions:/root/.cache/torch_extensions
+      - indextts-deepfilter-cache:/root/.cache/DeepFilterNet
       - indextts-triton-cache:/root/.triton
     environment:
       INDTEXTS_HOST: 0.0.0.0
@@ -64,5 +65,6 @@ networks:
     driver: bridge
 
 volumes:
+  indextts-deepfilter-cache:
   indextts-torch-extensions:
   indextts-triton-cache:

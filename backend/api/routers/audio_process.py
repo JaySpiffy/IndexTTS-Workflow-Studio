@@ -99,7 +99,8 @@ async def analyze_speaker_similarity(
         # Analyze similarity using service
         result = audio_service.analyze_speaker_similarity(
             reference_filename=request.reference_filename,
-            generated_filename=request.generated_filename
+            generated_filename=request.generated_filename,
+            similarity_backend=request.similarity_backend,
         )
         
         return SimilarityAnalysisResponse(
@@ -109,6 +110,9 @@ async def analyze_speaker_similarity(
             analysis_details={
                 "reference_filename": result["reference_filename"],
                 "generated_filename": result["generated_filename"],
+                "similarity_backend_requested": result.get("similarity_requested_backend"),
+                "similarity_backend_used": result.get("similarity_backend_used"),
+                "similarity_breakdown": result.get("similarity_breakdown"),
                 "similarity_threshold": settings.similarity_threshold,
                 "robotic_threshold": settings.robotic_threshold,
                 "meets_similarity_threshold": result["meets_similarity_threshold"],
@@ -144,7 +148,8 @@ async def batch_similarity_analysis(
         # Perform batch analysis using service
         result = audio_service.batch_similarity_analysis(
             reference_filename=request.reference_filename,
-            generated_filenames=request.generated_filenames
+            generated_filenames=request.generated_filenames,
+            similarity_backend=request.similarity_backend,
         )
         
         # Convert to response format
@@ -158,6 +163,9 @@ async def batch_similarity_analysis(
                     analysis_details={
                         "reference_filename": item["reference_filename"],
                         "generated_filename": item["generated_filename"],
+                        "similarity_backend_requested": item.get("similarity_requested_backend"),
+                        "similarity_backend_used": item.get("similarity_backend_used"),
+                        "similarity_breakdown": item.get("similarity_breakdown"),
                         "meets_similarity_threshold": item["meets_similarity_threshold"],
                         "meets_robotic_threshold": item["meets_robotic_threshold"]
                     }

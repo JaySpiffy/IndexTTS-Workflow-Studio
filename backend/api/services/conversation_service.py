@@ -37,6 +37,13 @@ class ConversationService:
         self.conversation_manager = conversation_manager
         self.active_conversations: Dict[str, Dict[str, Any]] = {}
         self.active_regenerations: Dict[str, Dict[str, Any]] = {}
+        self._generation_queue: Optional[asyncio.Queue] = None
+        self._generation_workers: List[asyncio.Task] = []
+        self._generation_queue_loop: Optional[asyncio.AbstractEventLoop] = None
+        self._queued_conversation_ids: List[str] = []
+        self._running_conversation_ids: set[str] = set()
+        self._cancelled_conversation_ids: set[str] = set()
+        self._conversation_futures: Dict[str, asyncio.Future] = {}
 
     @staticmethod
     def _extract_progress_step(status_log: Optional[str], fallback: str) -> str:
@@ -102,6 +109,105 @@ class ConversationService:
         except (TypeError, ValueError):
             numeric_seed = int(fallback)
         return numeric_seed % SEED_MODULUS
+
+    def _build_queue_step(self, queue_position: int) -> str:
+        """Return a friendly queue status message."""
+        ahead = max(0, int(queue_position) - 1)
+        if ahead <= 0:
+            return "Queued for generation (next available slot)"
+        return f"Queued for generation ({ahead} ahead)"
+
+    def _refresh_generation_queue_positions(self) -> None:
+        """Keep queued conversation metadata in sync with queue order."""
+        for position, conversation_id in enumerate(self._queued_conversation_ids, start=1):
+            task = self.active_conversations.get(conversation_id)
+            if not task:
+                continue
+            task["status"] = "queued"
+            task["queue_position"] = position
+            task["current_step"] = self._build_queue_step(position)
+
+    async def _ensure_generation_workers(self) -> None:
+        """Create queue workers for the current event loop when needed."""
+        loop = asyncio.get_running_loop()
+
+        if self._generation_queue_loop is not loop:
+            for worker in self._generation_workers:
+                worker.cancel()
+            self._generation_workers = []
+            self._generation_queue = asyncio.Queue()
+            self._generation_queue_loop = loop
+            self._queued_conversation_ids = []
+            self._running_conversation_ids = set()
+            self._cancelled_conversation_ids = set()
+            self._conversation_futures = {}
+
+        if self._generation_queue is None:
+            self._generation_queue = asyncio.Queue()
+
+        target_workers = max(1, int(settings.generation_worker_slots or 1))
+        active_workers = [worker for worker in self._generation_workers if not worker.done()]
+        self._generation_workers = active_workers
+
+        while len(self._generation_workers) < target_workers:
+            worker = asyncio.create_task(
+                self._generation_worker(len(self._generation_workers) + 1)
+            )
+            self._generation_workers.append(worker)
+
+    async def _generation_worker(self, worker_index: int) -> None:
+        """Process queued conversation generation jobs one at a time per worker."""
+        assert self._generation_queue is not None
+
+        while True:
+            job = await self._generation_queue.get()
+            conversation_id = job["conversation_id"]
+            future = job["future"]
+
+            try:
+                if conversation_id in self._queued_conversation_ids:
+                    self._queued_conversation_ids.remove(conversation_id)
+
+                task = self.active_conversations.get(conversation_id)
+                if conversation_id in self._cancelled_conversation_ids:
+                    self._cancelled_conversation_ids.discard(conversation_id)
+                    self._refresh_generation_queue_positions()
+                    if task:
+                        task["queue_position"] = None
+                        task["current_step"] = "Generation removed from queue"
+                    if not future.done():
+                        future.set_result(
+                            {
+                                "conversation_id": conversation_id,
+                                "status": "stopped",
+                                "lines": task.get("lines", []) if task else [],
+                                "total_versions": 0,
+                                "generation_time": 0.0,
+                            }
+                        )
+                    continue
+
+                self._running_conversation_ids.add(conversation_id)
+                self._refresh_generation_queue_positions()
+                if task:
+                    task["queue_position"] = None
+
+                result = await asyncio.to_thread(
+                    self._generate_conversation_sync,
+                    conversation_id,
+                    job.get("progress_callback"),
+                    self._generation_queue_loop,
+                )
+                if not future.done():
+                    future.set_result(result)
+            except Exception as error:
+                if not future.done():
+                    future.set_exception(error)
+            finally:
+                self._running_conversation_ids.discard(conversation_id)
+                self._conversation_futures.pop(conversation_id, None)
+                self._refresh_generation_queue_positions()
+                self._generation_queue.task_done()
 
     def _resolve_seed_runtime(
         self,
@@ -619,16 +725,21 @@ class ConversationService:
         
         # Generate unique conversation ID
         conversation_id = str(uuid.uuid4())
+
+        if len(self._queued_conversation_ids) >= max(1, int(settings.generation_max_pending_tasks or 1)):
+            raise ConversationError("Generation queue is full. Please wait for a queued job to start before adding another.")
         
         # Initialize task
         self.active_conversations[conversation_id] = {
-            "status": "pending",
+            "status": "queued",
             "progress": 0.0,
-            "current_step": "Initializing generation",
+            "current_step": self._build_queue_step(len(self._queued_conversation_ids) + 1),
             "lines": [],
             "error": None,
             "start_time": time.time(),
             "end_time": None,
+            "queue_position": len(self._queued_conversation_ids) + 1,
+            "queued_at": time.time(),
             "parsed_script": parsed_script,
             "generation_params": {
                 "versions_per_line": versions_per_line,
@@ -680,16 +791,30 @@ class ConversationService:
         
         task = self.active_conversations[conversation_id]
         
-        if task["status"] != "pending":
-            raise ValidationError(f"Conversation task not in pending state: {conversation_id}")
+        if task["status"] not in {"pending", "queued"}:
+            raise ValidationError(f"Conversation task not in queueable state: {conversation_id}")
+
+        await self._ensure_generation_workers()
+
+        if conversation_id in self._conversation_futures:
+            return await self._conversation_futures[conversation_id]
 
         loop = asyncio.get_running_loop()
-        return await asyncio.to_thread(
-            self._generate_conversation_sync,
-            conversation_id,
-            progress_callback,
-            loop
+        future = loop.create_future()
+        self._conversation_futures[conversation_id] = future
+        if conversation_id not in self._queued_conversation_ids:
+            self._queued_conversation_ids.append(conversation_id)
+        task["status"] = "queued"
+        task["queued_at"] = task.get("queued_at") or time.time()
+        self._refresh_generation_queue_positions()
+        await self._generation_queue.put(
+            {
+                "conversation_id": conversation_id,
+                "future": future,
+                "progress_callback": progress_callback,
+            }
         )
+        return await future
 
     def _generate_conversation_sync(
         self,
@@ -703,13 +828,14 @@ class ConversationService:
 
         task = self.active_conversations[conversation_id]
 
-        if task["status"] != "pending":
+        if task["status"] not in {"pending", "queued"}:
             raise ValidationError(f"Conversation task not in pending state: {conversation_id}")
 
         try:
             # Update status to running
             task["status"] = "running"
             task["current_step"] = "Preparing conversation generation"
+            task["queue_position"] = None
             
             # Prepare generation parameters
             params = task["generation_params"]
@@ -758,6 +884,7 @@ class ConversationService:
                 "max_mel_tokens_convo": params.get("max_mel_tokens", 1500),
                 "max_text_tokens_per_segment_convo": params.get("max_text_tokens_per_segment", 120),
                 "speaker_pacing": deepcopy(params.get("speaker_pacing", [])),
+                "scene_pacing_profile": params.get("scene_pacing_profile", "balanced"),
                 "seed_strategy": seed_runtime["seed_strategy"],
                 "fixed_base_seed": seed_runtime["fixed_base_seed"],
                 "resolved_base_seed": seed_runtime.get("resolved_base_seed"),
@@ -872,6 +999,32 @@ class ConversationService:
         
         task = self.active_conversations[conversation_id]
         
+        if task["status"] == "queued":
+            task["status"] = "stopped"
+            task["current_step"] = "Generation removed from queue"
+            task["queue_position"] = None
+            task["end_time"] = time.time()
+            if conversation_id in self._queued_conversation_ids:
+                self._queued_conversation_ids.remove(conversation_id)
+            self._cancelled_conversation_ids.add(conversation_id)
+            pending_future = self._conversation_futures.get(conversation_id)
+            if pending_future and not pending_future.done():
+                pending_future.set_result(
+                    {
+                        "conversation_id": conversation_id,
+                        "status": "stopped",
+                        "lines": task.get("lines", []),
+                        "total_versions": 0,
+                        "generation_time": 0.0,
+                    }
+                )
+            self._refresh_generation_queue_positions()
+            return {
+                "conversation_id": conversation_id,
+                "status": "stopped",
+                "message": "Conversation generation removed from queue"
+            }
+
         if task["status"] != "running":
             raise ValidationError(f"Conversation is not running: {conversation_id}")
         
@@ -927,6 +1080,10 @@ class ConversationService:
             "status": task["status"],
             "progress_percent": task["progress"],
             "current_step": task["current_step"],
+            "queue_position": task.get("queue_position"),
+            "queued_jobs_ahead": max(0, int(task.get("queue_position", 0) or 0) - 1),
+            "active_generation_slots": max(1, int(settings.generation_worker_slots or 1)),
+            "queued_generation_tasks": len(self._queued_conversation_ids),
             "estimated_time_remaining": estimated_time_remaining,
             "start_time": task.get("start_time"),
             "end_time": task.get("end_time"),
@@ -1272,6 +1429,7 @@ class ConversationService:
                 "max_mel_tokens_convo": generation_params["max_mel_tokens"],
                 "max_text_tokens_per_segment_convo": generation_params["max_text_tokens_per_segment"],
                 "speaker_pacing": deepcopy(generation_params.get("speaker_pacing", [])),
+                "scene_pacing_profile": conversation_params.get("scene_pacing_profile", "balanced"),
                 "seed_strategy": seed_runtime["seed_strategy"],
                 "fixed_base_seed": seed_runtime["fixed_base_seed"],
                 "resolved_base_seed": seed_runtime.get("resolved_base_seed"),

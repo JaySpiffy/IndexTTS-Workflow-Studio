@@ -6,18 +6,18 @@
     <title>IndexTTS2 - Advanced Text-to-Speech</title>
     <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
     <!-- Base CSS -->
-    <link rel="stylesheet" href="assets/css/base.css?v=2026-04-08-timeline-standalone-2">
-    <link rel="stylesheet" href="assets/css/layout.css?v=2026-04-08-timeline-standalone-2">
-    <link rel="stylesheet" href="assets/css/forms.css?v=2026-04-08-timeline-standalone-2">
-    <link rel="stylesheet" href="assets/css/components.css?v=2026-04-08-timeline-standalone-2">
-    <link rel="stylesheet" href="assets/css/workflows.css?v=2026-04-08-timeline-standalone-2">
-    <link rel="stylesheet" href="assets/css/batch-processing.css?v=2026-04-08-timeline-standalone-2">
-    <link rel="stylesheet" href="assets/css/line-editor.css?v=2026-04-08-timeline-standalone-2">
-    <link rel="stylesheet" href="assets/css/emotion-timeline.css?v=2026-04-08-timeline-standalone-2">
-    <link rel="stylesheet" href="assets/css/edit-segment-modal.css?v=2026-04-08-timeline-standalone-2">
-    <link rel="stylesheet" href="assets/css/keyboard-shortcuts.css?v=2026-04-08-timeline-standalone-2">
-    <link rel="stylesheet" href="assets/css/responsive.css?v=2026-04-08-timeline-standalone-2">
-    <link rel="stylesheet" href="assets/css/custom-media-player.css?v=2026-04-08-timeline-standalone-2">
+    <link rel="stylesheet" href="assets/css/base.css?v=2026-04-10-queue-pacing-1">
+    <link rel="stylesheet" href="assets/css/layout.css?v=2026-04-10-queue-pacing-1">
+    <link rel="stylesheet" href="assets/css/forms.css?v=2026-04-10-queue-pacing-1">
+    <link rel="stylesheet" href="assets/css/components.css?v=2026-04-10-queue-pacing-1">
+    <link rel="stylesheet" href="assets/css/workflows.css?v=2026-04-10-queue-pacing-1">
+    <link rel="stylesheet" href="assets/css/batch-processing.css?v=2026-04-10-queue-pacing-1">
+    <link rel="stylesheet" href="assets/css/line-editor.css?v=2026-04-10-queue-pacing-1">
+    <link rel="stylesheet" href="assets/css/emotion-timeline.css?v=2026-04-10-queue-pacing-1">
+    <link rel="stylesheet" href="assets/css/edit-segment-modal.css?v=2026-04-10-queue-pacing-1">
+    <link rel="stylesheet" href="assets/css/keyboard-shortcuts.css?v=2026-04-10-queue-pacing-1">
+    <link rel="stylesheet" href="assets/css/responsive.css?v=2026-04-10-queue-pacing-1">
+    <link rel="stylesheet" href="assets/css/custom-media-player.css?v=2026-04-10-queue-pacing-1">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 </head>
@@ -585,6 +585,14 @@ another_speaker: Response here
                                         <label for="speaker-prep-target-peak">Target Peak:</label>
                                         <input type="range" id="speaker-prep-target-peak" min="-6" max="0" step="0.5" value="-1">
                                         <span class="range-value" id="speaker-prep-target-peak-value">-1.0 dBFS</span>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="speaker-prep-noise-backend">Noise Cleanup Engine:</label>
+                                        <select id="speaker-prep-noise-backend">
+                                            <option value="auto" selected>Auto (prefer DeepFilterNet)</option>
+                                            <option value="deepfilter">DeepFilterNet</option>
+                                            <option value="classic">Classic cleanup</option>
+                                        </select>
                                     </div>
                                     <div class="form-group">
                                         <label for="speaker-prep-noise-strength">Noise Reduction Strength:</label>
@@ -1545,7 +1553,7 @@ lines:
     <div class="notification-container" id="notification-container"></div>
 
     <!-- JavaScript Modules -->
-    <script type="module" src="src/app.js?v=2026-04-08-timeline-standalone-2"></script>
-    <script src="src/custom-media-player.js?v=2026-04-08-timeline-standalone-2"></script>
+    <script type="module" src="src/app.js?v=2026-04-10-release-smoke-1"></script>
+    <script src="src/custom-media-player.js?v=2026-04-10-release-smoke-1"></script>
 </body>
 </html>

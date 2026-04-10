@@ -216,7 +216,8 @@ async def batch_process_source_clips(
                     use_noise_reduction=request.options.use_noise_reduction,
                     use_vocal_separation=request.options.use_vocal_separation,
                     normalization_strength=request.options.normalization_strength,
-                    noise_reduction_strength=request.options.noise_reduction_strength
+                    noise_reduction_strength=request.options.noise_reduction_strength,
+                    noise_reduction_backend=request.options.noise_reduction_backend,
                 )
                 
                 # Stream progress updates
@@ -346,6 +347,7 @@ async def prepare_source_clip_endpoint(request: SourceClipPreparationRequest, ht
             target_peak_dbfs=request.target_peak_dbfs,
             use_noise_reduction=request.use_noise_reduction,
             noise_reduction_strength=request.noise_reduction_strength,
+            noise_reduction_backend=request.noise_reduction_backend,
             use_vocal_separation=request.use_vocal_separation,
         )
 

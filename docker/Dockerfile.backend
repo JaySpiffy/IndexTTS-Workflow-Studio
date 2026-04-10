@@ -48,7 +48,7 @@ RUN if [ "$INSTALL_DEEPSPEED" = "true" ] || [ "$INSTALL_DEEPSPEED" = "1" ]; then
     fi
 
 # Create required directories
-RUN mkdir -p /app/shared/audio/uploads /app/shared/audio/outputs /app/shared/audio/temp /app/shared/audio/speakers /app/shared/audio/source_clips /app/shared/audio/temp_conversation_segments /app/shared/data/project_saves /app/shared/data/timeline_projects /app/shared/models/checkpoints /app/shared/models/pretrained /app/shared/models/checkpoints/hf_cache /root/.cache/torch_extensions /root/.triton/autotune \
+RUN mkdir -p /app/shared/audio/uploads /app/shared/audio/outputs /app/shared/audio/temp /app/shared/audio/speakers /app/shared/audio/source_clips /app/shared/audio/temp_conversation_segments /app/shared/data/project_saves /app/shared/data/timeline_projects /app/shared/models/checkpoints /app/shared/models/pretrained /app/shared/models/checkpoints/hf_cache /root/.cache/torch_extensions /root/.cache/DeepFilterNet /root/.triton/autotune \
     && chmod +x /app/docker/backend-entrypoint.sh
 
 # Set environment variables

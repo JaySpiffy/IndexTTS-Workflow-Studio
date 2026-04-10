@@ -62,6 +62,7 @@ class AudioProcessingOptions(BaseModel):
     use_vocal_separation: bool = False
     normalization_strength: float = Field(default=0.5, ge=0.0, le=1.0)
     noise_reduction_strength: float = Field(default=0.5, ge=0.0, le=1.0)
+    noise_reduction_backend: str = Field(default="auto", pattern="^(auto|classic|deepfilter)$")
 
 
 class VideoExtractionRequest(BaseModel):
@@ -107,6 +108,7 @@ class SourceClipPreparationRequest(BaseModel):
     target_peak_dbfs: float = Field(default=-1.0, ge=-12.0, le=0.0)
     use_noise_reduction: bool = False
     noise_reduction_strength: float = Field(default=0.35, ge=0.0, le=1.0)
+    noise_reduction_backend: str = Field(default="auto", pattern="^(auto|classic|deepfilter)$")
     use_vocal_separation: bool = False
 
     @validator("output_name")
@@ -343,6 +345,12 @@ class LineVersion(BaseModel):
     seed_origin: Optional[str] = None
     seed_strategy: Optional[str] = None
     delivery_rate: float = 1.0
+    duration_seconds: Optional[float] = None
+    expected_duration_seconds: Optional[float] = None
+    pacing_score: Optional[float] = None
+    pacing_label: Optional[str] = None
+    pacing_notes: List[str] = Field(default_factory=list)
+    review_score: Optional[float] = None
 
 
 class ConversationLineResult(BaseModel):
@@ -387,6 +395,7 @@ class SimilarityAnalysisRequest(BaseModel):
     """Speaker similarity analysis request."""
     reference_filename: str
     generated_filename: str
+    similarity_backend: Optional[str] = Field(default=None, pattern="^(auto|speechbrain|campplus|fusion)$")
 
 
 class SimilarityAnalysisResponse(BaseResponse):
@@ -401,6 +410,7 @@ class BatchSimilarityRequest(BaseModel):
     """Batch similarity analysis request."""
     reference_filename: str
     generated_filenames: List[str]
+    similarity_backend: Optional[str] = Field(default=None, pattern="^(auto|speechbrain|campplus|fusion)$")
     
     @validator('generated_filenames')
     def validate_filenames(cls, v):
@@ -451,6 +461,10 @@ class GenerationProgress(BaseModel):
     status: str  # "pending", "running", "completed", "failed"
     progress_percent: float
     current_step: str
+    queue_position: Optional[int] = None
+    queued_jobs_ahead: Optional[int] = None
+    active_generation_slots: Optional[int] = None
+    queued_generation_tasks: Optional[int] = None
     estimated_time_remaining: Optional[int] = None
     result: Optional[Dict[str, Any]] = None
     error: Optional[str] = None

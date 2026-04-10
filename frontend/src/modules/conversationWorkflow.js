@@ -1663,14 +1663,22 @@ IndexTTSApp.prototype.checkGenerationProgress = async function() {
         const progressPercent = progressContainer.querySelector('.progress-percent');
         const logsContainer = document.getElementById('generation-logs');
         
+        const queueDetails = task.status === 'queued' && Number.isFinite(Number(task.queue_position))
+            ? `Queued (#${Number(task.queue_position)} of ${Math.max(Number(task.queued_generation_tasks || 0), Number(task.queue_position))})`
+            : null;
+
+        const progressLabel = queueDetails
+            ? `${task.current_step} ${queueDetails}`
+            : task.current_step;
+
         // Update progress
         progressFill.style.width = `${task.progress_percent}%`;
-        progressText.textContent = task.current_step;
+        progressText.textContent = progressLabel;
         progressPercent.textContent = `${Math.round(task.progress_percent)}%`;
         
         // Add log entry
         const logEntry = document.createElement('div');
-        logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${task.current_step}`;
+        logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${progressLabel}`;
         logsContainer.appendChild(logEntry);
         logsContainer.scrollTop = logsContainer.scrollHeight;
         
@@ -1680,7 +1688,11 @@ IndexTTSApp.prototype.checkGenerationProgress = async function() {
             this.generationInterval = null;
             
             const resultContainer = document.getElementById('generation-result');
+            const button = document.getElementById('generate-conversation-btn');
             resultContainer.style.display = 'block';
+            if (button) {
+                button.disabled = false;
+            }
             
             this.showNotification('Success', 'Conversation generation completed!', 'success');
             

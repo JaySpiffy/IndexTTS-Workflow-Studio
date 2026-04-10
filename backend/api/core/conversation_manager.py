@@ -11,7 +11,12 @@ from typing import Dict, Any, List, Optional, Tuple, Generator
 from pathlib import Path
 
 from .app_paths import SPEAKERS_DIR, TEMP_CONVERSATION_SEGMENTS_DIR
-from .pacing import apply_delivery_rate_to_file, build_speaker_pacing_map, resolve_speaker_delivery_rate
+from .pacing import (
+    apply_delivery_rate_to_file,
+    assess_line_pacing,
+    build_speaker_pacing_map,
+    resolve_speaker_delivery_rate,
+)
 
 # Try to import pydub for audio concatenation
 try:
@@ -147,6 +152,12 @@ class ConversationManager:
         seed_origin: str,
         seed_strategy: str,
         delivery_rate: float,
+        duration_seconds: Optional[float],
+        expected_duration_seconds: Optional[float],
+        pacing_score: Optional[float],
+        pacing_label: Optional[str],
+        pacing_notes: Optional[List[str]],
+        review_score: Optional[float],
     ) -> Dict[str, Any]:
         """Create a consistent version result payload."""
         return {
@@ -166,6 +177,12 @@ class ConversationManager:
             "seed_origin": seed_origin,
             "seed_strategy": seed_strategy,
             "delivery_rate": delivery_rate,
+            "duration_seconds": duration_seconds,
+            "expected_duration_seconds": expected_duration_seconds,
+            "pacing_score": pacing_score,
+            "pacing_label": pacing_label,
+            "pacing_notes": pacing_notes or [],
+            "review_score": review_score,
         }
 
     def _generate_unique_random_seed(
@@ -251,6 +268,7 @@ class ConversationManager:
         max_mel_tokens_convo: int,
         max_text_tokens_per_segment_convo: int,
         speaker_pacing: Optional[List[Dict[str, Any]]] = None,
+        scene_pacing_profile: str = "balanced",
         seed_strategy: str = "fully_random",
         fixed_base_seed: Optional[int] = DEFAULT_FIXED_BASE_SEED,
         resolved_base_seed: Optional[int] = None,
@@ -444,6 +462,13 @@ class ConversationManager:
                     similarity_score = quality_result['similarity']
                     robotic_score = quality_result['robotic_score']
                     quality_score = quality_result['quality_score']
+                    pacing_result = assess_line_pacing(
+                        text,
+                        audio_path,
+                        delivery_rate=delivery_rate,
+                        scene_pacing_profile=scene_pacing_profile,
+                        quality_score=quality_score,
+                    )
                     completed_work_units += 1
                     line_progress = self._calculate_line_progress(
                         i,
@@ -475,6 +500,12 @@ class ConversationManager:
                         seed_origin="initial",
                         seed_strategy=normalized_seed_strategy,
                         delivery_rate=delivery_rate,
+                        duration_seconds=pacing_result["duration_seconds"],
+                        expected_duration_seconds=pacing_result["expected_duration_seconds"],
+                        pacing_score=pacing_result["pacing_score"],
+                        pacing_label=pacing_result["pacing_label"],
+                        pacing_notes=pacing_result["pacing_notes"],
+                        review_score=pacing_result["review_score"],
                     ))
                     
                     # Check if quality meets threshold (considering both similarity and robotic score)
@@ -543,6 +574,13 @@ class ConversationManager:
                                     regen_similarity = regen_quality['similarity']
                                     regen_robotic = regen_quality['robotic_score']
                                     regen_quality_score = regen_quality['quality_score']
+                                    regen_pacing = assess_line_pacing(
+                                        text,
+                                        regen_audio_path,
+                                        delivery_rate=delivery_rate,
+                                        scene_pacing_profile=scene_pacing_profile,
+                                        quality_score=regen_quality_score,
+                                    )
                                     completed_work_units += 1
                                     line_progress = self._calculate_line_progress(
                                         i,
@@ -572,6 +610,12 @@ class ConversationManager:
                                             seed_origin="auto_regen",
                                             seed_strategy=normalized_seed_strategy,
                                             delivery_rate=delivery_rate,
+                                            duration_seconds=regen_pacing["duration_seconds"],
+                                            expected_duration_seconds=regen_pacing["expected_duration_seconds"],
+                                            pacing_score=regen_pacing["pacing_score"],
+                                            pacing_label=regen_pacing["pacing_label"],
+                                            pacing_notes=regen_pacing["pacing_notes"],
+                                            review_score=regen_pacing["review_score"],
                                         )
                                         similarity_score = regen_similarity
                                         robotic_score = regen_robotic

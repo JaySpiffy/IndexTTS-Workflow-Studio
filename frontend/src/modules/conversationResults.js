@@ -8,6 +8,27 @@ function escapeConversationResultsHtml(value) {
         .replace(/'/g, '&#39;');
 }
 
+function getConversationReviewScore(version) {
+    const reviewScore = Number(version?.review_score);
+    if (Number.isFinite(reviewScore)) {
+        return reviewScore;
+    }
+
+    const qualityScore = Number(version?.quality_score);
+    if (Number.isFinite(qualityScore)) {
+        return qualityScore;
+    }
+
+    const similarityScore = Number(version?.similarity_score);
+    return Number.isFinite(similarityScore) ? similarityScore : 0;
+}
+
+function formatPacingLabel(label) {
+    return String(label || 'unknown')
+        .replace(/_/g, ' ')
+        .replace(/\b\w/g, character => character.toUpperCase());
+}
+
 IndexTTSApp.prototype.loadListeningReviewsState = function() {
     try {
         const saved = localStorage.getItem('indexttsListeningReviews');
@@ -713,8 +734,19 @@ IndexTTSApp.prototype.renderLineVersions = function() {
             const isSelected = version.is_selected;
             const qualityScore = Math.round(version.quality_score * 100);
             const similarityScore = Math.round(version.similarity_score * 100);
+            const reviewScore = Math.round(getConversationReviewScore(version) * 100);
             const seedText = Number.isFinite(Number(version.seed)) ? `Seed ${Number(version.seed)}` : 'Seed n/a';
             const seedOriginText = version.seed_origin ? escapeConversationResultsHtml(String(version.seed_origin).replace(/_/g, ' ')) : '';
+            const pacingScore = Number.isFinite(Number(version.pacing_score))
+                ? Math.round(Number(version.pacing_score) * 100)
+                : null;
+            const pacingLabel = escapeConversationResultsHtml(formatPacingLabel(version.pacing_label || 'unknown'));
+            const pacingNote = Array.isArray(version.pacing_notes) && version.pacing_notes.length
+                ? escapeConversationResultsHtml(version.pacing_notes[0])
+                : '';
+            const durationText = Number.isFinite(Number(version.duration_seconds))
+                ? `${Number(version.duration_seconds).toFixed(2)}s`
+                : 'n/a';
             
             console.log(`DEBUG: Version ${versionIndex}:`, version);
             
@@ -724,11 +756,14 @@ IndexTTSApp.prototype.renderLineVersions = function() {
                     <div class="version-header">
                         <span class="version-title">Version ${versionIndex + 1}</span>
                         <div class="version-badges">
+                            <span class="score-badge quality">Review: ${reviewScore}%</span>
                             <span class="score-badge similarity">Similarity: ${similarityScore}%</span>
                             <span class="score-badge quality">Quality: ${qualityScore}%</span>
+                            ${pacingScore !== null ? `<span class="score-badge similarity">Pacing: ${pacingScore}%</span>` : ''}
                         </div>
                     </div>
                     <div class="version-seed">${escapeConversationResultsHtml(seedText)}${seedOriginText ? ` | ${seedOriginText}` : ''}</div>
+                    <div class="version-seed">Duration ${escapeConversationResultsHtml(durationText)} | ${pacingLabel}${pacingNote ? ` | ${pacingNote}` : ''}</div>
                     <div class="version-actions">
                         <button class="btn btn-secondary btn-small"
                                 onclick="event.stopPropagation(); app.playVersionAudio('${version.audio_path}', '${version.audio_url || ''}')">
@@ -869,13 +904,14 @@ IndexTTSApp.prototype.autoSelectBestVersions = function() {
     if (!this.currentConversationData) return;
     
     this.currentConversationData.lines.forEach(line => {
-        // Find version with highest quality score
+        // Find version with highest review score
         let bestVersionIndex = 0;
-        let bestScore = 0;
+        let bestScore = Number.NEGATIVE_INFINITY;
         
         line.versions.forEach((version, index) => {
-            if (version.quality_score > bestScore) {
-                bestScore = version.quality_score;
+            const reviewScore = getConversationReviewScore(version);
+            if (reviewScore > bestScore) {
+                bestScore = reviewScore;
                 bestVersionIndex = index;
             }
         });
@@ -895,13 +931,14 @@ IndexTTSApp.prototype.autoSelectBestForLine = function(lineIndex) {
     
     const line = this.currentConversationData.lines[lineIndex];
     
-    // Find version with highest quality score
+    // Find version with highest review score
     let bestVersionIndex = 0;
-    let bestScore = 0;
+    let bestScore = Number.NEGATIVE_INFINITY;
     
     line.versions.forEach((version, index) => {
-        if (version.quality_score > bestScore) {
-            bestScore = version.quality_score;
+        const reviewScore = getConversationReviewScore(version);
+        if (reviewScore > bestScore) {
+            bestScore = reviewScore;
             bestVersionIndex = index;
         }
     });

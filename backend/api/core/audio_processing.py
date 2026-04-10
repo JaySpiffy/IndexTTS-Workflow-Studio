@@ -12,6 +12,7 @@ import traceback
 import warnings
 
 from .app_paths import PRETRAINED_MODELS_DIR, SOURCE_CLIPS_DIR, SPEAKERS_DIR
+from ..config import settings
 
 # Suppress warnings for cleaner output
 warnings.filterwarnings("ignore")
@@ -19,6 +20,8 @@ warnings.filterwarnings("ignore")
 # SpeechBrain availability flag
 SPEECHBRAIN_AVAILABLE = False
 speaker_similarity_model = None
+CAMPLUS_AVAILABLE = False
+campplus_similarity_model = None
 
 # Try to import SpeechBrain
 try:
@@ -29,6 +32,15 @@ except ImportError:
     print("SpeechBrain not available. Speaker similarity analysis will be disabled.")
 except Exception as e:
     print(f"Error importing SpeechBrain: {e}")
+
+try:
+    from huggingface_hub import hf_hub_download
+    from indextts.s2mel.modules.campplus.DTDNN import CAMPPlus
+    CAMPLUS_AVAILABLE = True
+except ImportError:
+    print("Warning: CAMPPlus not available. Optional similarity reranking will be disabled.")
+except Exception as e:
+    print(f"Warning: Could not import CAMPPlus similarity model: {e}")
 
 # Try to import required libraries with fallbacks
 try:
@@ -46,6 +58,15 @@ try:
 except ImportError:
     NOISEREDUCE_AVAILABLE = False
     print("Warning: noisereduce not available. Noise reduction will be disabled.")
+
+try:
+    from df.enhance import init_df as deepfilter_init_df, enhance as deepfilter_enhance
+    DEEPFILTERNET_AVAILABLE = True
+except ImportError:
+    DEEPFILTERNET_AVAILABLE = False
+    deepfilter_init_df = None
+    deepfilter_enhance = None
+    print("Warning: DeepFilterNet not available. Neural noise cleanup will be disabled.")
 
 # Import SpeechBrain for vocal separation
 try:
@@ -76,12 +97,105 @@ except ImportError:
     print("Warning: pydub not available. Audio processing features will be disabled.")
     AudioSegment = None
 
+deepfilter_model = None
+deepfilter_state = None
+
 # Constants for speaker similarity
 SPEAKER_MODEL_SOURCE = "speechbrain/spkrec-ecapa-voxceleb"
 SPEAKER_MODEL_SAVEDIR = str(PRETRAINED_MODELS_DIR / "spkrec-ecapa-voxceleb")
+CAMPPLUS_MODEL_SOURCE = "funasr/campplus"
+CAMPPLUS_MODEL_FILENAME = "campplus_cn_common.bin"
 SIMILARITY_THRESHOLD = 0.60  # Default threshold for auto-regen
 AUTO_REGEN_ATTEMPTS = 1     # Number of auto-regeneration attempts
 SPEAKER_ANALYSIS_DEVICE = os.getenv("INDTEXTS_SPEAKER_ANALYSIS_DEVICE", "cpu").strip().lower()
+
+
+def initialize_deepfilter_model(log_level: str = "ERROR") -> bool:
+    """
+    Lazily initialize DeepFilterNet for optional speech cleanup.
+
+    Returns:
+        bool: True when the model is ready for inference.
+    """
+    global deepfilter_model, deepfilter_state
+
+    if not DEEPFILTERNET_AVAILABLE or deepfilter_init_df is None:
+        return False
+
+    if deepfilter_model is not None and deepfilter_state is not None:
+        return True
+
+    try:
+        deepfilter_model, deepfilter_state, _ = deepfilter_init_df(log_level=log_level)
+        return True
+    except Exception as e:
+        print(f"Warning: failed to initialize DeepFilterNet: {e}")
+        traceback.print_exc()
+        deepfilter_model = None
+        deepfilter_state = None
+        return False
+
+
+def apply_deepfilter_noise_reduction(
+    audio_data: np.ndarray,
+    sample_rate: int,
+    *,
+    noise_reduction_strength: float = 0.35,
+) -> Optional[np.ndarray]:
+    """
+    Apply DeepFilterNet speech cleanup to mono audio.
+
+    Args:
+        audio_data: Audio data as int PCM or float32 samples.
+        sample_rate: Source sampling rate.
+        noise_reduction_strength: 0..1 user strength control.
+
+    Returns:
+        np.ndarray | None: Cleaned float32 waveform in the original sampling rate,
+        or None if DeepFilterNet is unavailable or inference fails.
+    """
+    if not initialize_deepfilter_model():
+        return None
+
+    try:
+        import torchaudio.functional as AF
+
+        if audio_data.ndim > 1:
+            audio_data = np.mean(audio_data, axis=1)
+
+        if np.issubdtype(audio_data.dtype, np.integer):
+            scale = max(abs(np.iinfo(audio_data.dtype).min), np.iinfo(audio_data.dtype).max)
+            samples = audio_data.astype(np.float32) / float(scale)
+        else:
+            samples = audio_data.astype(np.float32)
+            peak = float(np.max(np.abs(samples))) if samples.size else 0.0
+            if peak > 1.5:
+                samples = samples / peak
+
+        audio_tensor = torch.from_numpy(samples).unsqueeze(0)
+        target_sample_rate = int(deepfilter_state.sr())
+
+        if sample_rate != target_sample_rate:
+            audio_tensor = AF.resample(audio_tensor, sample_rate, target_sample_rate)
+
+        attenuation_limit_db = round(6.0 + (18.0 * max(0.0, min(1.0, noise_reduction_strength))), 2)
+        enhanced = deepfilter_enhance(
+            deepfilter_model,
+            deepfilter_state,
+            audio_tensor,
+            pad=True,
+            atten_lim_db=attenuation_limit_db,
+        )
+
+        if sample_rate != target_sample_rate:
+            enhanced = AF.resample(enhanced, target_sample_rate, sample_rate)
+
+        cleaned = enhanced.squeeze(0).cpu().numpy().astype(np.float32)
+        return np.clip(cleaned, -1.0, 1.0)
+    except Exception as e:
+        print(f"Warning: DeepFilterNet cleanup failed: {e}")
+        traceback.print_exc()
+        return None
 
 def initialize_speaker_model(device: str = "cpu") -> bool:
     """
@@ -121,6 +235,54 @@ def initialize_speaker_model(device: str = "cpu") -> bool:
         speaker_similarity_model = None
         SPEECHBRAIN_AVAILABLE = False
         return False
+
+
+def initialize_campplus_similarity_model(device: str = "cpu") -> bool:
+    """
+    Initialize the optional CAMPPlus speaker similarity model.
+
+    Args:
+        device: Device to use ("cuda", "cuda:1", or "cpu")
+
+    Returns:
+        bool: True if successful, False otherwise
+    """
+    global campplus_similarity_model, CAMPLUS_AVAILABLE
+
+    if not CAMPLUS_AVAILABLE:
+        return False
+
+    if campplus_similarity_model is not None:
+        return True
+
+    try:
+        requested_device = (device or "cpu").strip().lower()
+        device_str = requested_device if requested_device.startswith("cuda") and torch.cuda.is_available() else "cpu"
+        print(f"Loading CAMPPlus speaker similarity model ({CAMPPLUS_MODEL_SOURCE})...")
+        checkpoint_path = hf_hub_download(CAMPPLUS_MODEL_SOURCE, filename=CAMPPLUS_MODEL_FILENAME)
+        model = CAMPPlus(feat_dim=80, embedding_size=192)
+        model.load_state_dict(torch.load(checkpoint_path, map_location="cpu"))
+        campplus_similarity_model = model.to(device_str)
+        campplus_similarity_model.eval()
+        print("CAMPPlus speaker similarity model loaded successfully.")
+        return True
+    except Exception as e:
+        print(f"Error loading CAMPPlus similarity model: {e}")
+        traceback.print_exc()
+        campplus_similarity_model = None
+        return False
+
+
+def _normalize_similarity_backend(similarity_backend: Optional[str]) -> str:
+    """Normalize speaker similarity backend selection."""
+    allowed = {"auto", "speechbrain", "campplus", "fusion"}
+    normalized = str(similarity_backend or settings.similarity_backend or "speechbrain").strip().lower()
+    return normalized if normalized in allowed else "speechbrain"
+
+
+def _score_available(value: Optional[float]) -> bool:
+    """Return whether a similarity score is usable."""
+    return value is not None and value > -1.0
 
 def analyze_speaker_similarity(
     model: Any, 
@@ -189,6 +351,145 @@ def analyze_speaker_similarity(
     except Exception as e:
         print(f"Error in speaker similarity analysis: {e}")
         return -1.0
+
+
+def analyze_speaker_similarity_campplus(
+    model: Any,
+    reference_audio_path: str,
+    generated_audio_path: str,
+    device: str = "cpu"
+) -> float:
+    """
+    Analyze speaker similarity with the optional CAMPPlus embedding model.
+
+    Args:
+        model: CAMPPlus model instance
+        reference_audio_path: Path to reference audio
+        generated_audio_path: Path to generated audio
+        device: Device to use for computation
+
+    Returns:
+        float: Cosine similarity between 0-ish and 1-ish, or -1.0 on error
+    """
+    if model is None or not CAMPLUS_AVAILABLE:
+        return -1.0
+
+    try:
+        if not Path(reference_audio_path).is_file() or not Path(generated_audio_path).is_file():
+            return -1.0
+
+        try:
+            import torchaudio
+        except ImportError:
+            print("Error: torchaudio is required for CAMPPlus speaker similarity analysis")
+            return -1.0
+
+        target_sr = 16000
+        requested_device = (device or "cpu").strip().lower()
+        device_str = requested_device if requested_device.startswith("cuda") and torch.cuda.is_available() else "cpu"
+
+        def load_feature_bank(audio_path: str) -> torch.Tensor:
+            signal, sample_rate = torchaudio.load(audio_path)
+            if sample_rate != target_sr:
+                signal = torchaudio.functional.resample(signal, sample_rate, target_sr)
+            if signal.shape[0] > 1:
+                signal = torch.mean(signal, dim=0, keepdim=True)
+            signal = signal.to(device_str)
+            features = torchaudio.compliance.kaldi.fbank(
+                signal,
+                num_mel_bins=80,
+                dither=0,
+                sample_frequency=target_sr,
+            )
+            return features - features.mean(dim=0, keepdim=True)
+
+        ref_feat = load_feature_bank(reference_audio_path)
+        gen_feat = load_feature_bank(generated_audio_path)
+
+        with torch.no_grad():
+            ref_embedding = model(ref_feat.unsqueeze(0))
+            gen_embedding = model(gen_feat.unsqueeze(0))
+
+        similarity = torch.nn.functional.cosine_similarity(
+            ref_embedding.squeeze(), gen_embedding.squeeze(), dim=0
+        )
+        return similarity.item()
+
+    except Exception as e:
+        print(f"Error in CAMPPlus speaker similarity analysis: {e}")
+        return -1.0
+
+
+def analyze_speaker_similarity_multi_backend(
+    speechbrain_model: Any,
+    reference_audio_path: str,
+    generated_audio_path: str,
+    device: str = "cpu",
+    similarity_backend: Optional[str] = None,
+) -> Dict[str, Any]:
+    """
+    Analyze speaker similarity using one or more optional backends.
+
+    Returns:
+        Dict[str, Any]: Final similarity score plus backend breakdown.
+    """
+    requested_backend = _normalize_similarity_backend(similarity_backend)
+    speechbrain_score: Optional[float] = None
+    campplus_score: Optional[float] = None
+
+    if requested_backend in {"speechbrain", "fusion", "auto"} and speechbrain_model is not None and SPEECHBRAIN_AVAILABLE:
+        score = analyze_speaker_similarity(
+            speechbrain_model,
+            reference_audio_path,
+            generated_audio_path,
+            device,
+        )
+        if _score_available(score):
+            speechbrain_score = score
+
+    if requested_backend in {"campplus", "fusion", "auto"} and initialize_campplus_similarity_model(device):
+        score = analyze_speaker_similarity_campplus(
+            campplus_similarity_model,
+            reference_audio_path,
+            generated_audio_path,
+            device,
+        )
+        if _score_available(score):
+            campplus_score = score
+
+    backend_used = requested_backend
+    similarity_score = -1.0
+
+    if requested_backend == "speechbrain":
+        similarity_score = speechbrain_score if speechbrain_score is not None else -1.0
+    elif requested_backend == "campplus":
+        similarity_score = campplus_score if campplus_score is not None else -1.0
+    else:
+        available_scores = [
+            score for score in (speechbrain_score, campplus_score) if _score_available(score)
+        ]
+        if len(available_scores) == 2:
+            similarity_score = float(sum(available_scores) / len(available_scores))
+            backend_used = "fusion"
+        elif speechbrain_score is not None:
+            similarity_score = float(speechbrain_score)
+            backend_used = "speechbrain"
+        elif campplus_score is not None:
+            similarity_score = float(campplus_score)
+            backend_used = "campplus"
+        else:
+            similarity_score = -1.0
+            backend_used = "unavailable"
+
+    return {
+        "similarity": similarity_score,
+        "backend_used": backend_used,
+        "requested_backend": requested_backend,
+        "breakdown": {
+            "speechbrain": speechbrain_score,
+            "campplus": campplus_score,
+        },
+    }
 
 def batch_similarity_analysis(
     model: Any,
@@ -357,7 +658,8 @@ def separate_vocals(audio_data: np.ndarray, sample_rate: int) -> np.ndarray:
 def process_all_source_clips(use_noise_reduction: bool = False,
                            use_vocal_separation: bool = False,
                            normalization_strength: float = 0.5,
-                           noise_reduction_strength: float = 0.5) -> Generator[str, None, None]:
+                           noise_reduction_strength: float = 0.5,
+                           noise_reduction_backend: str = "auto") -> Generator[str, None, None]:
     """
     Process all source clips through vocal separation and normalization.
     
@@ -366,6 +668,7 @@ def process_all_source_clips(use_noise_reduction: bool = False,
         use_vocal_separation: Whether to use SpeechBrain for vocal separation
         normalization_strength: Strength of normalization (0.0 to 1.0)
         noise_reduction_strength: Strength of noise reduction (0.0 to 1.0)
+        noise_reduction_backend: auto, classic, or deepfilter
     
     Yields:
         str: Progress updates
@@ -415,10 +718,34 @@ def process_all_source_clips(use_noise_reduction: bool = False,
                     yield "Vocal separation completed"
                 
                 # Apply noise reduction if requested with controlled strength
-                if use_noise_reduction and NOISEREDUCE_AVAILABLE:
-                    yield f"Applying noise reduction (strength: {noise_reduction_strength:.2f})..."
-                    audio_data = nr.reduce_noise(y=audio_data, sr=sample_rate, prop_decrease=noise_reduction_strength)
-                    yield "Noise reduction completed"
+                if use_noise_reduction:
+                    requested_backend = (noise_reduction_backend or "auto").strip().lower()
+                    resolved_backend = requested_backend
+                    if requested_backend == "auto":
+                        resolved_backend = "deepfilter" if DEEPFILTERNET_AVAILABLE else "classic"
+
+                    if resolved_backend == "deepfilter":
+                        yield f"Applying DeepFilterNet cleanup (strength: {noise_reduction_strength:.2f})..."
+                        deepfilter_audio = apply_deepfilter_noise_reduction(
+                            audio_data,
+                            sample_rate,
+                            noise_reduction_strength=noise_reduction_strength,
+                        )
+                        if deepfilter_audio is not None:
+                            audio_data = deepfilter_audio
+                            yield "DeepFilterNet cleanup completed"
+                        elif NOISEREDUCE_AVAILABLE:
+                            yield "DeepFilterNet unavailable at runtime, falling back to classic noise reduction..."
+                            audio_data = nr.reduce_noise(y=audio_data, sr=sample_rate, prop_decrease=noise_reduction_strength)
+                            yield "Classic noise reduction completed"
+                        else:
+                            yield "Noise cleanup requested, but no cleanup backend is available."
+                    elif NOISEREDUCE_AVAILABLE:
+                        yield f"Applying classic noise reduction (strength: {noise_reduction_strength:.2f})..."
+                        audio_data = nr.reduce_noise(y=audio_data, sr=sample_rate, prop_decrease=noise_reduction_strength)
+                        yield "Classic noise reduction completed"
+                    else:
+                        yield "Classic noise reduction requested, but noisereduce is unavailable."
                 
                 # Apply normalization with controlled strength
                 yield f"Applying normalization (strength: {normalization_strength:.2f})..."
@@ -594,14 +921,22 @@ def analyze_speaker_similarity_with_quality(
     model: Any,
     reference_audio_path: str,
     generated_audio_path: str,
-    device: str = "cpu"
-) -> Dict[str, float]:
+    device: str = "cpu",
+    similarity_backend: Optional[str] = None,
+) -> Dict[str, Any]:
     """
     Enhanced similarity analysis with robotic speech detection.
     Returns comprehensive quality assessment.
     """
     # Get traditional similarity score
-    similarity_score = analyze_speaker_similarity(model, reference_audio_path, generated_audio_path, device)
+    similarity_result = analyze_speaker_similarity_multi_backend(
+        model,
+        reference_audio_path,
+        generated_audio_path,
+        device=device,
+        similarity_backend=similarity_backend,
+    )
+    similarity_score = similarity_result["similarity"]
     
     # Get robotic detection score
     robotic_score = detect_robotic_speech(generated_audio_path)
@@ -612,7 +947,10 @@ def analyze_speaker_similarity_with_quality(
     return {
         'similarity': similarity_score,
         'robotic_score': robotic_score,
-        'quality_score': quality_score
+        'quality_score': quality_score,
+        'similarity_backend_used': similarity_result["backend_used"],
+        'similarity_requested_backend': similarity_result["requested_backend"],
+        'similarity_breakdown': similarity_result["breakdown"],
     }
 
 def concatenate_audio_files(

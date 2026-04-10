@@ -151,7 +151,10 @@ IndexTTSApp.prototype.describeSuggestedPrep = function(suggestion) {
         parts.push(`normalize toward ${Number(suggestion.target_peak_dbfs || -1).toFixed(1)} dBFS`);
     }
     if (suggestion.use_noise_reduction) {
-        parts.push('try light noise cleanup');
+        const cleanupBackend = suggestion.noise_reduction_backend === 'deepfilter'
+            ? 'DeepFilterNet cleanup'
+            : 'classic cleanup';
+        parts.push(`try light ${cleanupBackend}`);
     }
     if (suggestion.use_vocal_separation) {
         parts.push('try vocal isolation');
@@ -197,6 +200,11 @@ IndexTTSApp.prototype.resetSpeakerPrepControls = function() {
         }
     });
 
+    const noiseBackend = document.getElementById('speaker-prep-noise-backend');
+    if (noiseBackend) {
+        noiseBackend.value = 'auto';
+    }
+
     this.maybeAutofillSpeakerPrepOutputName(this.selectedSourceClip);
     this.updateSpeakerPrepLabels();
     this.setSpeakerPrepStatus('Prep controls reset to the safest defaults.', 'info');
@@ -223,12 +231,14 @@ IndexTTSApp.prototype.applyRecommendedSpeakerPrep = function(mode = 'all') {
         const normalizeAudio = document.getElementById('speaker-prep-normalize');
         const targetPeak = document.getElementById('speaker-prep-target-peak');
         const noiseReduction = document.getElementById('speaker-prep-noise-reduction');
+        const noiseBackend = document.getElementById('speaker-prep-noise-backend');
         const vocalSeparation = document.getElementById('speaker-prep-vocal-separation');
 
         if (convertMono) convertMono.checked = Boolean(suggestion.convert_to_mono);
         if (normalizeAudio) normalizeAudio.checked = Boolean(suggestion.normalize_audio);
         if (targetPeak) targetPeak.value = String(Number(suggestion.target_peak_dbfs ?? -1));
         if (noiseReduction) noiseReduction.checked = Boolean(suggestion.use_noise_reduction);
+        if (noiseBackend) noiseBackend.value = suggestion.noise_reduction_backend || 'auto';
         if (vocalSeparation) vocalSeparation.checked = Boolean(suggestion.use_vocal_separation);
     }
 
@@ -521,16 +531,24 @@ IndexTTSApp.prototype.renderSourceClipDiagnostics = function(diagnostics) {
 
     badge.textContent = `${String(diagnostics.clone_readiness_label || 'unknown').toUpperCase()} ${diagnostics.clone_readiness_score || 0}/100`;
     badge.dataset.readiness = diagnostics.clone_readiness_label || 'unknown';
-    copy.textContent = diagnostics.ready_for_cloning
-        ? 'Good cloning candidate. You can usually keep prep light unless you hear obvious room noise or clipping.'
-        : 'This clip needs cleanup before it will clone consistently. Start with the suggested trim and safe defaults below.';
+    const gateLabel = diagnostics.quality_gate?.label || 'Review needed';
+    copy.textContent = `${gateLabel}. ${diagnostics.recommended_action_summary || ''}`.trim();
 
-    recipeSummary.innerHTML = `<strong>Recommended next step:</strong> ${this.describeSuggestedPrep(diagnostics.suggested_prep)}`;
+    recipeSummary.innerHTML = `
+        <strong>${gateLabel}:</strong> ${this.describeSuggestedPrep(diagnostics.suggested_prep)}
+    `;
 
     const metricItems = [
+        ['Gate', gateLabel],
+        ['Perceptual', `${diagnostics.score_breakdown?.perceptual_quality ?? 'n/a'}/100`],
+        ['Acoustic', `${diagnostics.score_breakdown?.acoustic_clarity ?? 'n/a'}/100`],
+        ['Structural', `${diagnostics.score_breakdown?.structural_integrity ?? 'n/a'}/100`],
+        ['Format', `${diagnostics.score_breakdown?.format_and_dynamics ?? 'n/a'}/100`],
         ['Duration', `${diagnostics.duration_seconds}s`],
+        ['Active Speech', `${diagnostics.active_speech_seconds ?? diagnostics.duration_seconds}s`],
         ['Channels', String(diagnostics.channels)],
         ['Sample Rate', `${diagnostics.sample_rate_hz} Hz`],
+        ['Source Type', diagnostics.is_lossy_source ? 'lossy' : 'lossless / wav-like'],
         ['Level', diagnostics.level_dbfs == null ? 'n/a' : `${diagnostics.level_dbfs.toFixed(1)} dBFS`],
         ['Peak', diagnostics.peak_dbfs == null ? 'n/a' : `${diagnostics.peak_dbfs.toFixed(1)} dBFS`],
         ['Silence', `${diagnostics.silence_percent}%`],
@@ -545,7 +563,12 @@ IndexTTSApp.prototype.renderSourceClipDiagnostics = function(diagnostics) {
         </div>
     `).join('');
 
-    const combinedRecommendations = [...(diagnostics.warnings || []), ...(diagnostics.recommendations || [])];
+    const combinedRecommendations = [
+        ...(diagnostics.hard_fail_reasons || []).map((item) => `Hard fail: ${item}`),
+        ...(diagnostics.repairable_issues || []).map((item) => `Repairable: ${item}`),
+        ...(diagnostics.warnings || []).map((item) => `Warning: ${item}`),
+        ...(diagnostics.recommendations || []),
+    ];
     recommendations.innerHTML = combinedRecommendations
         .map((item) => `<li>${item}</li>`)
         .join('');
@@ -649,6 +672,7 @@ IndexTTSApp.prototype.getSpeakerPrepRequestBody = function(forcedCategory = null
         normalize_audio: Boolean(document.getElementById('speaker-prep-normalize')?.checked),
         target_peak_dbfs: Number(document.getElementById('speaker-prep-target-peak')?.value || -1),
         use_noise_reduction: Boolean(document.getElementById('speaker-prep-noise-reduction')?.checked),
+        noise_reduction_backend: document.getElementById('speaker-prep-noise-backend')?.value || 'auto',
         noise_reduction_strength: Number(document.getElementById('speaker-prep-noise-strength')?.value || 0.35),
         use_vocal_separation: Boolean(document.getElementById('speaker-prep-vocal-separation')?.checked),
     };

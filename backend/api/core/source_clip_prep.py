@@ -15,13 +15,21 @@ import numpy as np
 from pydub import AudioSegment
 from pydub.silence import detect_silence, detect_nonsilent
 
-from .audio_processing import NOISEREDUCE_AVAILABLE, nr, separate_vocals
+from .audio_processing import (
+    DEEPFILTERNET_AVAILABLE,
+    NOISEREDUCE_AVAILABLE,
+    apply_deepfilter_noise_reduction,
+    nr,
+    separate_vocals,
+)
 
 
 IDEAL_DURATION_MIN_SECONDS = 8.0
 IDEAL_DURATION_MAX_SECONDS = 20.0
 ACCEPTABLE_DURATION_MIN_SECONDS = 5.0
 ACCEPTABLE_DURATION_MAX_SECONDS = 35.0
+AUTO_ACCEPT_SCORE = 85
+AUTO_PREP_SCORE = 60
 
 
 def _round_seconds(value: float | int | None) -> Optional[float]:
@@ -63,6 +71,10 @@ def _finite_dbfs(value: float | int | None) -> Optional[float]:
     if math.isinf(db_value) or math.isnan(db_value):
         return None
     return db_value
+
+
+def _bounded_score(value: float) -> int:
+    return int(max(0, min(100, round(value))))
 
 
 def _segment_to_float32_samples(segment: AudioSegment) -> Tuple[np.ndarray, int]:
@@ -194,79 +206,147 @@ def analyze_source_clip(audio_path: str | Path) -> Dict[str, Any]:
     silence_percent = round((total_silence_ms / max(len(segment), 1)) * 100.0, 1)
     leading_silence_ms = _measure_edge_silence_ms(segment, from_start=True, silence_threshold_dbfs=silence_threshold)
     trailing_silence_ms = _measure_edge_silence_ms(segment, from_start=False, silence_threshold_dbfs=silence_threshold)
+    active_speech_seconds = round(duration_seconds * max(0.0, (100.0 - silence_percent) / 100.0), 2) if duration_seconds else 0.0
 
     dynamic_range_db = None
     if level_dbfs is not None and peak_dbfs is not None:
         dynamic_range_db = round(max(0.0, peak_dbfs - level_dbfs), 2)
 
-    score = 100
     recommendations: List[str] = []
     warnings: List[str] = []
+    hard_fail_reasons: List[str] = []
+    repairable_issues: List[str] = []
+
+    input_extension = path.suffix.lower()
+    lossy_formats = {".mp3", ".m4a", ".aac", ".ogg", ".opus", ".wma"}
+    is_lossy_source = input_extension in lossy_formats
+
+    perceptual_quality = 100.0
+    acoustic_clarity = 100.0
+    structural_integrity = 100.0
+    format_and_dynamics = 100.0
 
     if duration_seconds < ACCEPTABLE_DURATION_MIN_SECONDS:
-        score -= 30
+        structural_integrity -= 45
         warnings.append("Clip is very short for cloning.")
         recommendations.append("Aim for a cleaner 8 to 20 second sample if possible.")
+        hard_fail_reasons.append("Less than 5 seconds of total prompt audio.")
     elif duration_seconds < IDEAL_DURATION_MIN_SECONDS:
-        score -= 10
+        structural_integrity -= 15
         recommendations.append("A slightly longer sample would usually clone more consistently.")
+        repairable_issues.append("Short prompt length may limit tonal and emotional stability.")
     elif duration_seconds > ACCEPTABLE_DURATION_MAX_SECONDS:
-        score -= 20
+        structural_integrity -= 20
         warnings.append("Clip is long enough that cleanup and trimming are recommended.")
         recommendations.append("Trim the clip down to the strongest 8 to 20 seconds.")
+        repairable_issues.append("Prompt is long enough that trimming is recommended.")
     elif duration_seconds > IDEAL_DURATION_MAX_SECONDS:
-        score -= 8
+        structural_integrity -= 8
         recommendations.append("Consider trimming this closer to the strongest 8 to 20 second section.")
+        repairable_issues.append("Prompt is usable, but a tighter focus window would usually clone more consistently.")
 
     if segment.channels > 1:
-        score -= 8
+        format_and_dynamics -= 8
         recommendations.append("Convert the clip to mono before using it as a speaker prompt.")
+        repairable_issues.append("Stereo prompt should be downmixed to mono.")
 
     if leading_silence_ms > 350:
-        score -= 8
+        acoustic_clarity -= 10
         recommendations.append("Trim the leading silence so the voice starts sooner.")
+        repairable_issues.append("Leading silence is wasting prompt space.")
 
     if trailing_silence_ms > 500:
-        score -= 6
+        acoustic_clarity -= 8
         recommendations.append("Trim the trailing silence after the last spoken phrase.")
+        repairable_issues.append("Trailing silence should be trimmed.")
 
     if silence_percent > 25.0:
-        score -= 15
+        acoustic_clarity -= 20
         warnings.append("Large silent sections reduce prompt quality.")
         recommendations.append("Trim long pauses and dead air out of the sample.")
+        repairable_issues.append("Large silent sections reduce the amount of usable speech.")
     elif silence_percent > 15.0:
-        score -= 6
+        acoustic_clarity -= 8
         recommendations.append("This clip has a fair amount of silence. Trimming should help.")
+        repairable_issues.append("Moderate silence should be trimmed down.")
 
     if level_dbfs is not None and level_dbfs < -28.0:
-        score -= 12
+        perceptual_quality -= 15
         warnings.append("Overall level is very quiet.")
         recommendations.append("Normalize the clip before promoting it to a speaker.")
+        repairable_issues.append("Low average level should be normalized.")
     elif level_dbfs is not None and level_dbfs < -24.0:
-        score -= 6
+        perceptual_quality -= 8
         recommendations.append("A modest normalization pass would help this clip.")
+        repairable_issues.append("Average level is low for stable cloning.")
 
     if peak_dbfs is not None and peak_dbfs > -0.3:
-        score -= 18
+        perceptual_quality -= 25
+        format_and_dynamics -= 20
         warnings.append("Peak level is very hot and may be clipped.")
         recommendations.append("Reduce clipping or use a cleaner source sample.")
+        hard_fail_reasons.append("Peak level is so hot that clipping is likely.")
     elif peak_dbfs is not None and peak_dbfs > -1.0:
-        score -= 8
+        perceptual_quality -= 10
+        format_and_dynamics -= 8
         recommendations.append("Leave a little more headroom. Targeting around -1 dBFS is safer.")
+        repairable_issues.append("Peak headroom is tight and should be normalized.")
 
     if dynamic_range_db is not None and dynamic_range_db < 5.0:
-        score -= 8
+        perceptual_quality -= 10
+        format_and_dynamics -= 8
         recommendations.append("This clip is heavily compressed. A more natural source can clone better.")
+        repairable_issues.append("Heavy compression may flatten the timbre and micro-dynamics.")
 
-    score = max(0, min(100, score))
-    if score >= 85:
+    if segment.frame_rate < 16000:
+        acoustic_clarity -= 20
+        format_and_dynamics -= 15
+        warnings.append("Sample rate is low for a modern cloning prompt.")
+        hard_fail_reasons.append("Sample rate is below 16 kHz.")
+    elif segment.frame_rate < 22050:
+        acoustic_clarity -= 12
+        format_and_dynamics -= 10
+        recommendations.append("A cleaner source recorded at 22.05 kHz or above will usually clone better.")
+        repairable_issues.append("Lower sample rate reduces high-frequency identity detail.")
+
+    if segment.sample_width != 2:
+        format_and_dynamics -= 8
+        repairable_issues.append("Clip should be converted to 16-bit PCM WAV for consistency.")
+
+    if is_lossy_source:
+        perceptual_quality -= 8
+        format_and_dynamics -= 15
+        warnings.append("Lossy source formats can blur detail that helps speaker matching.")
+        recommendations.append("Prefer an uncompressed WAV if you can get one.")
+        repairable_issues.append("Lossy compression may soften the speaker's micro-timbre.")
+
+    if active_speech_seconds < ACCEPTABLE_DURATION_MIN_SECONDS:
+        structural_integrity -= 15
+        repairable_issues.append("Usable voiced content is shorter than the total file suggests.")
+
+    perceptual_quality_score = _bounded_score(perceptual_quality)
+    acoustic_clarity_score = _bounded_score(acoustic_clarity)
+    structural_integrity_score = _bounded_score(structural_integrity)
+    format_and_dynamics_score = _bounded_score(format_and_dynamics)
+    score = _bounded_score(
+        (perceptual_quality_score * 0.4)
+        + (acoustic_clarity_score * 0.3)
+        + (structural_integrity_score * 0.2)
+        + (format_and_dynamics_score * 0.1)
+    )
+
+    if score >= AUTO_ACCEPT_SCORE and not hard_fail_reasons:
         readiness = "excellent"
-    elif score >= 70:
+        quality_gate_status = "accept"
+    elif score >= 70 and not hard_fail_reasons:
         readiness = "good"
-    elif score >= 50:
+        quality_gate_status = "prep"
+    elif score >= AUTO_PREP_SCORE and not hard_fail_reasons:
         readiness = "fair"
+        quality_gate_status = "prep"
     else:
         readiness = "poor"
+        quality_gate_status = "reject"
 
     if not recommendations:
         recommendations.append("This clip already looks healthy for cloning.")
@@ -297,15 +377,38 @@ def analyze_source_clip(audio_path: str | Path) -> Dict[str, Any]:
         "convert_to_mono": segment.channels > 1,
         "normalize_audio": should_normalize,
         "target_peak_dbfs": -1.0,
-        "use_noise_reduction": False,
+        "use_noise_reduction": level_dbfs is not None and level_dbfs < -26.0 and not hard_fail_reasons,
+        "noise_reduction_backend": "deepfilter" if DEEPFILTERNET_AVAILABLE else "classic",
         "use_vocal_separation": False,
         "reasons": suggested_prep_reasons,
     }
 
+    quality_gate = {
+        "status": quality_gate_status,
+        "label": {
+            "accept": "Ready for cloning",
+            "prep": "Prep recommended",
+            "reject": "Needs a better source",
+        }[quality_gate_status],
+        "auto_accept": quality_gate_status == "accept",
+        "auto_prep_eligible": quality_gate_status == "prep",
+        "manual_override_required": quality_gate_status == "reject",
+    }
+
+    if quality_gate_status == "accept":
+        recommended_action_summary = "This clip is strong enough to use as-is, though the suggested trim may still help."
+    elif quality_gate_status == "prep":
+        recommended_action_summary = "Run the suggested prep recipe before promoting this clip into the speaker library."
+    else:
+        recommended_action_summary = "This clip should usually be replaced with a cleaner source rather than forced through heavy repair."
+
     return {
         "filename": path.name,
         "path": str(path),
+        "input_extension": input_extension,
+        "is_lossy_source": is_lossy_source,
         "duration_seconds": duration_seconds,
+        "active_speech_seconds": active_speech_seconds,
         "channels": segment.channels,
         "sample_rate_hz": segment.frame_rate,
         "sample_width_bytes": segment.sample_width,
@@ -317,7 +420,17 @@ def analyze_source_clip(audio_path: str | Path) -> Dict[str, Any]:
         "trailing_silence_ms": trailing_silence_ms,
         "clone_readiness_score": score,
         "clone_readiness_label": readiness,
-        "ready_for_cloning": score >= 70,
+        "ready_for_cloning": quality_gate_status == "accept",
+        "quality_gate": quality_gate,
+        "recommended_action_summary": recommended_action_summary,
+        "hard_fail_reasons": hard_fail_reasons,
+        "repairable_issues": repairable_issues,
+        "score_breakdown": {
+            "perceptual_quality": perceptual_quality_score,
+            "acoustic_clarity": acoustic_clarity_score,
+            "structural_integrity": structural_integrity_score,
+            "format_and_dynamics": format_and_dynamics_score,
+        },
         "warnings": warnings,
         "recommendations": recommendations,
         "suggested_prep": suggested_prep,
@@ -335,6 +448,7 @@ def prepare_source_clip(
     target_peak_dbfs: float = -1.0,
     use_noise_reduction: bool = False,
     noise_reduction_strength: float = 0.35,
+    noise_reduction_backend: str = "auto",
     use_vocal_separation: bool = False,
 ) -> Dict[str, Any]:
     source = Path(source_path)
@@ -377,15 +491,38 @@ def prepare_source_clip(
                 processing_notes.append("Vocal separation was requested but no model was available.")
 
         if use_noise_reduction:
-            if NOISEREDUCE_AVAILABLE and nr is not None:
+            requested_backend = (noise_reduction_backend or "auto").strip().lower()
+            resolved_backend = requested_backend
+            if requested_backend == "auto":
+                resolved_backend = "deepfilter" if DEEPFILTERNET_AVAILABLE else "classic"
+
+            if resolved_backend == "deepfilter":
+                deepfilter_output = apply_deepfilter_noise_reduction(
+                    sample_array,
+                    sample_rate,
+                    noise_reduction_strength=noise_reduction_strength,
+                )
+                if deepfilter_output is not None:
+                    sample_array = deepfilter_output.astype(np.float32)
+                    processing_notes.append("Applied DeepFilterNet speech cleanup.")
+                elif NOISEREDUCE_AVAILABLE and nr is not None:
+                    sample_array = nr.reduce_noise(
+                        y=sample_array,
+                        sr=sample_rate,
+                        prop_decrease=noise_reduction_strength,
+                    ).astype(np.float32)
+                    processing_notes.append("DeepFilterNet cleanup was unavailable, so classic noise reduction was used instead.")
+                else:
+                    processing_notes.append("DeepFilterNet cleanup was requested but no cleanup backend was available.")
+            elif NOISEREDUCE_AVAILABLE and nr is not None:
                 sample_array = nr.reduce_noise(
                     y=sample_array,
                     sr=sample_rate,
                     prop_decrease=noise_reduction_strength,
                 ).astype(np.float32)
-                processing_notes.append("Applied noise reduction.")
+                processing_notes.append("Applied classic noise reduction.")
             else:
-                processing_notes.append("Noise reduction was requested but the dependency is not available.")
+                processing_notes.append("Classic noise reduction was requested but the dependency is not available.")
 
         segment = _float32_samples_to_segment(sample_array, sample_rate, channels=1)
 
@@ -421,6 +558,7 @@ def prepare_source_clip(
             "target_peak_dbfs": target_peak_dbfs,
             "use_noise_reduction": use_noise_reduction,
             "noise_reduction_strength": noise_reduction_strength,
+            "noise_reduction_backend": noise_reduction_backend,
             "use_vocal_separation": use_vocal_separation,
         },
         "before": original_metrics,

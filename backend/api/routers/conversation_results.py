@@ -62,7 +62,12 @@ def _version_score(version: Optional[Dict[str, Any]]) -> float:
     """Compare versions using the same quality-first ordering as the UI."""
     if not isinstance(version, dict):
         return float("-inf")
-    return float(version.get("quality_score", version.get("similarity_score", float("-inf"))))
+    return float(
+        version.get(
+            "review_score",
+            version.get("quality_score", version.get("similarity_score", float("-inf"))),
+        )
+    )
 
 
 def _best_version_index(versions: List[Dict[str, Any]]) -> int:

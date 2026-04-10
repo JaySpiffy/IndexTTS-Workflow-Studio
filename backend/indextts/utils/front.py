@@ -12,6 +12,7 @@ class TextNormalizer:
     def __init__(self):
         self.zh_normalizer = None
         self.en_normalizer = None
+        self.backend_name = None
         self.char_rep_map = {
             "：": ",",
             "；": ",",
@@ -96,6 +97,7 @@ class TextNormalizer:
 
             self.zh_normalizer = Normalizer(remove_erhua=False, lang="zh", operator="tn")
             self.en_normalizer = Normalizer(lang="en", operator="tn")
+            self.backend_name = "wetext"
         else:
             from tn.chinese.normalizer import Normalizer as NormalizerZh
             from tn.english.normalizer import Normalizer as NormalizerEn
@@ -109,6 +111,7 @@ class TextNormalizer:
                 cache_dir=cache_dir, remove_interjections=False, remove_erhua=False, overwrite_cache=False
             )
             self.en_normalizer = NormalizerEn(overwrite_cache=False)
+            self.backend_name = "wetext-linux-tn"
 
     def normalize(self, text: str) -> str:
         if not self.zh_normalizer or not self.en_normalizer:

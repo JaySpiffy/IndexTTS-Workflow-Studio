@@ -36,7 +36,6 @@ shared/audio/source_clips/*
 !shared/audio/source_clips/.gitkeep
 shared/audio/speakers_backups/*
 !shared/audio/speakers_backups/README.md
-!shared/audio/speakers_backups/LATEST_BACKUP.md
 !shared/audio/speakers_backups/.gitkeep
 
 # Local model/cache data
@@ -52,8 +51,12 @@ backend/temp/
 backend/temp_conversation_segments/
 backend/uploads/
 backend/utils/
+shared/data/
+shared/models/
 shared/models/checkpoints/
 shared/models/pretrained/
+shared/audio/speakers_backups/LATEST_BACKUP.md
+tools/manual/release-v2.0.0-publish-notes.md
 
 # OS clutter
 Thumbs.db

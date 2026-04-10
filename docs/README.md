@@ -18,6 +18,9 @@ This folder holds supporting documentation that used to clutter the repo root.
 - `research/`
   - research notes, listening syntax, and quality-planning docs
   - includes the IndexTTS2 scripting playbook and reusable dialogue system prompt
+  - includes `research/white-papers/` for deeper prompt packs, source outputs, and synthesis notes
+- `testing/`
+  - repeatable smoke-test packs and release checklists for the live app
 - `timeline/`
   - current timeline pointer only
   - historical timeline planning docs live under `archive/timeline/`
@@ -29,6 +32,7 @@ This folder holds supporting documentation that used to clutter the repo root.
 - Backend app: [../backend/main.py](../backend/main.py)
 - Frontend app: [../frontend/index.html](../frontend/index.html)
 - User manual: [manual/USER_MANUAL.md](manual/USER_MANUAL.md)
+- Testing guide: [testing/README.md](testing/README.md)
 - Manual videos: [assets/manual/videos/](assets/manual/videos/)
 - Current API summary: [api/API_README.md](api/API_README.md)
 - Archived docs index: [archive/README.md](archive/README.md)
