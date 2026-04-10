@@ -189,6 +189,7 @@ The app is built around **IndexTTS2**. Older upstream model releases exist, but 
 - Timeline-based arrangement and scene export
 - Project save/load for longer sessions
 - Manual, screenshots, and short walkthrough videos
+- Optional WebMCP website bridge for AI agents
 
 ## Community And Support
 
@@ -196,6 +197,14 @@ The app is built around **IndexTTS2**. Older upstream model releases exist, but 
 - Use the built-in GitHub issue templates for bug reports, setup help, and feature requests
 - Read [CONTRIBUTING.md](CONTRIBUTING.md) if you want to send changes back
 - Read [SECURITY.md](SECURITY.md) for responsible vulnerability reporting
+
+## AI / Agent Access
+
+The web UI remains the main interface for human users.
+
+For agent-style use, the frontend now includes an optional WebMCP bridge that can expose studio tools, prompts, and resources from the running website when the WebMCP script is available.
+
+This is intended as a lightweight AI integration layer on top of the existing web app and API, not as a replacement for the normal UI.
 
 ## Hardware And Runtime Guidance
 

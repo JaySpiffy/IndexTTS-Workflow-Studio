@@ -38,6 +38,9 @@ class IndexTTSApp {
         this.currentConversationDialoguePacingPreset = 'natural';
         this.routeParams = new URLSearchParams(window.location.search);
         this.pendingTimelineRouteProjectId = null;
+        this.webMcp = null;
+        this.webMcpReady = false;
+        this.webMcpInitStarted = false;
         
         this.init();
     }
@@ -66,6 +69,9 @@ class IndexTTSApp {
             this.loadConversations();
             this.refreshSavedProjects();
             this.setupDarkMode();
+            if (typeof this.setupWebMcp === 'function') {
+                this.setupWebMcp();
+            }
         } catch (error) {
             console.error('IndexTTSApp init() error:', error);
         }

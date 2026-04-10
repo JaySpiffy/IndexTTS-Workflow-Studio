@@ -1,6 +1,6 @@
 // IndexTTS2 Frontend Application - Main Entry Point
 // Import all modules with proper error handling
-const FRONTEND_BUILD_VERSION = '2026-04-10-release-smoke-1';
+const FRONTEND_BUILD_VERSION = '2026-04-10-webmcp-2';
 
 // Initialize the app with proper module loading
 async function initializeApp() {
@@ -21,6 +21,7 @@ async function initializeApp() {
             import(`./modules/conversationResults.js?v=${FRONTEND_BUILD_VERSION}`),
             import(`./modules/speakerPrep.js?v=${FRONTEND_BUILD_VERSION}`),
             import(`./modules/timelineEditor.js?v=${FRONTEND_BUILD_VERSION}`),
+            import(`./modules/webmcp.js?v=${FRONTEND_BUILD_VERSION}`),
             import(`./modules/uiUtils.js?v=${FRONTEND_BUILD_VERSION}`)
         ]);
         
