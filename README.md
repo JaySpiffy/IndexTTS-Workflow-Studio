@@ -23,11 +23,28 @@ If you already have Docker and an NVIDIA-ready setup, the fastest path is:
 
 Good entry points:
 
+- Demo scenes: [Hear What It Can Do](#hear-what-it-can-do)
 - Quick start: [Quick Start](#quick-start)
 - Manual with screenshots: [docs/manual/USER_MANUAL.md](docs/manual/USER_MANUAL.md)
 - Docker details: [docker/README.md](docker/README.md)
 - Contributing: [CONTRIBUTING.md](CONTRIBUTING.md)
 - Security reporting: [SECURITY.md](SECURITY.md)
+
+## Hear What It Can Do
+
+If you want proof before setup details, start with three short scene demos rendered through this workflow:
+
+- [Podcast roundtable demo](docs/assets/social/audio/podcast_roundtable_demo_pack.wav) - quick multi-speaker turn-taking and pacing
+- [Audiobook night train demo](docs/assets/social/audio/audiobook_night_train_demo_pack.wav) - steadier narration with longer phrasing
+- [Game dialogue checkpoint breach demo](docs/assets/social/audio/game_dialogue_checkpoint_breach_pack.wav) - tighter back-and-forth with more urgent timing
+
+These are public-safe sample scenes rendered from the local speaker library already used in the app.
+
+## See The Workflow
+
+[![Timeline workflow preview](docs/assets/social/timeline-workflow-demo.png)](docs/assets/social/timeline-workflow-demo.webm)
+
+Open the clip to see the review -> select -> timeline -> export flow in motion.
 
 ## What This Repo Is
 
@@ -101,7 +118,7 @@ Example use cases:
 - shape overlaps and interruptions
 - preview and export the final arranged scene
 
-## Screenshots
+## Studio Preview
 
 | Speaker Prep | Conversation Workflow |
 | --- | --- |
@@ -190,7 +207,7 @@ The app is built around **IndexTTS2**. Older upstream model releases exist, but 
 - Review, regeneration, and final selection gating
 - Timeline-based arrangement and scene export
 - Project save/load for longer sessions
-- Manual, screenshots, and short walkthrough videos
+- Public demo scenes, screenshots, and short walkthrough videos
 - Optional WebMCP website bridge for AI agents
 
 ## Community And Support
