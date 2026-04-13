@@ -960,7 +960,7 @@ IndexTTSApp.prototype.renderSavedProjects = function(selectedSaveName = '') {
     if (!select) return;
 
     const selectedValue = selectedSaveName || select.value;
-    select.innerHTML = '<option value="">Select a saved project...</option>';
+    select.innerHTML = '<option value="">Select a saved project…</option>';
 
     this.savedProjects.forEach(project => {
         const option = document.createElement('option');
@@ -984,6 +984,10 @@ IndexTTSApp.prototype.refreshSavedProjects = async function() {
         const saveNameInput = document.getElementById('project-save-name');
         if (saveNameInput && !saveNameInput.value.trim()) {
             saveNameInput.value = this.generateDefaultProjectSaveName();
+        }
+
+        if (typeof this.refreshStudioShell === 'function') {
+            this.refreshStudioShell();
         }
     } catch (error) {
         console.error('Failed to refresh saved projects:', error);
@@ -1012,6 +1016,9 @@ IndexTTSApp.prototype.saveCurrentProject = async function() {
         this.renderSavedProjects(response.details?.save_name || saveName);
         this.setProjectSaveStatus(`Saved project to ${response.details?.save_name || saveName}`, 'success');
         this.showNotification('Success', 'Project saved successfully', 'success');
+        if (typeof this.refreshStudioShell === 'function') {
+            this.refreshStudioShell();
+        }
     } catch (error) {
         console.error('Failed to save project:', error);
         this.setProjectSaveStatus(`Failed to save project: ${error.message}`, 'error');
@@ -1068,6 +1075,9 @@ IndexTTSApp.prototype.restoreProjectState = async function(loadDetails) {
 
     const targetTab = uiState.currentTab || (this.currentConversationId ? 'conversation-results' : 'conversation-workflow');
     this.switchTab(targetTab);
+    if (typeof this.refreshStudioShell === 'function') {
+        this.refreshStudioShell();
+    }
 };
 
 IndexTTSApp.prototype.loadSelectedProject = async function() {
@@ -1084,6 +1094,9 @@ IndexTTSApp.prototype.loadSelectedProject = async function() {
         await this.restoreProjectState(response.details);
         this.setProjectSaveStatus(`Loaded project from ${response.details?.save_name || saveName}`, 'success');
         this.showNotification('Success', 'Project loaded successfully', 'success');
+        if (typeof this.refreshStudioShell === 'function') {
+            this.refreshStudioShell();
+        }
     } catch (error) {
         console.error('Failed to load project:', error);
         this.setProjectSaveStatus(`Failed to load project: ${error.message}`, 'error');
@@ -1247,6 +1260,9 @@ IndexTTSApp.prototype.resetActiveProjectUi = function() {
     this.renderConversations();
     this.switchTab('conversation-workflow');
     this.setProjectSaveStatus('New project ready. Enter a script or load a saved project.', 'info');
+    if (typeof this.refreshStudioShell === 'function') {
+        this.refreshStudioShell();
+    }
 };
 
 IndexTTSApp.prototype.startNewProject = function() {
