@@ -34,17 +34,25 @@ Good entry points:
 
 If you want proof before setup details, start with three short scene demos rendered through this workflow:
 
-- [Podcast roundtable demo](docs/assets/social/audio/podcast_roundtable_demo_pack.wav) - quick multi-speaker turn-taking and pacing
-- [Audiobook night train demo](docs/assets/social/audio/audiobook_night_train_demo_pack.wav) - steadier narration with longer phrasing
-- [Game dialogue checkpoint breach demo](docs/assets/social/audio/game_dialogue_checkpoint_breach_pack.wav) - tighter back-and-forth with more urgent timing
+| Demo | Play | What it shows |
+| --- | --- | --- |
+| Podcast roundtable | [Play in browser](https://github.com/JaySpiffy/IndexTTS-Workflow-Studio/raw/main/docs/assets/social/audio/podcast_roundtable_demo_pack.wav) | Quick multi-speaker turn-taking and pacing |
+| Audiobook night train | [Play in browser](https://github.com/JaySpiffy/IndexTTS-Workflow-Studio/raw/main/docs/assets/social/audio/audiobook_night_train_demo_pack.wav) | Steadier narration with longer phrasing |
+| Game dialogue checkpoint breach | [Play in browser](https://github.com/JaySpiffy/IndexTTS-Workflow-Studio/raw/main/docs/assets/social/audio/game_dialogue_checkpoint_breach_pack.wav) | Tighter back-and-forth with more urgent timing |
 
 These are public-safe sample scenes rendered from the local speaker library already used in the app.
 
-## See The Workflow
+## Workflow At A Glance
 
-[![Timeline workflow preview](docs/assets/social/timeline-workflow-demo.png)](docs/assets/social/timeline-workflow-demo.webm)
+```mermaid
+flowchart LR
+    A["Speaker Prep<br/>clean and score source clips"] --> B["Conversation Workflow<br/>generate first passes"]
+    B --> C["Conversation Results<br/>compare takes and regenerate weak lines"]
+    C --> D["Timeline Editor<br/>arrange timing, overlaps, and scenes"]
+    D --> E["Export Mix<br/>render the final scene"]
+```
 
-Open the clip to see the review -> select -> timeline -> export flow in motion.
+For a moving walkthrough, open the [timeline workflow clip](docs/assets/social/timeline-workflow-demo.webm).
 
 ## What This Repo Is
 
