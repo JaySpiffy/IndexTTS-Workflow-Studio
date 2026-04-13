@@ -36,6 +36,11 @@ IndexTTSApp.prototype.setupEventListeners = function() {
         
         // Range inputs
         this.setupRangeInputs();
+
+        // Shared collapsible sections
+        if (typeof this.setupCollapsibleSections === 'function') {
+            this.setupCollapsibleSections();
+        }
         
         // Dark mode toggle
         this.setupDarkModeToggle();
@@ -181,34 +186,6 @@ IndexTTSApp.prototype.setupConversationWorkflowEvents = function() {
 
         // Emotion control method removed - emotions are now handled entirely by the timeline
         console.log('DEBUG: Emotion control method removed - using timeline emotions');
-
-        // Advanced settings toggle
-        const advancedSettingsToggle = document.getElementById('advanced-settings-toggle');
-        if (advancedSettingsToggle) {
-            advancedSettingsToggle.addEventListener('click', () => {
-                const collapsible = advancedSettingsToggle.closest('.collapsible');
-                if (collapsible) {
-                    const content = collapsible.querySelector('.collapsible-content');
-
-                    if (content) {
-                        const isCollapsed = content.style.display === 'none' || !content.classList.contains('show');
-
-                        if (isCollapsed) {
-                            content.style.display = 'block';
-                            content.classList.add('show');
-                            collapsible.classList.add('expanded');
-                        } else {
-                            content.classList.remove('show');
-                            content.style.display = 'none';
-                            collapsible.classList.remove('expanded');
-                        }
-                    }
-                }
-            });
-            console.log('DEBUG: Advanced settings toggle event listener added');
-        } else {
-            console.warn('DEBUG: advanced-settings-toggle not found');
-        }
 
         // Generate conversation
         const generateConversationBtn = document.getElementById('generate-conversation-btn');

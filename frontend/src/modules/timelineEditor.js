@@ -445,7 +445,7 @@ IndexTTSApp.prototype.updateTimelineProjectSummary = function() {
     const project = this.currentTimelineProject;
     const trackCount = project.tracks?.length || 0;
     const segmentCount = (project.tracks || []).reduce((total, track) => total + (track.segments?.length || 0), 0);
-    summary.textContent = `${trackCount} track${trackCount === 1 ? '' : 's'} | ${segmentCount} segment${segmentCount === 1 ? '' : 's'} | ${project.total_duration?.toFixed(1) || '0.0'}s`;
+    summary.textContent = `${trackCount} track${trackCount === 1 ? '' : 's'} | ${segmentCount} segment${segmentCount === 1 ? '' : 's'} | ${project.total_duration?.toFixed(1) || '0.0'}s | ${Math.round(this.timelinePixelsPerSecond)} px/s`;
 
     const selectedTrack = this.findTimelineTrack(this.selectedTimelineTrackId);
     if (selectedTrack) {
@@ -697,6 +697,7 @@ IndexTTSApp.prototype.renderTimelineProject = function() {
     const project = this.currentTimelineProject;
     const totalDuration = this.getTimelineVisualDuration();
     const widthPx = Math.ceil(totalDuration * this.timelinePixelsPerSecond);
+    const zoomLabel = `${Math.round(this.timelinePixelsPerSecond)} px/s`;
     const rulerMarks = [];
     const selectedTrackId = this.selectedTimelineTrackId || project.tracks?.[0]?.track_id || '';
     const selectedTrack = this.findTimelineTrack(selectedTrackId);
@@ -712,18 +713,20 @@ IndexTTSApp.prototype.renderTimelineProject = function() {
 
     const tracksHtml = (project.tracks || []).map((track) => {
         const isSelectedTrack = track.track_id === this.selectedTimelineTrackId;
+        const isCollapsedTrack = this.isTimelineTrackCollapsed(track.track_id);
         const nextStartTime = this.getTimelineRecommendedStartTime(track.track_id).toFixed(1);
+        const speakerDisplayName = this.getTimelineSpeakerDisplayName(track.speaker_filename) || track.speaker_filename;
         const segmentsHtml = (track.segments || []).map((segment) => {
             const isSelectedSegment = track.track_id === this.selectedTimelineTrackId && segment.segment_id === this.selectedTimelineSegmentId;
             const leftPx = Math.max(0, safeTimelineNumber(segment.start_time, 0) * this.timelinePixelsPerSecond);
-            const widthForDuration = Math.max(120, safeTimelineNumber(segment.duration, 2) * this.timelinePixelsPerSecond);
+            const widthForDuration = Math.max(isCollapsedTrack ? 96 : 120, safeTimelineNumber(segment.duration, 2) * this.timelinePixelsPerSecond);
             const audioClass = segment.audio_filename ? 'has-audio' : 'missing-audio';
             const emotionLabel = segment.emotion_text || (segment.emotion_control_method === 'from_text' ? 'custom' : 'speaker');
 
             return `
                 <button
                     type="button"
-                    class="timeline-track-segment ${audioClass} ${isSelectedSegment ? 'selected' : ''}"
+                    class="timeline-track-segment ${audioClass} ${isSelectedSegment ? 'selected' : ''} ${isCollapsedTrack ? 'compact' : ''}"
                     data-track-id="${track.track_id}"
                     data-segment-id="${segment.segment_id}"
                     style="left:${leftPx}px;width:${widthForDuration}px"
@@ -736,14 +739,21 @@ IndexTTSApp.prototype.renderTimelineProject = function() {
         }).join('');
 
         return `
-            <div class="timeline-track-row">
-                <div class="timeline-track-header ${isSelectedTrack ? 'selected' : ''}" data-track-id="${track.track_id}">
+            <div class="timeline-track-row ${isCollapsedTrack ? 'is-collapsed' : ''}">
+                <div class="timeline-track-header ${isSelectedTrack ? 'selected' : ''} ${isCollapsedTrack ? 'collapsed' : ''}" data-track-id="${track.track_id}">
                     <div class="timeline-track-header-top">
                         <div>
                             <div class="timeline-track-title">${escapeTimelineHtml(track.track_name)}</div>
-                            <div class="timeline-track-subtitle">${escapeTimelineHtml(track.speaker_filename)}</div>
+                            <div class="timeline-track-subtitle">${escapeTimelineHtml(speakerDisplayName)}</div>
                         </div>
                         <div class="timeline-track-header-actions">
+                            <button
+                                type="button"
+                                class="btn btn-secondary btn-small timeline-track-collapse"
+                                data-track-id="${track.track_id}"
+                            >
+                                <i class="fas ${isCollapsedTrack ? 'fa-chevron-down' : 'fa-chevron-up'}"></i> ${isCollapsedTrack ? 'Expand' : 'Collapse'}
+                            </button>
                             <button
                                 type="button"
                                 class="btn btn-secondary btn-small timeline-track-add-segment"
@@ -778,7 +788,7 @@ IndexTTSApp.prototype.renderTimelineProject = function() {
                     </div>
                 </div>
                 <div class="timeline-track-lane-wrapper">
-                    <div class="timeline-track-lane ${isSelectedTrack ? 'selected' : ''}" data-track-id="${track.track_id}" style="width:${widthPx}px">
+                    <div class="timeline-track-lane ${isSelectedTrack ? 'selected' : ''} ${isCollapsedTrack ? 'collapsed' : ''}" data-track-id="${track.track_id}" style="width:${widthPx}px">
                         ${segmentsHtml || `
                             <div class="timeline-lane-empty">
                                 <div class="timeline-lane-empty-copy">
@@ -806,7 +816,30 @@ IndexTTSApp.prototype.renderTimelineProject = function() {
             <div class="timeline-editor-toolbar" id="timeline-editor-toolbar">
                 <div class="timeline-editor-toolbar-copy">
                     <span class="timeline-editor-toolbar-title">Edit On The Canvas</span>
-                    <span class="timeline-editor-toolbar-subtitle">Professional timeline editors keep the add-track and add-segment actions close to the ruler and track headers.</span>
+                    <span class="timeline-editor-toolbar-subtitle">Use the ruler to judge timing, zoom the lane scale, and collapse tracks when you want more canvas.</span>
+                    <div class="timeline-zoom-controls" role="group" aria-label="Timeline zoom">
+                        <button type="button" class="btn btn-secondary btn-small" id="timeline-zoom-out-btn">
+                            <i class="fas fa-magnifying-glass-minus"></i>
+                        </button>
+                        <label class="timeline-zoom-readout" for="timeline-zoom-slider">
+                            <span>Zoom</span>
+                            <input
+                                id="timeline-zoom-slider"
+                                type="range"
+                                min="60"
+                                max="260"
+                                step="10"
+                                value="${Math.round(this.timelinePixelsPerSecond)}"
+                            />
+                            <strong id="timeline-zoom-label">${zoomLabel}</strong>
+                        </label>
+                        <button type="button" class="btn btn-secondary btn-small" id="timeline-zoom-in-btn">
+                            <i class="fas fa-magnifying-glass-plus"></i>
+                        </button>
+                        <button type="button" class="btn btn-secondary btn-small" id="timeline-zoom-fit-btn">
+                            <i class="fas fa-arrows-left-right-to-line"></i> Fit
+                        </button>
+                    </div>
                 </div>
                 <div class="timeline-editor-toolbar-actions">
                     <button type="button" class="btn btn-secondary" id="timeline-editor-add-track-btn">
@@ -862,6 +895,12 @@ IndexTTSApp.prototype.renderTimelineProject = function() {
         this.selectedTimelineTrackId = trackId;
         this.openCreateTimelineSegmentModal(trackId, this.getTimelineRecommendedStartTime(trackId));
     });
+    document.getElementById('timeline-zoom-out-btn')?.addEventListener('click', () => this.adjustTimelineZoom(-20));
+    document.getElementById('timeline-zoom-in-btn')?.addEventListener('click', () => this.adjustTimelineZoom(20));
+    document.getElementById('timeline-zoom-fit-btn')?.addEventListener('click', () => this.fitTimelineZoomToProject());
+    document.getElementById('timeline-zoom-slider')?.addEventListener('change', (event) => {
+        this.setTimelineZoom(event.target.value);
+    });
 
     this.maybeSuggestTimelineEditorTrackName();
 
@@ -870,6 +909,7 @@ IndexTTSApp.prototype.renderTimelineProject = function() {
             if (
                 event.target.closest('.timeline-track-toggle') ||
                 event.target.closest('.timeline-track-add-segment') ||
+                event.target.closest('.timeline-track-collapse') ||
                 event.target.closest('.timeline-lane-add-btn')
             ) {
                 return;
@@ -907,6 +947,13 @@ IndexTTSApp.prototype.renderTimelineProject = function() {
             } else if (action === 'solo') {
                 this.toggleTimelineTrackSolo(trackId);
             }
+        });
+    });
+
+    shell.querySelectorAll('.timeline-track-collapse').forEach((button) => {
+        button.addEventListener('click', (event) => {
+            event.stopPropagation();
+            this.toggleTimelineTrackCollapsed(event.currentTarget.dataset.trackId);
         });
     });
 

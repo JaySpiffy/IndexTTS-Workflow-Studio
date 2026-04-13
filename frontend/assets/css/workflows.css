@@ -2,19 +2,20 @@
 .workflow-container {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-6);
+    gap: var(--spacing-5);
 }
 
 .workflow-section {
     background-color: var(--white);
-    border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-md);
+    border: 1px solid #dbe2ec;
+    border-radius: 14px;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
     overflow: hidden;
 }
 
 .section-header {
-    padding: var(--spacing-5);
-    background-color: var(--gray-50);
+    padding: var(--spacing-4);
+    background-color: var(--white);
     border-bottom: 1px solid var(--gray-200);
     display: flex;
     justify-content: space-between;
@@ -22,7 +23,7 @@
 }
 
 .section-header h3 {
-    font-size: var(--font-size-xl);
+    font-size: var(--font-size-lg);
     font-weight: 600;
     color: var(--gray-900);
     display: flex;
@@ -35,19 +36,38 @@
 }
 
 .section-content {
-    padding: var(--spacing-5);
+    padding: var(--spacing-4);
 }
 
-.collapsible .section-header {
-    cursor: pointer;
+:is(.section-content, .collapsible-content, .studio-panel-body)[hidden] {
+    display: none !important;
 }
 
-.collapsible .toggle-icon {
+.section-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+}
+
+.section-collapse-toggle {
+    min-width: 2.2rem;
+    padding-inline: 0.55rem;
+}
+
+.section-collapse-toggle i {
     transition: transform var(--transition-fast);
 }
 
-.collapsible.expanded .toggle-icon {
-    transform: rotate(180deg);
+.section-collapsed .section-collapse-toggle i {
+    transform: rotate(-90deg);
+}
+
+.section-collapsed > .section-header {
+    border-bottom-color: transparent;
+}
+
+.section-actions-collapse {
+    margin-left: auto;
 }
 
 .collapsible-content {
@@ -109,8 +129,9 @@
 /* Generation Progress */
 .generation-progress {
     background-color: var(--white);
-    border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-md);
+    border: 1px solid #dbe2ec;
+    border-radius: 14px;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
     padding: var(--spacing-6);
     margin-top: var(--spacing-6);
 }
@@ -149,8 +170,9 @@
 
 .generation-result {
     background-color: var(--white);
-    border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-md);
+    border: 1px solid #dbe2ec;
+    border-radius: 14px;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
     padding: var(--spacing-6);
     margin-top: var(--spacing-6);
     text-align: center;
@@ -177,14 +199,10 @@
 
 .results-section {
     background-color: var(--white);
-    border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-md);
+    border: 1px solid #dbe2ec;
+    border-radius: 14px;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
     overflow: hidden;
-}
-
-.section-actions {
-    display: flex;
-    gap: var(--spacing-3);
 }
 
 .conversations-list {
@@ -278,7 +296,10 @@
     border-radius: var(--radius-md);
     border: 1px solid var(--gray-200);
     cursor: pointer;
-    transition: all var(--transition-fast);
+    transition:
+        border-color var(--transition-fast),
+        background-color var(--transition-fast),
+        box-shadow var(--transition-fast);
 }
 
 .version-item:hover {
@@ -289,6 +310,11 @@
 .version-item.selected {
     border-color: var(--primary-color);
     background-color: var(--primary-light);
+}
+
+.version-item.quality-gate-failed {
+    border-color: rgba(239, 68, 68, 0.35);
+    background-color: rgba(254, 242, 242, 0.88);
 }
 
 .version-header {
@@ -329,6 +355,11 @@
 .score-badge.quality {
     background-color: #dcfce7;
     color: var(--success-color);
+}
+
+.score-badge.warning {
+    background-color: #fee2e2;
+    color: #b91c1c;
 }
 
 .version-actions {
@@ -447,6 +478,11 @@ body.dark-mode .version-item.selected {
     background-color: var(--dm-primary-light);
 }
 
+body.dark-mode .version-item.quality-gate-failed {
+    border-color: rgba(248, 113, 113, 0.45);
+    background-color: rgba(69, 10, 10, 0.4);
+}
+
 body.dark-mode .version-title {
     color: var(--dm-gray-900);
 }
@@ -463,6 +499,11 @@ body.dark-mode .score-badge.similarity {
 body.dark-mode .score-badge.quality {
     background-color: #064e3b;
     color: var(--dm-success-color);
+}
+
+body.dark-mode .score-badge.warning {
+    background-color: #7f1d1d;
+    color: #fecaca;
 }
 
 body.dark-mode .concatenation-info {
