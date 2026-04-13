@@ -22,6 +22,8 @@ from ..core.file_utils import SAVE_DIR
 
 SEED_MODULUS = 2 ** 32
 DEFAULT_FIXED_BASE_SEED = 1234
+DEFAULT_QUALITY_GATE_MIN_QUALITY_SCORE = 0.48
+DEFAULT_QUALITY_GATE_MIN_PACING_SCORE = 0.45
 
 
 class ConversationService:
@@ -745,6 +747,11 @@ class ConversationService:
                 "versions_per_line": versions_per_line,
                 "similarity_threshold": similarity_threshold,
                 "robotic_threshold": robotic_threshold,
+                "quality_gate_min_quality_score": max(
+                    DEFAULT_QUALITY_GATE_MIN_QUALITY_SCORE,
+                    round(float(similarity_threshold) * 0.8, 3),
+                ),
+                "quality_gate_min_pacing_score": DEFAULT_QUALITY_GATE_MIN_PACING_SCORE,
                 "auto_regen_attempts": auto_regen_attempts,
                 "emotion_control_method": emotion_control_method,
                 "emotion_reference_filename": emotion_reference_filename,

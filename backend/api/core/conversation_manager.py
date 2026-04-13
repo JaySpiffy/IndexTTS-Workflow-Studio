@@ -29,6 +29,8 @@ except ImportError:
 
 SEED_MODULUS = 2 ** 32
 DEFAULT_FIXED_BASE_SEED = 1234
+DEFAULT_QUALITY_GATE_MIN_QUALITY_SCORE = 0.48
+DEFAULT_QUALITY_GATE_MIN_PACING_SCORE = 0.45
 
 class ConversationManager:
     """Manages multi-speaker conversation generation."""
@@ -133,6 +135,95 @@ class ConversationManager:
         except (TypeError, ValueError):
             numeric_seed = int(fallback)
         return numeric_seed % SEED_MODULUS
+
+    @staticmethod
+    def _normalize_score_threshold(value: Optional[Any], fallback: float) -> float:
+        """Clamp arbitrary score thresholds to the supported 0..1 range."""
+        try:
+            numeric_value = float(value)
+        except (TypeError, ValueError):
+            numeric_value = float(fallback)
+        return max(0.0, min(1.0, numeric_value))
+
+    @classmethod
+    def _evaluate_quality_gate(
+        cls,
+        *,
+        similarity_score: float,
+        robotic_score: float,
+        quality_score: float,
+        pacing_score: Optional[float],
+        similarity_threshold: float,
+        robotic_threshold: float,
+    ) -> Dict[str, Any]:
+        """Return whether a generated version is safe to auto-select."""
+        normalized_similarity_threshold = cls._normalize_score_threshold(similarity_threshold, 0.60)
+        normalized_robotic_threshold = cls._normalize_score_threshold(robotic_threshold, 0.70)
+        min_quality_score = max(
+            DEFAULT_QUALITY_GATE_MIN_QUALITY_SCORE,
+            round(normalized_similarity_threshold * 0.8, 3),
+        )
+        min_pacing_score = DEFAULT_QUALITY_GATE_MIN_PACING_SCORE
+        failures: List[str] = []
+
+        try:
+            safe_similarity = float(similarity_score)
+        except (TypeError, ValueError):
+            safe_similarity = -1.0
+        try:
+            safe_robotic = float(robotic_score)
+        except (TypeError, ValueError):
+            safe_robotic = 1.0
+        try:
+            safe_quality = float(quality_score)
+        except (TypeError, ValueError):
+            safe_quality = -1.0
+        try:
+            safe_pacing = None if pacing_score is None else float(pacing_score)
+        except (TypeError, ValueError):
+            safe_pacing = None
+
+        if safe_similarity < normalized_similarity_threshold:
+            failures.append(
+                f"Similarity {safe_similarity:.2f} is below the {normalized_similarity_threshold:.2f} gate."
+            )
+        if safe_robotic > normalized_robotic_threshold:
+            failures.append(
+                f"Robotic score {safe_robotic:.2f} is above the {normalized_robotic_threshold:.2f} gate."
+            )
+        if safe_quality < min_quality_score:
+            failures.append(
+                f"Quality {safe_quality:.2f} is below the {min_quality_score:.2f} floor."
+            )
+        if safe_pacing is not None and safe_pacing < min_pacing_score:
+            failures.append(
+                f"Pacing {safe_pacing:.2f} is below the {min_pacing_score:.2f} floor."
+            )
+
+        return {
+            "meets_quality_gate": not failures,
+            "quality_gate_failures": failures,
+        }
+
+    @classmethod
+    def _apply_quality_gate_metadata(
+        cls,
+        version_result: Dict[str, Any],
+        *,
+        similarity_threshold: float,
+        robotic_threshold: float,
+    ) -> Dict[str, Any]:
+        """Annotate a version payload with quality-gate metadata."""
+        gate_result = cls._evaluate_quality_gate(
+            similarity_score=version_result.get("similarity_score", -1.0),
+            robotic_score=version_result.get("robotic_score", 1.0),
+            quality_score=version_result.get("quality_score", -1.0),
+            pacing_score=version_result.get("pacing_score"),
+            similarity_threshold=similarity_threshold,
+            robotic_threshold=robotic_threshold,
+        )
+        version_result.update(gate_result)
+        return version_result
 
     @staticmethod
     def _build_version_result(
@@ -483,33 +574,39 @@ class ConversationManager:
                     if quality_score > best_score:
                         best_score = quality_score
                     
+                    version_result = self._apply_quality_gate_metadata(
+                        self._build_version_result(
+                            audio_path=audio_path,
+                            similarity_score=similarity_score,
+                            robotic_score=robotic_score,
+                            quality_score=quality_score,
+                            speaker_filename=speaker_file,
+                            text=text,
+                            emotion_vectors=line_emo_vector,
+                            emotion_control_method=line_emo_control_method,
+                            emotion_reference_filename=line_emo_ref_path,
+                            emotion_weight=line_emo_weight,
+                            emotion_text=line_emo_text,
+                            seed=current_seed,
+                            seed_origin="initial",
+                            seed_strategy=normalized_seed_strategy,
+                            delivery_rate=delivery_rate,
+                            duration_seconds=pacing_result["duration_seconds"],
+                            expected_duration_seconds=pacing_result["expected_duration_seconds"],
+                            pacing_score=pacing_result["pacing_score"],
+                            pacing_label=pacing_result["pacing_label"],
+                            pacing_notes=pacing_result["pacing_notes"],
+                            review_score=pacing_result["review_score"],
+                        ),
+                        similarity_threshold=similarity_threshold,
+                        robotic_threshold=robotic_threshold,
+                    )
+
                     # Always add the result to the list, regardless of threshold
-                    results.append(self._build_version_result(
-                        audio_path=audio_path,
-                        similarity_score=similarity_score,
-                        robotic_score=robotic_score,
-                        quality_score=quality_score,
-                        speaker_filename=speaker_file,
-                        text=text,
-                        emotion_vectors=line_emo_vector,
-                        emotion_control_method=line_emo_control_method,
-                        emotion_reference_filename=line_emo_ref_path,
-                        emotion_weight=line_emo_weight,
-                        emotion_text=line_emo_text,
-                        seed=current_seed,
-                        seed_origin="initial",
-                        seed_strategy=normalized_seed_strategy,
-                        delivery_rate=delivery_rate,
-                        duration_seconds=pacing_result["duration_seconds"],
-                        expected_duration_seconds=pacing_result["expected_duration_seconds"],
-                        pacing_score=pacing_result["pacing_score"],
-                        pacing_label=pacing_result["pacing_label"],
-                        pacing_notes=pacing_result["pacing_notes"],
-                        review_score=pacing_result["review_score"],
-                    ))
+                    results.append(version_result)
                     
                     # Check if quality meets threshold (considering both similarity and robotic score)
-                    if similarity_score >= similarity_threshold and robotic_score <= robotic_threshold:
+                    if version_result["meets_quality_gate"]:
                         line_success = True
                         status_log.append(f"  ✅ Version {attempt+1} meets quality threshold (similarity: {similarity_score:.2f}, robotic: {robotic_score:.2f})")
                         yield "\n".join(status_log), self._update_progress_bar(line_progress), line_progress, None, None
@@ -593,37 +690,42 @@ class ConversationManager:
                                     yield "\n".join(status_log), self._update_progress_bar(line_progress), line_progress, None, None
                                     
                                     if regen_quality_score > quality_score:
-                                        # Replace with better version
-                                        results[-1] = self._build_version_result(
-                                            audio_path=regen_audio_path,
-                                            similarity_score=regen_similarity,
-                                            robotic_score=regen_robotic,
-                                            quality_score=regen_quality_score,
-                                            speaker_filename=speaker_file,
-                                            text=text,
-                                            emotion_vectors=line_emo_vector,
-                                            emotion_control_method=line_emo_control_method,
-                                            emotion_reference_filename=line_emo_ref_path,
-                                            emotion_weight=line_emo_weight,
-                                            emotion_text=line_emo_text,
-                                            seed=regen_seed,
-                                            seed_origin="auto_regen",
-                                            seed_strategy=normalized_seed_strategy,
-                                            delivery_rate=delivery_rate,
-                                            duration_seconds=regen_pacing["duration_seconds"],
-                                            expected_duration_seconds=regen_pacing["expected_duration_seconds"],
-                                            pacing_score=regen_pacing["pacing_score"],
-                                            pacing_label=regen_pacing["pacing_label"],
-                                            pacing_notes=regen_pacing["pacing_notes"],
-                                            review_score=regen_pacing["review_score"],
+                                        regen_version_result = self._apply_quality_gate_metadata(
+                                            self._build_version_result(
+                                                audio_path=regen_audio_path,
+                                                similarity_score=regen_similarity,
+                                                robotic_score=regen_robotic,
+                                                quality_score=regen_quality_score,
+                                                speaker_filename=speaker_file,
+                                                text=text,
+                                                emotion_vectors=line_emo_vector,
+                                                emotion_control_method=line_emo_control_method,
+                                                emotion_reference_filename=line_emo_ref_path,
+                                                emotion_weight=line_emo_weight,
+                                                emotion_text=line_emo_text,
+                                                seed=regen_seed,
+                                                seed_origin="auto_regen",
+                                                seed_strategy=normalized_seed_strategy,
+                                                delivery_rate=delivery_rate,
+                                                duration_seconds=regen_pacing["duration_seconds"],
+                                                expected_duration_seconds=regen_pacing["expected_duration_seconds"],
+                                                pacing_score=regen_pacing["pacing_score"],
+                                                pacing_label=regen_pacing["pacing_label"],
+                                                pacing_notes=regen_pacing["pacing_notes"],
+                                                review_score=regen_pacing["review_score"],
+                                            ),
+                                            similarity_threshold=similarity_threshold,
+                                            robotic_threshold=robotic_threshold,
                                         )
+                                        # Replace with better version
+                                        results[-1] = regen_version_result
                                         similarity_score = regen_similarity
                                         robotic_score = regen_robotic
                                         quality_score = regen_quality_score
                                         status_log.append(f"    ✅ Improved to quality {regen_quality_score:.2f}")
                                         yield "\n".join(status_log), self._update_progress_bar(line_progress), line_progress, None, None
                                         
-                                        if regen_similarity >= similarity_threshold and regen_robotic <= robotic_threshold:
+                                        if regen_version_result["meets_quality_gate"]:
                                             line_success = True
                                             status_log.append(f"    ✅ Regen version meets quality threshold!")
                                             yield "\n".join(status_log), self._update_progress_bar(line_progress), line_progress, None, None
@@ -855,11 +957,17 @@ class ConversationManager:
         """Find the index of the highest quality result for a line."""
         if not line_results:
             return 0
-        
-        highest_index = 0
+
+        gated_indices = [
+            index for index, result in enumerate(line_results)
+            if result.get("meets_quality_gate", False)
+        ]
+        candidate_indices = gated_indices or list(range(len(line_results)))
+        highest_index = candidate_indices[0]
         highest_score = -1.0
-        
-        for i, result in enumerate(line_results):
+
+        for i in candidate_indices:
+            result = line_results[i]
             # Use quality_score if available, otherwise fallback to similarity_score
             score = result.get('quality_score', result.get('similarity_score', -1.0))
             if score > highest_score:

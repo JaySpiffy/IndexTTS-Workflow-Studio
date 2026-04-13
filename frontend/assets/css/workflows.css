@@ -313,8 +313,8 @@
 }
 
 .version-item.quality-gate-failed {
-    border-color: rgba(239, 68, 68, 0.35);
-    background-color: rgba(254, 242, 242, 0.88);
+    border-color: rgba(249, 115, 22, 0.34);
+    background-color: rgba(255, 237, 213, 0.62);
 }
 
 .version-header {
@@ -358,8 +358,8 @@
 }
 
 .score-badge.warning {
-    background-color: #fee2e2;
-    color: #b91c1c;
+    background-color: #ffedd5;
+    color: #c2410c;
 }
 
 .version-actions {
@@ -479,8 +479,8 @@ body.dark-mode .version-item.selected {
 }
 
 body.dark-mode .version-item.quality-gate-failed {
-    border-color: rgba(248, 113, 113, 0.45);
-    background-color: rgba(69, 10, 10, 0.4);
+    border-color: rgba(249, 115, 22, 0.44);
+    background-color: rgba(124, 45, 18, 0.3);
 }
 
 body.dark-mode .version-title {
@@ -502,8 +502,8 @@ body.dark-mode .score-badge.quality {
 }
 
 body.dark-mode .score-badge.warning {
-    background-color: #7f1d1d;
-    color: #fecaca;
+    background-color: rgba(154, 52, 18, 0.7);
+    color: #fdba74;
 }
 
 body.dark-mode .concatenation-info {

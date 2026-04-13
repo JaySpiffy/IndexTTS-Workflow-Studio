@@ -143,6 +143,90 @@ class ReviewRegenerationContractTests(unittest.TestCase):
         self.assertTrue(versions[1]["is_selected"])
         self.assertFalse(versions[0]["is_selected"])
 
+    def test_replace_all_regeneration_keeps_best_available_selection_when_all_versions_fail_quality_gate(self):
+        manager = RecordingConversationManager(
+            [
+                [
+                    {
+                        "audio_path": "temp_conversation_segments/fail_v1.wav",
+                        "similarity_score": 0.41,
+                        "robotic_score": 0.25,
+                        "quality_score": 0.36,
+                        "speaker_filename": "speaker.wav",
+                        "text": "Updated hello",
+                    },
+                    {
+                        "audio_path": "temp_conversation_segments/fail_v2.wav",
+                        "similarity_score": 0.53,
+                        "robotic_score": 0.25,
+                        "quality_score": 0.44,
+                        "speaker_filename": "speaker.wav",
+                        "text": "Updated hello",
+                    },
+                ]
+            ]
+        )
+        service = ConversationService(conversation_manager=manager)
+        service.active_conversations["conversation-1"] = {
+            "parsed_script": [
+                {
+                    "speaker_filename": "speaker.wav",
+                    "text": "Hello world",
+                    "line_number": 0,
+                    "emotion_vectors": LINE_EMOTION_VECTOR,
+                }
+            ],
+            "generation_params": build_generation_params(),
+            "lines": [
+                {
+                    "line_number": 0,
+                    "speaker_filename": "speaker.wav",
+                    "text": "Hello world",
+                    "versions": [
+                        {
+                            "audio_path": "temp_conversation_segments/original.wav",
+                            "similarity_score": 0.65,
+                            "robotic_score": 0.12,
+                            "quality_score": 0.52,
+                            "is_selected": True,
+                        }
+                    ],
+                }
+            ],
+        }
+        service.active_conversations["regen_conversation-1_0"] = {
+            "status": "pending",
+            "progress": 0.0,
+            "current_step": "Initializing regeneration",
+            "line_number": 0,
+            "regen_count": 2,
+            "conversation_id": "conversation-1",
+            "mode": "replace_all",
+            "edited_text": "Updated hello",
+            "manual_similarity_threshold": None,
+            "max_manual_attempts": None,
+            "error": None,
+            "start_time": 0.0,
+            "end_time": None,
+            "new_versions": [],
+        }
+
+        asyncio.run(
+            regenerate_line_background(
+                regen_task_id="regen_conversation-1_0",
+                conversation_id="conversation-1",
+                line_number=0,
+                regen_count=2,
+                line_data={"speaker_filename": "speaker.wav", "text": "Hello world"},
+                conversation_service=service,
+            )
+        )
+
+        versions = service.active_conversations["conversation-1"]["lines"][0]["versions"]
+        self.assertEqual(len(versions), 2)
+        self.assertFalse(versions[0]["is_selected"])
+        self.assertTrue(versions[1]["is_selected"])
+
     def test_threshold_regeneration_only_replaces_low_similarity_slots(self):
         manager = RecordingConversationManager(
             [
