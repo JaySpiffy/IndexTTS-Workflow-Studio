@@ -349,6 +349,48 @@ function Write-Utf8NoBomFile {
     [System.IO.File]::WriteAllText($Path, $Content, $encoding)
 }
 
+function Get-ContainerPathForHostFile {
+    param(
+        [string]$HostPath,
+        [string]$RepoRoot
+    )
+
+    $relativePath = [System.IO.Path]::GetRelativePath($RepoRoot, $HostPath)
+    return "/app/{0}" -f ($relativePath -replace '\\', '/')
+}
+
+function Convert-WavToMp3 {
+    param(
+        [string]$WavPath,
+        [string]$Mp3Path,
+        [string]$RepoRoot
+    )
+
+    if (Test-Path -LiteralPath $Mp3Path) {
+        Remove-Item -LiteralPath $Mp3Path -Force
+    }
+
+    $hostFfmpeg = Get-Command ffmpeg -ErrorAction SilentlyContinue
+    if ($hostFfmpeg) {
+        & $hostFfmpeg.Source -y -hide_banner -loglevel error -i $WavPath -codec:a libmp3lame -q:a 2 $Mp3Path
+        if ($LASTEXITCODE -ne 0) {
+            throw "ffmpeg failed while converting '$WavPath' to MP3."
+        }
+        return
+    }
+
+    $containerWavPath = Get-ContainerPathForHostFile -HostPath $WavPath -RepoRoot $RepoRoot
+    $containerMp3Path = Get-ContainerPathForHostFile -HostPath $Mp3Path -RepoRoot $RepoRoot
+
+    & docker compose -f docker/docker-compose.yml -f docker/docker-compose.gpu.yml exec -T backend `
+        ffmpeg -y -hide_banner -loglevel error -i $containerWavPath -codec:a libmp3lame -q:a 2 $containerMp3Path
+
+    if ($LASTEXITCODE -ne 0) {
+        throw "Container ffmpeg failed while converting '$WavPath' to MP3."
+    }
+}
+
+$repoRootPath = (Get-Location).Path
 $resolvedOutputDir = Join-Path (Get-Location) $OutputDir
 New-Item -Path $resolvedOutputDir -ItemType Directory -Force | Out-Null
 
@@ -381,15 +423,20 @@ foreach ($packPath in $PackPaths) {
     $concatStatus = Wait-ConcatenationCompletion -BaseUrl $ApiBaseUrl -ConversationId $conversationId -PollDelaySeconds 2
 
     $wavPath = Join-Path $resolvedOutputDir ("{0}.wav" -f $pack.slug)
+    $mp3Path = Join-Path $resolvedOutputDir ("{0}.mp3" -f $pack.slug)
     $jsonPath = Join-Path $resolvedOutputDir ("{0}.json" -f $pack.slug)
 
     Invoke-WebRequest -Uri "$ApiBaseUrl/conversation/results/$conversationId/download" -OutFile $wavPath
+    Convert-WavToMp3 -WavPath $wavPath -Mp3Path $mp3Path -RepoRoot $repoRootPath
+    Remove-Item -LiteralPath $wavPath -Force
 
     $metadata = [pscustomobject]@{
         title = $pack.title
         source_pack = $pack.path
         conversation_id = $conversationId
         total_lines = $pack.lines.Count
+        audio_path = $mp3Path
+        audio_format = "mp3"
         public_voice_assignments = $voiceResolution.public_voice_assignments
         task = $concatStatus
     }
@@ -398,11 +445,12 @@ foreach ($packPath in $PackPaths) {
     $renderSummary += [pscustomobject]@{
         title = $pack.title
         conversation_id = $conversationId
-        wav_path = $wavPath
+        audio_path = $mp3Path
+        mp3_path = $mp3Path
         metadata_path = $jsonPath
     }
 
-    Write-Host "Saved audio to $wavPath"
+    Write-Host "Saved audio to $mp3Path"
 }
 
 $summaryPath = Join-Path $resolvedOutputDir "render_summary.json"

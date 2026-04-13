@@ -36,9 +36,9 @@ If you want proof before setup details, start with three short scene demos rende
 
 | Demo | Play | What it shows |
 | --- | --- | --- |
-| Podcast roundtable | [Play in browser](https://github.com/JaySpiffy/IndexTTS-Workflow-Studio/raw/main/docs/assets/social/audio/podcast_roundtable_demo_pack.wav) | Quick multi-speaker turn-taking and pacing |
-| Audiobook night train | [Play in browser](https://github.com/JaySpiffy/IndexTTS-Workflow-Studio/raw/main/docs/assets/social/audio/audiobook_night_train_demo_pack.wav) | Steadier narration with longer phrasing |
-| Game dialogue checkpoint breach | [Play in browser](https://github.com/JaySpiffy/IndexTTS-Workflow-Studio/raw/main/docs/assets/social/audio/game_dialogue_checkpoint_breach_pack.wav) | Tighter back-and-forth with more urgent timing |
+| Podcast roundtable | [Play in browser](https://github.com/JaySpiffy/IndexTTS-Workflow-Studio/raw/main/docs/assets/social/audio/podcast_roundtable_demo_pack.mp3) | Quick multi-speaker turn-taking and pacing |
+| Audiobook night train | [Play in browser](https://github.com/JaySpiffy/IndexTTS-Workflow-Studio/raw/main/docs/assets/social/audio/audiobook_night_train_demo_pack.mp3) | Steadier narration with longer phrasing |
+| Game dialogue checkpoint breach | [Play in browser](https://github.com/JaySpiffy/IndexTTS-Workflow-Studio/raw/main/docs/assets/social/audio/game_dialogue_checkpoint_breach_pack.mp3) | Tighter back-and-forth with more urgent timing |
 
 These are public-safe sample scenes rendered from the local speaker library already used in the app.
 

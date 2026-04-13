@@ -1243,5 +1243,7 @@
                                 "concatenation_error":  null
                             },
                  "error":  null
-             }
+             },
+    "audio_path":  "C:\\dev\\index-ttsv4\\docs\\assets\\social\\audio\\game_dialogue_checkpoint_breach_pack.mp3",
+    "audio_format":  "mp3"
 }

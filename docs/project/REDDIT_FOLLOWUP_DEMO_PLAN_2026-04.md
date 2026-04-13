@@ -7,9 +7,9 @@ This follow-up is meant to answer the two clearest asks from the first round of 
 
 ## Assets
 
-- Audio sample: `docs/assets/social/audio/podcast_roundtable_demo_pack.wav`
-- Audio sample: `docs/assets/social/audio/audiobook_night_train_demo_pack.wav`
-- Audio sample: `docs/assets/social/audio/game_dialogue_checkpoint_breach_pack.wav`
+- Audio sample: `docs/assets/social/audio/podcast_roundtable_demo_pack.mp3`
+- Audio sample: `docs/assets/social/audio/audiobook_night_train_demo_pack.mp3`
+- Audio sample: `docs/assets/social/audio/game_dialogue_checkpoint_breach_pack.mp3`
 - Timeline workflow video: `docs/assets/social/timeline-workflow-demo.webm`
 - Timeline workflow still: `docs/assets/social/timeline-workflow-demo.png`
 
@@ -72,7 +72,7 @@ If you tried the earlier build and had notes about pacing, sample quality, or ex
 
 - Confirm the three audio files play cleanly end to end.
 - Confirm the timeline video opens and the exported frame is readable at Reddit embed size.
-- If you want the audio samples inside the Reddit post itself, convert them into a single preview video or push the assets somewhere public first. Reddit is a poor home for raw WAV attachments.
+- If you want the audio samples inside the Reddit post itself, convert them into a single preview video or push the assets somewhere public first. Reddit is still a poor home for standalone audio files.
 - Upload the still image only if the subreddit prefers image/video preview over external links.
 - Link the repo plus mention that the demo packs are reusable and public-safe.
 - Keep the first comment ready with the three pack names and what each one is meant to show.
