@@ -12,8 +12,8 @@
 
 .speaker-items {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: var(--spacing-4);
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: var(--spacing-3);
 }
 
 .speaker-item {
@@ -21,9 +21,9 @@
     align-items: center;
     justify-content: space-between;
     padding: var(--spacing-3);
-    background-color: var(--gray-50);
-    border-radius: var(--radius-md);
-    border: 1px solid var(--gray-200);
+    background-color: #ffffff;
+    border-radius: var(--radius-lg);
+    border: 1px solid #dbe2ec;
 }
 
 .speaker-info {
@@ -34,6 +34,7 @@
 
 .speaker-info i {
     color: var(--primary-color);
+    font-size: var(--font-size-sm);
 }
 
 .speaker-name {
@@ -45,11 +46,11 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: var(--spacing-1) var(--spacing-3);
-    border-radius: 999px;
-    background-color: var(--primary-light);
+    padding: var(--spacing-1) var(--spacing-2);
+    border-radius: var(--radius-md);
+    background-color: var(--gray-100);
     color: var(--primary-color);
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-xs);
     font-weight: 600;
 }
 
@@ -64,13 +65,13 @@
 }
 
 .voice-script-label {
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-xs);
     color: var(--gray-700);
     font-family: monospace;
 }
 
 .speaker-size {
-    font-size: var(--font-size-sm);
+    font-size: var(--font-size-xs);
     color: var(--gray-500);
 }
 
@@ -586,6 +587,7 @@ body.dark-mode .preview-line .speaker-name {
 
 .timeline-scroll-container {
     --timeline-track-header-width: 240px;
+    position: relative;
     overflow-x: auto;
     overflow-y: hidden;
     padding-bottom: var(--spacing-2);
@@ -619,6 +621,30 @@ body.dark-mode .preview-line .speaker-name {
     display: flex;
     gap: var(--spacing-2);
     flex-wrap: wrap;
+    align-items: center;
+}
+
+.timeline-zoom-controls {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    padding: 0.3rem 0.5rem;
+    border-radius: var(--radius-lg);
+    background: rgba(79, 70, 229, 0.06);
+    border: 1px solid rgba(79, 70, 229, 0.12);
+}
+
+.timeline-zoom-readout {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    color: var(--gray-700);
+    font-size: var(--font-size-sm);
+    white-space: nowrap;
+}
+
+.timeline-zoom-readout input[type="range"] {
+    width: 120px;
 }
 
 .timeline-track-create-strip {
@@ -649,18 +675,25 @@ body.dark-mode .preview-line .speaker-name {
     display: grid;
     grid-template-columns: var(--timeline-track-header-width) var(--timeline-lane-width);
     width: calc(var(--timeline-track-header-width) + var(--timeline-lane-width));
+    position: sticky;
+    top: 0;
+    z-index: 4;
 }
 
 .timeline-ruler-spacer {
     border-right: 1px solid var(--gray-200);
     border-bottom: 1px solid var(--gray-200);
     background: var(--white);
+    position: sticky;
+    left: 0;
+    z-index: 5;
 }
 
 .timeline-ruler {
     position: relative;
     height: 48px;
     border-bottom: 1px solid var(--gray-200);
+    background-color: var(--white);
     background-image: linear-gradient(to right, rgba(99, 102, 241, 0.08) 1px, transparent 1px);
     background-size: 14px 100%;
 }
@@ -701,6 +734,9 @@ body.dark-mode .preview-line .speaker-name {
     flex-direction: column;
     gap: var(--spacing-2);
     cursor: pointer;
+    position: sticky;
+    left: 0;
+    z-index: 2;
 }
 
 .timeline-track-header-top {
@@ -713,9 +749,14 @@ body.dark-mode .preview-line .speaker-name {
 .timeline-track-header-actions {
     display: flex;
     gap: var(--spacing-2);
+    flex-wrap: wrap;
 }
 
 .timeline-track-add-segment {
+    white-space: nowrap;
+}
+
+.timeline-track-collapse {
     white-space: nowrap;
 }
 
@@ -857,6 +898,35 @@ body.dark-mode .preview-line .speaker-name {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.timeline-track-row.is-collapsed .timeline-track-header {
+    padding: var(--spacing-3);
+}
+
+.timeline-track-row.is-collapsed .timeline-track-controls {
+    display: none;
+}
+
+.timeline-track-row.is-collapsed .timeline-track-lane {
+    min-height: 60px;
+    background-size: 18px 100%, 100% 100%;
+}
+
+.timeline-track-row.is-collapsed .timeline-lane-empty {
+    min-height: 60px;
+    padding: var(--spacing-3);
+}
+
+.timeline-track-row.is-collapsed .timeline-track-segment {
+    top: 10px;
+    height: 40px;
+    padding: 0.45rem 0.65rem;
+}
+
+.timeline-track-row.is-collapsed .timeline-segment-meta,
+.timeline-track-segment.compact .timeline-segment-meta {
+    display: none;
 }
 
 .timeline-selected-card {
@@ -1016,6 +1086,7 @@ body.dark-mode .timeline-builder-step {
 
 body.dark-mode .timeline-ruler {
     border-bottom-color: var(--dm-gray-300);
+    background-color: var(--dm-gray-100);
 }
 
 body.dark-mode .timeline-ruler-spacer {
@@ -1069,6 +1140,15 @@ body.dark-mode .timeline-track-lane.selected {
 body.dark-mode .timeline-track-volume-control {
     background: rgba(129, 140, 248, 0.16);
     color: var(--dm-gray-900);
+}
+
+body.dark-mode .timeline-zoom-controls {
+    background: rgba(99, 102, 241, 0.14);
+    border-color: rgba(129, 140, 248, 0.2);
+}
+
+body.dark-mode .timeline-zoom-readout {
+    color: var(--dm-gray-700);
 }
 
 body.dark-mode .timeline-selected-title {
@@ -1146,6 +1226,19 @@ body.dark-mode .timeline-waveform-empty {
 
     .timeline-builder-segment-grid {
         grid-template-columns: 1fr;
+    }
+
+    .timeline-zoom-controls {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .timeline-zoom-readout {
+        flex: 1;
+    }
+
+    .timeline-zoom-readout input[type="range"] {
+        width: 100%;
     }
 
     .timeline-lane-empty {
@@ -1588,6 +1681,11 @@ body.dark-mode .speaker-prep-metric-value {
     color: #b45309;
 }
 
+.line-selection-quality-review {
+    background: rgba(239, 68, 68, 0.12);
+    color: #b91c1c;
+}
+
 body.dark-mode .pacing-preset-bar,
 body.dark-mode .speaker-pacing-panel,
 body.dark-mode .speaker-pacing-row,
@@ -1617,6 +1715,11 @@ body.dark-mode .line-selection-missing,
 body.dark-mode .line-selection-invalid {
     color: #fbbf24;
     border-color: rgba(245, 158, 11, 0.3);
+}
+
+body.dark-mode .line-selection-quality-review {
+    color: #fca5a5;
+    border-color: rgba(239, 68, 68, 0.3);
 }
 
 @media (max-width: 900px) {

@@ -6,25 +6,26 @@
     <title>IndexTTS2 - Advanced Text-to-Speech</title>
     <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
     <!-- Base CSS -->
-    <link rel="stylesheet" href="assets/css/base.css?v=2026-04-10-queue-pacing-1">
-    <link rel="stylesheet" href="assets/css/layout.css?v=2026-04-10-queue-pacing-1">
-    <link rel="stylesheet" href="assets/css/forms.css?v=2026-04-10-queue-pacing-1">
-    <link rel="stylesheet" href="assets/css/components.css?v=2026-04-10-queue-pacing-1">
-    <link rel="stylesheet" href="assets/css/workflows.css?v=2026-04-10-queue-pacing-1">
-    <link rel="stylesheet" href="assets/css/batch-processing.css?v=2026-04-10-queue-pacing-1">
-    <link rel="stylesheet" href="assets/css/line-editor.css?v=2026-04-10-queue-pacing-1">
-    <link rel="stylesheet" href="assets/css/emotion-timeline.css?v=2026-04-10-queue-pacing-1">
-    <link rel="stylesheet" href="assets/css/edit-segment-modal.css?v=2026-04-10-queue-pacing-1">
-    <link rel="stylesheet" href="assets/css/keyboard-shortcuts.css?v=2026-04-10-queue-pacing-1">
-    <link rel="stylesheet" href="assets/css/responsive.css?v=2026-04-10-queue-pacing-1">
-    <link rel="stylesheet" href="assets/css/custom-media-player.css?v=2026-04-10-queue-pacing-1">
+    <link rel="stylesheet" href="assets/css/base.css?v=2026-04-12-studio-shell-4">
+    <link rel="stylesheet" href="assets/css/layout.css?v=2026-04-12-studio-shell-4">
+    <link rel="stylesheet" href="assets/css/forms.css?v=2026-04-12-studio-shell-4">
+    <link rel="stylesheet" href="assets/css/components.css?v=2026-04-12-studio-shell-4">
+    <link rel="stylesheet" href="assets/css/workflows.css?v=2026-04-12-studio-shell-4">
+    <link rel="stylesheet" href="assets/css/batch-processing.css?v=2026-04-12-studio-shell-4">
+    <link rel="stylesheet" href="assets/css/line-editor.css?v=2026-04-12-studio-shell-4">
+    <link rel="stylesheet" href="assets/css/emotion-timeline.css?v=2026-04-12-studio-shell-4">
+    <link rel="stylesheet" href="assets/css/edit-segment-modal.css?v=2026-04-12-studio-shell-4">
+    <link rel="stylesheet" href="assets/css/keyboard-shortcuts.css?v=2026-04-12-studio-shell-4">
+    <link rel="stylesheet" href="assets/css/responsive.css?v=2026-04-12-studio-shell-4">
+    <link rel="stylesheet" href="assets/css/custom-media-player.css?v=2026-04-12-studio-shell-4">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
     <!-- Dark Mode Toggle -->
     <div class="dark-mode-toggle">
-        <button id="dark-mode-btn" title="Toggle Dark Mode">
+        <button id="dark-mode-btn" title="Toggle Dark Mode" aria-label="Toggle Dark Mode">
             <i class="fas fa-moon"></i>
         </button>
     </div>
@@ -47,75 +48,140 @@
         </header>
 
         <!-- Main Content -->
-        <main class="main-content">
-            <!-- Tab Navigation -->
-            <nav class="tab-navigation">
-                <button class="tab-button" data-tab="speaker-prep">
-                    <i class="fas fa-scissors"></i>
-                    <span>Speaker Prep</span>
-                </button>
-                <button class="tab-button active" data-tab="conversation-workflow">
-                    <i class="fas fa-comments"></i>
-                    <span>Conversation Workflow</span>
-                </button>
-                <button class="tab-button" data-tab="conversation-results">
-                    <i class="fas fa-file-audio"></i>
-                    <span>Conversation Results</span>
-                </button>
-                <button class="tab-button" data-tab="timeline-editor">
-                    <i class="fas fa-grip-lines"></i>
-                    <span>Timeline Editor</span>
-                </button>
-            </nav>
-
-            <!-- Tab Content -->
-            <div class="tab-content">
-                <!-- Conversation Workflow Tab -->
-                <div class="tab-pane active" id="conversation-workflow">
-                    <div class="tab-header">
-                        <h2>Conversation Workflow</h2>
-                        <p>Create and generate multi-speaker conversations</p>
-                    </div>
-
-                    <section class="workflow-section project-save-load-section project-session-inline">
-                        <div class="section-header">
-                            <h3><i class="fas fa-save"></i> Project Save / Load</h3>
+        <main class="main-content" id="main-content">
+            <div class="studio-shell">
+                <aside class="studio-sidebar">
+                    <section class="studio-brand-panel">
+                        <span class="studio-panel-kicker">Workspace</span>
+                        <h2 translate="no">IndexTTS2</h2>
+                        <p>Speaker prep, script generation, review, and timeline export.</p>
+                        <div class="studio-brand-badges">
+                            <span class="studio-badge" id="sidebar-voices-badge">0 Voices Ready</span>
+                            <span class="studio-badge studio-badge-muted" id="sidebar-projects-badge">0 Saved Projects</span>
                         </div>
-                        <div class="section-content">
-                            <div class="settings-grid">
-                                <div class="form-group">
-                                    <label for="project-save-name">Save Filename:</label>
-                                    <input type="text" id="project-save-name" placeholder="project_name.json">
-                                </div>
-                                <div class="form-group">
-                                    <label for="saved-projects-select">Saved Projects:</label>
-                                    <select id="saved-projects-select">
-                                        <option value="">Select a saved project...</option>
-                                    </select>
-                                </div>
+                    </section>
+
+                    <!-- Tab Navigation -->
+                    <nav class="tab-navigation" aria-label="Studio Navigation" role="tablist">
+                <button class="tab-button" id="tab-speaker-prep" data-tab="speaker-prep" role="tab" aria-selected="false" aria-controls="speaker-prep">
+                            <i class="fas fa-scissors"></i>
+                            <span>Speaker Prep</span>
+                        </button>
+                <button class="tab-button active" id="tab-conversation-workflow" data-tab="conversation-workflow" role="tab" aria-selected="true" aria-controls="conversation-workflow">
+                            <i class="fas fa-comments"></i>
+                            <span>Conversation Workflow</span>
+                        </button>
+                <button class="tab-button" id="tab-conversation-results" data-tab="conversation-results" role="tab" aria-selected="false" aria-controls="conversation-results">
+                            <i class="fas fa-file-audio"></i>
+                            <span>Conversation Results</span>
+                        </button>
+                <button class="tab-button" id="tab-timeline-editor" data-tab="timeline-editor" role="tab" aria-selected="false" aria-controls="timeline-editor">
+                            <i class="fas fa-grip-lines"></i>
+                            <span>Timeline Editor</span>
+                        </button>
+                    </nav>
+
+                    <section class="studio-panel studio-project-panel">
+                        <div class="studio-panel-header">
+                            <div>
+                                <span class="studio-panel-kicker">Project</span>
+                                <h3>Session</h3>
                             </div>
-                            <div class="form-actions">
+                            <button class="btn btn-secondary btn-small" id="refresh-projects-btn">
+                                <i class="fas fa-rotate"></i> Refresh
+                            </button>
+                        </div>
+                        <div class="studio-panel-body">
+                            <div class="form-group">
+                                <label for="project-save-name">Save Filename</label>
+                                <input type="text" id="project-save-name" name="project-save-name" autocomplete="off" placeholder="project_name.json">
+                            </div>
+                            <div class="form-group">
+                                <label for="saved-projects-select">Saved Projects</label>
+                                <select id="saved-projects-select" name="saved-projects-select" autocomplete="off">
+                                    <option value="">Select a saved project…</option>
+                                </select>
+                            </div>
+                            <div class="studio-project-actions">
                                 <button class="btn btn-secondary" id="new-project-btn">
                                     <i class="fas fa-file-circle-plus"></i> Start New Project
                                 </button>
-                                <button class="btn btn-secondary" id="save-project-btn">
-                                    <i class="fas fa-save"></i> Save Current Project
+                                <button class="btn btn-primary" id="save-project-btn">
+                                    <i class="fas fa-save"></i> Save Project
                                 </button>
-                                <button class="btn btn-secondary" id="refresh-projects-btn">
-                                    <i class="fas fa-rotate"></i> Refresh List
-                                </button>
-                                <button class="btn btn-primary" id="load-project-btn">
-                                    <i class="fas fa-folder-open"></i> Load Selected Project
+                                <button class="btn btn-secondary" id="load-project-btn">
+                                    <i class="fas fa-folder-open"></i> Load Project
                                 </button>
                                 <button class="btn btn-secondary" id="delete-project-btn">
-                                    <i class="fas fa-trash"></i> Delete Selected
+                                    <i class="fas fa-trash"></i> Delete Project
                                 </button>
                             </div>
-                            <div class="help-text" id="project-save-status">
+                            <div class="help-text" id="project-save-status" aria-live="polite">
                                 Save your script, current settings, generated versions, and selections so you can restore the session later.
                             </div>
                         </div>
                     </section>
+
+                    <section class="studio-panel studio-flow-panel">
+                        <div class="studio-panel-header">
+                            <div>
+                                <span class="studio-panel-kicker">Flow</span>
+                                <h3>Workflow</h3>
+                            </div>
+                        </div>
+                        <div class="studio-panel-body">
+                            <ol class="studio-flow-list">
+                                <li class="studio-flow-item" data-flow-tab="speaker-prep">
+                                    <strong>1. Prepare Sources</strong>
+                                    <span>Trim and check speaker files.</span>
+                                </li>
+                                <li class="studio-flow-item" data-flow-tab="conversation-workflow">
+                                    <strong>2. Build The Script</strong>
+                                    <span>Assign voices and pacing.</span>
+                                </li>
+                                <li class="studio-flow-item" data-flow-tab="conversation-results">
+                                    <strong>3. Review The Takes</strong>
+                                    <span>Compare and choose takes.</span>
+                                </li>
+                                <li class="studio-flow-item" data-flow-tab="timeline-editor">
+                                    <strong>4. Shape The Final Cut</strong>
+                                    <span>Arrange timing and export.</span>
+                                </li>
+                            </ol>
+                        </div>
+                    </section>
+                </aside>
+
+                <div class="studio-workspace">
+                    <section class="workspace-hero">
+                        <div class="workspace-hero-copy">
+                            <span class="workspace-eyebrow" id="workspace-eyebrow">Conversation Workflow</span>
+                            <span class="workspace-session-pill" id="workspace-session-pill">New Session</span>
+                        </div>
+                        <div class="workspace-meta-grid" aria-live="polite">
+                            <div class="workspace-stat">
+                                <span class="workspace-stat-value" id="workspace-stat-voices">0</span>
+                                <span class="workspace-stat-label">Voices Ready</span>
+                            </div>
+                            <div class="workspace-stat">
+                                <span class="workspace-stat-value" id="workspace-stat-projects">0</span>
+                                <span class="workspace-stat-label">Saved Projects</span>
+                            </div>
+                            <div class="workspace-stat">
+                                <span class="workspace-stat-value" id="workspace-stat-conversations">0</span>
+                                <span class="workspace-stat-label">Conversations</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Tab Content -->
+                    <div class="tab-content">
+                <!-- Conversation Workflow Tab -->
+                <div class="tab-pane active" id="conversation-workflow" role="tabpanel" aria-labelledby="tab-conversation-workflow">
+                    <div class="tab-header">
+                        <h2>Conversation Workflow</h2>
+                        <p>Create and generate multi-speaker conversations</p>
+                    </div>
 
                     <div class="workflow-container">
                         <div class="workflow-section">
@@ -424,7 +490,7 @@ another_speaker: Response here
                 </div>
 
                 <!-- Speaker Prep Tab -->
-                <div class="tab-pane" id="speaker-prep">
+                <div class="tab-pane" id="speaker-prep" role="tabpanel" aria-labelledby="tab-speaker-prep">
                     <div class="tab-header">
                         <h2>Speaker Prep</h2>
                         <p>Upload source clips, diagnose them quickly, and prepare cleaner speaker prompts.</p>
@@ -629,7 +695,7 @@ another_speaker: Response here
                 </div>
 
                 <!-- Timeline Editor Tab -->
-                <div class="tab-pane" id="timeline-editor">
+                <div class="tab-pane" id="timeline-editor" role="tabpanel" aria-labelledby="tab-timeline-editor">
                     <div class="tab-header">
                         <h2>Timeline Editor</h2>
                         <p>Build a scene from scratch or import one from results, then arrange, generate, and export it.</p>
@@ -898,7 +964,7 @@ another_speaker: Response here
                 </div>
 
                 <!-- Conversation Results Tab -->
-                <div class="tab-pane" id="conversation-results">
+                <div class="tab-pane" id="conversation-results" role="tabpanel" aria-labelledby="tab-conversation-results">
                     <div class="tab-header">
                         <h2>Conversation Results</h2>
                         <p>Review, select, and export generated conversation versions</p>
@@ -1180,6 +1246,8 @@ lines:
                     </div>
                 </div>
 
+                    </div>
+                </div>
             </div>
         </main>
 
@@ -1553,7 +1621,7 @@ lines:
     <div class="notification-container" id="notification-container"></div>
 
     <!-- JavaScript Modules -->
-    <script type="module" src="src/app.js?v=2026-04-10-webmcp-2"></script>
-    <script src="src/custom-media-player.js?v=2026-04-10-webmcp-2"></script>
+    <script type="module" src="src/app.js?v=2026-04-12-studio-shell-4"></script>
+    <script src="src/custom-media-player.js?v=2026-04-12-studio-shell-4"></script>
 </body>
 </html>

@@ -25,11 +25,11 @@ class IndexTTSApp {
         this.currentTimelineProject = null;
         this.selectedTimelineTrackId = null;
         this.selectedTimelineSegmentId = null;
-        this.timelinePixelsPerSecond = 140;
         this.timelineDragState = null;
         this.currentTimelineExportFilename = null;
         this.timelineExportDirty = true;
         this.timelineWaveformCache = {};
+        this.timelineTrackUiState = {};
         this.selectedSourceClip = null;
         this.currentSourceClipDiagnostics = null;
         this.sourceClipDiagnosticsCache = {};
@@ -41,6 +41,35 @@ class IndexTTSApp {
         this.webMcp = null;
         this.webMcpReady = false;
         this.webMcpInitStarted = false;
+        this.sectionCollapseState = {};
+        this.timelinePixelsPerSecond = 140;
+
+        try {
+            const savedSectionCollapseState = JSON.parse(localStorage.getItem('indexttsSectionCollapseState') || '{}');
+            if (savedSectionCollapseState && typeof savedSectionCollapseState === 'object') {
+                this.sectionCollapseState = savedSectionCollapseState;
+            }
+        } catch (error) {
+            console.warn('Failed to restore section collapse state:', error);
+        }
+
+        try {
+            const savedTimelineTrackUiState = JSON.parse(localStorage.getItem('indexttsTimelineTrackUiState') || '{}');
+            if (savedTimelineTrackUiState && typeof savedTimelineTrackUiState === 'object') {
+                this.timelineTrackUiState = savedTimelineTrackUiState;
+            }
+        } catch (error) {
+            console.warn('Failed to restore timeline track UI state:', error);
+        }
+
+        try {
+            const savedTimelineZoom = Number(localStorage.getItem('indexttsTimelineZoom'));
+            if (Number.isFinite(savedTimelineZoom)) {
+                this.timelinePixelsPerSecond = Math.min(260, Math.max(60, savedTimelineZoom));
+            }
+        } catch (error) {
+            console.warn('Failed to restore timeline zoom:', error);
+        }
         
         this.init();
     }
@@ -77,6 +106,257 @@ class IndexTTSApp {
         }
     }
 }
+
+IndexTTSApp.prototype.persistSectionCollapseState = function() {
+    try {
+        localStorage.setItem('indexttsSectionCollapseState', JSON.stringify(this.sectionCollapseState || {}));
+    } catch (error) {
+        console.warn('Failed to persist section collapse state:', error);
+    }
+};
+
+IndexTTSApp.prototype.persistTimelineTrackUiState = function() {
+    try {
+        localStorage.setItem('indexttsTimelineTrackUiState', JSON.stringify(this.timelineTrackUiState || {}));
+    } catch (error) {
+        console.warn('Failed to persist timeline track UI state:', error);
+    }
+};
+
+IndexTTSApp.prototype.getCollapsibleSectionKey = function(section) {
+    if (!section) {
+        return '';
+    }
+
+    if (section.dataset.sectionKey) {
+        return section.dataset.sectionKey;
+    }
+
+    const tabId = section.closest('.tab-pane')?.id || 'workspace';
+    const headingText = section.querySelector('.section-header h3')?.textContent?.trim() || 'section';
+    const normalizedHeading = headingText.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    return `${tabId}:${normalizedHeading || 'section'}`;
+};
+
+IndexTTSApp.prototype.setSectionCollapsed = function(section, collapsed, options = {}) {
+    const header = section?.querySelector(':scope > .section-header, :scope > .studio-panel-header');
+    const content = section?.querySelector(':scope > .section-content, :scope > .collapsible-content, :scope > .studio-panel-body');
+    const toggleButton = section?.querySelector('.section-collapse-toggle');
+    if (!section || !header || !content) {
+        return;
+    }
+
+    const normalizedCollapsed = Boolean(collapsed);
+    section.classList.toggle('section-collapsed', normalizedCollapsed);
+    section.classList.toggle('expanded', !normalizedCollapsed);
+    content.hidden = normalizedCollapsed;
+    content.style.display = normalizedCollapsed ? 'none' : '';
+    content.classList.toggle('show', !normalizedCollapsed);
+    if (toggleButton) {
+        toggleButton.setAttribute('aria-expanded', String(!normalizedCollapsed));
+        toggleButton.setAttribute('title', normalizedCollapsed ? 'Expand section' : 'Collapse section');
+    }
+
+    if (!options.skipPersist) {
+        this.sectionCollapseState = this.sectionCollapseState || {};
+        this.sectionCollapseState[this.getCollapsibleSectionKey(section)] = normalizedCollapsed;
+        this.persistSectionCollapseState();
+    }
+};
+
+IndexTTSApp.prototype.toggleSectionCollapsed = function(section) {
+    if (!section) {
+        return;
+    }
+
+    const isCollapsed = section.classList.contains('section-collapsed');
+    this.setSectionCollapsed(section, !isCollapsed);
+};
+
+IndexTTSApp.prototype.setupCollapsibleSections = function() {
+    document.querySelectorAll('.studio-panel, .workflow-section, .results-section').forEach((section) => {
+        if (section.dataset.collapsibleReady === 'true') {
+            return;
+        }
+
+        const header = section.querySelector(':scope > .section-header, :scope > .studio-panel-header');
+        const content = section.querySelector(':scope > .section-content, :scope > .collapsible-content, :scope > .studio-panel-body');
+        if (!header || !content) {
+            return;
+        }
+
+        section.dataset.collapsibleReady = 'true';
+        section.classList.add('is-collapsible-section');
+
+        let actions = header.querySelector(':scope > .section-actions');
+        if (!actions) {
+            actions = document.createElement('div');
+            actions.className = 'section-actions section-actions-collapse';
+            header.appendChild(actions);
+        }
+
+        const toggleButton = document.createElement('button');
+        toggleButton.type = 'button';
+        toggleButton.className = 'btn btn-secondary btn-small section-collapse-toggle';
+        toggleButton.setAttribute('aria-label', 'Toggle section');
+        toggleButton.innerHTML = '<i class="fas fa-chevron-down"></i>';
+        actions.appendChild(toggleButton);
+
+        toggleButton.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            this.toggleSectionCollapsed(section);
+        });
+
+        const collapseKey = this.getCollapsibleSectionKey(section);
+        const hasStoredState = Object.prototype.hasOwnProperty.call(this.sectionCollapseState || {}, collapseKey);
+        const defaultCollapsed = section.dataset.defaultCollapsed === 'true' || content.style.display === 'none' || content.hidden;
+        this.setSectionCollapsed(section, hasStoredState ? Boolean(this.sectionCollapseState[collapseKey]) : defaultCollapsed, { skipPersist: true });
+    });
+};
+
+IndexTTSApp.prototype.setTimelineZoom = function(nextValue) {
+    const clamped = Math.min(260, Math.max(60, Math.round(Number(nextValue) || 140)));
+    if (clamped === this.timelinePixelsPerSecond) {
+        return;
+    }
+
+    this.timelinePixelsPerSecond = clamped;
+    try {
+        localStorage.setItem('indexttsTimelineZoom', String(clamped));
+    } catch (error) {
+        console.warn('Failed to persist timeline zoom:', error);
+    }
+
+    if (this.currentTimelineProject && typeof this.renderTimelineProject === 'function') {
+        this.renderTimelineProject();
+    }
+};
+
+IndexTTSApp.prototype.adjustTimelineZoom = function(step) {
+    this.setTimelineZoom(this.timelinePixelsPerSecond + step);
+};
+
+IndexTTSApp.prototype.fitTimelineZoomToProject = function() {
+    if (!this.currentTimelineProject) {
+        return;
+    }
+
+    const shell = document.getElementById('timeline-editor-shell');
+    const totalDuration = typeof this.getTimelineVisualDuration === 'function' ? this.getTimelineVisualDuration() : 8;
+    const availableWidth = Math.max(420, (shell?.clientWidth || 1080) - 280);
+    const suggestedZoom = availableWidth / Math.max(totalDuration, 1);
+    this.setTimelineZoom(suggestedZoom);
+};
+
+IndexTTSApp.prototype.getTimelineTrackUiKey = function(trackId) {
+    return `${this.currentTimelineProjectId || 'timeline'}:${trackId || 'track'}`;
+};
+
+IndexTTSApp.prototype.isTimelineTrackCollapsed = function(trackId) {
+    const key = this.getTimelineTrackUiKey(trackId);
+    return Boolean(this.timelineTrackUiState?.[key]?.collapsed);
+};
+
+IndexTTSApp.prototype.toggleTimelineTrackCollapsed = function(trackId) {
+    if (!trackId) {
+        return;
+    }
+
+    const key = this.getTimelineTrackUiKey(trackId);
+    const currentState = this.timelineTrackUiState?.[key] || {};
+    this.timelineTrackUiState = this.timelineTrackUiState || {};
+    this.timelineTrackUiState[key] = {
+        ...currentState,
+        collapsed: !Boolean(currentState.collapsed),
+    };
+    this.persistTimelineTrackUiState();
+    if (typeof this.renderTimelineProject === 'function') {
+        this.renderTimelineProject();
+    }
+};
+
+IndexTTSApp.prototype.getWorkspaceMeta = function(tabName) {
+    const metadata = {
+        'speaker-prep': {
+            eyebrow: 'Voice Library',
+            title: 'Speaker Prep',
+            subtitle: 'Prepare source clips and promote clean speaker files.',
+        },
+        'conversation-workflow': {
+            eyebrow: 'Draft',
+            title: 'Conversation Workflow',
+            subtitle: 'Write, parse, generate, and keep the session in sync.',
+        },
+        'conversation-results': {
+            eyebrow: 'Review',
+            title: 'Conversation Results',
+            subtitle: 'Compare takes, regenerate lines, and lock the best versions.',
+        },
+        'timeline-editor': {
+            eyebrow: 'Timeline',
+            title: 'Timeline Editor',
+            subtitle: 'Set timing, overlap control, and export order.',
+        },
+    };
+
+    return metadata[tabName] || metadata['conversation-workflow'];
+};
+
+IndexTTSApp.prototype.getStudioSessionLabel = function() {
+    const conversationTitle = document.getElementById('conversation-title')?.value?.trim();
+    const saveName = document.getElementById('project-save-name')?.value?.trim();
+
+    if (conversationTitle) {
+        return conversationTitle;
+    }
+
+    if (this.currentConversationId) {
+        return `Conversation ${this.currentConversationId.substring(0, 8)}`;
+    }
+
+    if (saveName && saveName !== 'project.json') {
+        return saveName;
+    }
+
+    if (document.getElementById('conversation-script')?.value?.trim()) {
+        return 'Draft In Progress';
+    }
+
+    return 'New Session';
+};
+
+IndexTTSApp.prototype.refreshStudioShell = function() {
+    const workspaceMeta = this.getWorkspaceMeta(this.currentTab);
+    const voiceCount = Array.isArray(this.speakers) ? this.speakers.length : 0;
+    const projectCount = Array.isArray(this.savedProjects) ? this.savedProjects.length : 0;
+    const conversationCount = Array.isArray(this.conversations) ? this.conversations.length : 0;
+    const pluralize = (count, singular, plural) => `${count} ${count === 1 ? singular : plural}`;
+
+    const workspaceEyebrow = document.getElementById('workspace-eyebrow');
+    const workspaceSessionPill = document.getElementById('workspace-session-pill');
+
+    if (workspaceEyebrow) workspaceEyebrow.textContent = workspaceMeta.eyebrow;
+    if (workspaceSessionPill) workspaceSessionPill.textContent = this.getStudioSessionLabel();
+
+    const voicesStat = document.getElementById('workspace-stat-voices');
+    const projectsStat = document.getElementById('workspace-stat-projects');
+    const conversationsStat = document.getElementById('workspace-stat-conversations');
+    const sidebarVoicesBadge = document.getElementById('sidebar-voices-badge');
+    const sidebarProjectsBadge = document.getElementById('sidebar-projects-badge');
+
+    if (voicesStat) voicesStat.textContent = String(voiceCount);
+    if (projectsStat) projectsStat.textContent = String(projectCount);
+    if (conversationsStat) conversationsStat.textContent = String(conversationCount);
+    if (sidebarVoicesBadge) sidebarVoicesBadge.textContent = pluralize(voiceCount, 'Voice Ready', 'Voices Ready');
+    if (sidebarProjectsBadge) sidebarProjectsBadge.textContent = pluralize(projectCount, 'Saved Project', 'Saved Projects');
+
+    document.querySelectorAll('.studio-flow-item').forEach((item) => {
+        item.classList.toggle('active', item.dataset.flowTab === this.currentTab);
+    });
+
+    document.body.dataset.currentTab = this.currentTab;
+};
 
 IndexTTSApp.prototype.applyInitialRouteState = function() {
     const tabFromUrl = this.routeParams.get('tab');
@@ -163,6 +443,7 @@ IndexTTSApp.prototype.renderAvailableVoices = function() {
                   <p class="empty-state-detail">This app does not ship with bundled voice clones. Add your own prepared WAV files to <code>shared/audio/speakers</code> or create them in <strong>Speaker Prep</strong>.</p>
               </div>
           `;
+          this.refreshStudioShell();
           return;
       }
 
@@ -204,6 +485,8 @@ IndexTTSApp.prototype.renderAvailableVoices = function() {
         speakerItem.appendChild(speakerInfo);
         voicesList.appendChild(speakerItem);
     });
+
+    this.refreshStudioShell();
 };
 
 // Speaker Upload
@@ -246,8 +529,11 @@ IndexTTSApp.prototype.switchTab = function(tabName) {
     // Update tab buttons
     document.querySelectorAll('.tab-button').forEach(button => {
         button.classList.remove('active');
+        button.setAttribute('aria-selected', 'false');
     });
-    document.querySelector(`[data-tab="${tabName}"]`)?.classList.add('active');
+    const activeButton = document.querySelector(`[data-tab="${tabName}"]`);
+    activeButton?.classList.add('active');
+    activeButton?.setAttribute('aria-selected', 'true');
 
     // Update tab panes
     document.querySelectorAll('.tab-pane').forEach(pane => {
@@ -256,6 +542,7 @@ IndexTTSApp.prototype.switchTab = function(tabName) {
     document.getElementById(tabName).classList.add('active');
 
     this.currentTab = tabName;
+    this.refreshStudioShell();
 
     // Load data for specific tabs
     if (tabName === 'conversation-results') {

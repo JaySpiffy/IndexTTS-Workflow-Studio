@@ -34,7 +34,7 @@
 .form-group textarea:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
 .form-group input[type="range"] {
@@ -58,14 +58,23 @@
     display: inline-flex;
     align-items: center;
     gap: var(--spacing-2);
-    padding: var(--spacing-3) var(--spacing-4);
+    padding: 0.7rem var(--spacing-4);
     border: none;
     border-radius: var(--radius-md);
     font-size: var(--font-size-base);
     font-weight: 500;
     cursor: pointer;
-    transition: all var(--transition-fast);
+    transition:
+        background-color var(--transition-fast),
+        border-color var(--transition-fast),
+        color var(--transition-fast),
+        box-shadow var(--transition-fast);
     text-decoration: none;
+}
+
+.btn:focus-visible {
+    outline: 3px solid rgba(37, 99, 235, 0.22);
+    outline-offset: 2px;
 }
 
 .btn:disabled {
@@ -189,6 +198,7 @@
 /* Form Actions */
 .form-actions {
     display: flex;
+    flex-wrap: wrap;
     gap: var(--spacing-3);
     margin-top: var(--spacing-4);
 }
@@ -212,7 +222,7 @@ body.dark-mode .form-group input:focus,
 body.dark-mode .form-group select:focus,
 body.dark-mode .form-group textarea:focus {
     border-color: var(--dm-primary-color);
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
 }
 
 body.dark-mode .range-value {

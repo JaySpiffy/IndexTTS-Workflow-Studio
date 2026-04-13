@@ -9,8 +9,32 @@
     .main-content {
         padding: var(--spacing-4);
     }
+
+    .studio-shell {
+        grid-template-columns: 1fr;
+    }
+
+    .studio-sidebar {
+        position: static;
+    }
+
+    .workspace-hero {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .workspace-meta-grid {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .workspace-stat {
+        width: 100%;
+        justify-content: space-between;
+    }
     
     .tab-navigation {
+        flex-direction: row;
         flex-wrap: wrap;
     }
     
@@ -18,6 +42,7 @@
         flex: 1;
         min-width: 120px;
         justify-content: center;
+        text-align: center;
     }
     
     .form-row {
@@ -261,6 +286,11 @@
 
 /* Mobile */
 @media (max-width: 480px) {
+    .workspace-meta-grid,
+    .studio-project-actions {
+        grid-template-columns: 1fr;
+    }
+
     .tab-header h2 {
         font-size: var(--font-size-2xl);
     }

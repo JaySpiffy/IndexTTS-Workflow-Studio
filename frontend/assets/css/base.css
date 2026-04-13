@@ -7,9 +7,9 @@
 
 :root {
     /* Color Palette */
-    --primary-color: #4f46e5;
-    --primary-hover: #4338ca;
-    --primary-light: #e0e7ff;
+    --primary-color: #2563eb;
+    --primary-hover: #1d4ed8;
+    --primary-light: #dbeafe;
     --secondary-color: #64748b;
     --secondary-hover: #475569;
     --success-color: #10b981;
@@ -77,7 +77,27 @@ body {
     font-size: var(--font-size-base);
     line-height: 1.5;
     color: var(--gray-800);
-    background-color: var(--gray-50);
+    background-color: #f5f7fb;
+    min-height: 100vh;
+    color-scheme: light;
+}
+
+.skip-link {
+    position: absolute;
+    left: var(--spacing-4);
+    top: -48px;
+    z-index: 1200;
+    padding: var(--spacing-3) var(--spacing-4);
+    border-radius: var(--radius-md);
+    background-color: var(--gray-900);
+    color: var(--white);
+    text-decoration: none;
+    box-shadow: var(--shadow-md);
+    transition: top var(--transition-fast);
+}
+
+.skip-link:focus {
+    top: var(--spacing-4);
 }
 
 /* App Container */
@@ -101,7 +121,10 @@ body {
     border-radius: var(--radius-lg);
     padding: var(--spacing-3);
     cursor: pointer;
-    transition: all var(--transition-fast);
+    transition:
+        background-color var(--transition-fast),
+        transform var(--transition-fast),
+        box-shadow var(--transition-fast);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -124,9 +147,9 @@ body {
 /* Dark Mode Color Variables */
 body.dark-mode {
     /* Dark Mode Color Variables */
-    --dm-primary-color: #6366f1;
-    --dm-primary-hover: #7c3aed;
-    --dm-primary-light: #312e81;
+    --dm-primary-color: #60a5fa;
+    --dm-primary-hover: #93c5fd;
+    --dm-primary-light: #1e3a8a;
     --dm-secondary-color: #94a3b8;
     --dm-secondary-hover: #cbd5e1;
     --dm-success-color: #34d399;
@@ -150,6 +173,7 @@ body.dark-mode {
     /* Apply dark mode colors */
     color: var(--dm-gray-300);
     background-color: var(--dm-white);
+    color-scheme: dark;
 }
 
 body.dark-mode #dark-mode-btn {

@@ -1,6 +1,6 @@
 // IndexTTS2 Frontend Application - Main Entry Point
 // Import all modules with proper error handling
-const FRONTEND_BUILD_VERSION = '2026-04-10-webmcp-2';
+const FRONTEND_BUILD_VERSION = '2026-04-12-studio-shell-4';
 
 // Initialize the app with proper module loading
 async function initializeApp() {
