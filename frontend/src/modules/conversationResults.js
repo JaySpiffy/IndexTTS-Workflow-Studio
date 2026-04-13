@@ -29,6 +29,91 @@ function formatPacingLabel(label) {
         .replace(/\b\w/g, character => character.toUpperCase());
 }
 
+function getConversationQualityGateSettings(generationParams = {}) {
+    const similarityThreshold = Number.isFinite(Number(generationParams?.similarity_threshold))
+        ? Number(generationParams.similarity_threshold)
+        : 0.6;
+    const roboticThreshold = Number.isFinite(Number(generationParams?.robotic_threshold))
+        ? Number(generationParams.robotic_threshold)
+        : 0.7;
+    const minQualityScore = Number.isFinite(Number(generationParams?.quality_gate_min_quality_score))
+        ? Number(generationParams.quality_gate_min_quality_score)
+        : Math.max(0.48, similarityThreshold * 0.8);
+    const minPacingScore = Number.isFinite(Number(generationParams?.quality_gate_min_pacing_score))
+        ? Number(generationParams.quality_gate_min_pacing_score)
+        : 0.45;
+
+    return {
+        similarityThreshold,
+        roboticThreshold,
+        minQualityScore,
+        minPacingScore,
+    };
+}
+
+function conversationVersionMeetsQualityGate(version, generationParams = {}) {
+    if (!version || typeof version !== 'object') {
+        return false;
+    }
+
+    if (typeof version.meets_quality_gate === 'boolean') {
+        return version.meets_quality_gate;
+    }
+
+    const gate = getConversationQualityGateSettings(generationParams);
+    const similarityScore = Number(version.similarity_score);
+    const roboticScore = Number(version.robotic_score);
+    const qualityScore = Number.isFinite(Number(version.quality_score))
+        ? Number(version.quality_score)
+        : similarityScore;
+    const pacingScore = Number.isFinite(Number(version.pacing_score))
+        ? Number(version.pacing_score)
+        : null;
+
+    if (!Number.isFinite(similarityScore) || similarityScore < gate.similarityThreshold) {
+        return false;
+    }
+    if (!Number.isFinite(roboticScore) || roboticScore > gate.roboticThreshold) {
+        return false;
+    }
+    if (!Number.isFinite(qualityScore) || qualityScore < gate.minQualityScore) {
+        return false;
+    }
+    if (pacingScore !== null && pacingScore < gate.minPacingScore) {
+        return false;
+    }
+    return true;
+}
+
+function getBestConversationVersionIndex(line, generationParams = {}, { requireQualityGate = false } = {}) {
+    const versions = line?.versions || [];
+    let bestGatePassingVersionIndex = -1;
+    let bestGatePassingScore = Number.NEGATIVE_INFINITY;
+    let bestVersionIndex = -1;
+    let bestScore = Number.NEGATIVE_INFINITY;
+
+    versions.forEach((version, index) => {
+        const reviewScore = getConversationReviewScore(version);
+        const meetsQualityGate = conversationVersionMeetsQualityGate(version, generationParams);
+
+        if (meetsQualityGate && reviewScore > bestGatePassingScore) {
+            bestGatePassingScore = reviewScore;
+            bestGatePassingVersionIndex = index;
+        }
+
+        if (reviewScore > bestScore) {
+            bestScore = reviewScore;
+            bestVersionIndex = index;
+        }
+    });
+
+    if (requireQualityGate && bestGatePassingVersionIndex >= 0) {
+        return bestGatePassingVersionIndex;
+    }
+
+    return bestVersionIndex;
+}
+
 IndexTTSApp.prototype.loadListeningReviewsState = function() {
     try {
         const saved = localStorage.getItem('indexttsListeningReviews');
@@ -470,6 +555,9 @@ IndexTTSApp.prototype.loadConversations = async function() {
         this.conversations = response.details.conversations;
         console.log('DEBUG: conversations loaded:', this.conversations);
         this.renderConversations();
+        if (typeof this.refreshStudioShell === 'function') {
+            this.refreshStudioShell();
+        }
     } catch (error) {
         console.error('Failed to load conversations:', error);
     }
@@ -534,6 +622,9 @@ IndexTTSApp.prototype.selectConversation = async function(conversationId) {
     
     // Load conversation results
     await this.loadConversationResults(conversationId);
+    if (typeof this.refreshStudioShell === 'function') {
+        this.refreshStudioShell();
+    }
 };
 
 IndexTTSApp.prototype.loadConversationResults = async function(conversationId) {
@@ -565,6 +656,9 @@ IndexTTSApp.prototype.loadConversationResults = async function(conversationId) {
         this.renderLineVersions();
         this.refreshListeningFeedbackExport();
         this.refreshSeedReportExport();
+        if (typeof this.refreshStudioShell === 'function') {
+            this.refreshStudioShell();
+        }
         
     } catch (error) {
         console.error('DEBUG: loadConversationResults error:', error);
@@ -592,9 +686,12 @@ IndexTTSApp.prototype.getConversationSelectionStatus = function() {
         totalLines: this.currentConversationData.lines.length,
         selectedLines: 0,
         missingLines: [],
+        qualityWarningLines: [],
         multiSelectedLines: [],
         canExport: false,
     };
+
+    const generationParams = this.currentConversationData?.generation_params || {};
 
     this.currentConversationData.lines.forEach((line, lineIndex) => {
         const selectedVersions = (line.versions || []).filter(version => Boolean(version.is_selected));
@@ -604,6 +701,9 @@ IndexTTSApp.prototype.getConversationSelectionStatus = function() {
 
         if (selectedVersions.length === 1) {
             summary.selectedLines += 1;
+            if (!conversationVersionMeetsQualityGate(selectedVersions[0], generationParams)) {
+                summary.qualityWarningLines.push(lineNumber);
+            }
         } else if (selectedVersions.length === 0) {
             summary.missingLines.push(lineNumber);
         } else {
@@ -630,6 +730,10 @@ IndexTTSApp.prototype.buildSelectionReadinessMessage = function(selectionStatus)
     }
     if (selectionStatus.multiSelectedLines.length) {
         issues.push(`fix multiple selections on lines ${selectionStatus.multiSelectedLines.join(', ')}`);
+    }
+
+    if (!issues.length && selectionStatus.qualityWarningLines.length) {
+        return `Ready to export, but review low-quality selections on lines ${selectionStatus.qualityWarningLines.join(', ')}.`;
     }
 
     if (!issues.length) {
@@ -705,6 +809,7 @@ IndexTTSApp.prototype.renderLineVersions = function() {
         
         const lineItem = document.createElement('div');
         lineItem.className = 'line-item';
+        const generationParams = this.currentConversationData?.generation_params || {};
         const speakerLabel = escapeConversationResultsHtml((line.speaker_filename || 'Unknown').replace(/\.(wav|mp3)$/i, ''));
         const displayText = escapeConversationResultsHtml(line.text || '');
         const reviewText = escapeConversationResultsHtml(line.edited_text ?? line.text ?? '');
@@ -715,16 +820,31 @@ IndexTTSApp.prototype.renderLineVersions = function() {
             ? Number(line.max_manual_attempts)
             : parseInt(document.getElementById('auto-regen-attempts')?.value || '1', 10);
         const selectedVersionCount = (line.versions || []).filter(version => Boolean(version.is_selected)).length;
+        const hasGatePassingVersion = (line.versions || []).some(version => (
+            conversationVersionMeetsQualityGate(version, generationParams)
+        ));
+        const selectedVersion = (line.versions || []).find(version => Boolean(version.is_selected));
+        const selectedVersionNeedsReview = selectedVersionCount === 1 && !conversationVersionMeetsQualityGate(selectedVersion, generationParams);
         const selectionState = selectedVersionCount === 1
-            ? {
-                className: 'line-selection-ready',
-                label: 'Final version selected',
-            }
-            : selectedVersionCount === 0
+            ? selectedVersionNeedsReview
                 ? {
-                    className: 'line-selection-missing',
-                    label: 'Selection required',
+                    className: 'line-selection-quality-review',
+                    label: 'Selected, review recommended',
                 }
+                : {
+                    className: 'line-selection-ready',
+                    label: 'Final version selected',
+                }
+            : selectedVersionCount === 0
+                ? hasGatePassingVersion
+                    ? {
+                        className: 'line-selection-missing',
+                        label: 'Selection required',
+                    }
+                    : {
+                        className: 'line-selection-quality-review',
+                        label: 'Needs quality review',
+                    }
                 : {
                     className: 'line-selection-invalid',
                     label: 'Only one version can be selected',
@@ -747,11 +867,15 @@ IndexTTSApp.prototype.renderLineVersions = function() {
             const durationText = Number.isFinite(Number(version.duration_seconds))
                 ? `${Number(version.duration_seconds).toFixed(2)}s`
                 : 'n/a';
+            const meetsQualityGate = conversationVersionMeetsQualityGate(version, generationParams);
+            const qualityGateReason = Array.isArray(version.quality_gate_failures) && version.quality_gate_failures.length
+                ? escapeConversationResultsHtml(version.quality_gate_failures[0])
+                : 'Below the automatic quality gate.';
             
             console.log(`DEBUG: Version ${versionIndex}:`, version);
             
             return `
-                <div class="version-item ${isSelected ? 'selected' : ''}"
+                <div class="version-item ${isSelected ? 'selected' : ''} ${meetsQualityGate ? '' : 'quality-gate-failed'}"
                      onclick="app.selectVersion(${lineIndex}, ${versionIndex})">
                     <div class="version-header">
                         <span class="version-title">Version ${versionIndex + 1}</span>
@@ -760,10 +884,11 @@ IndexTTSApp.prototype.renderLineVersions = function() {
                             <span class="score-badge similarity">Similarity: ${similarityScore}%</span>
                             <span class="score-badge quality">Quality: ${qualityScore}%</span>
                             ${pacingScore !== null ? `<span class="score-badge similarity">Pacing: ${pacingScore}%</span>` : ''}
+                            ${meetsQualityGate ? '' : `<span class="score-badge warning" title="${qualityGateReason}">Needs review</span>`}
                         </div>
                     </div>
                     <div class="version-seed">${escapeConversationResultsHtml(seedText)}${seedOriginText ? ` | ${seedOriginText}` : ''}</div>
-                    <div class="version-seed">Duration ${escapeConversationResultsHtml(durationText)} | ${pacingLabel}${pacingNote ? ` | ${pacingNote}` : ''}</div>
+                    <div class="version-seed">Duration ${escapeConversationResultsHtml(durationText)} | ${pacingLabel}${pacingNote ? ` | ${pacingNote}` : ''}${meetsQualityGate ? '' : ` | ${qualityGateReason}`}</div>
                     <div class="version-actions">
                         <button class="btn btn-secondary btn-small"
                                 onclick="event.stopPropagation(); app.playVersionAudio('${version.audio_path}', '${version.audio_url || ''}')">
@@ -902,53 +1027,70 @@ IndexTTSApp.prototype.selectVersion = function(lineIndex, versionIndex) {
 
 IndexTTSApp.prototype.autoSelectBestVersions = function() {
     if (!this.currentConversationData) return;
-    
-    this.currentConversationData.lines.forEach(line => {
-        // Find version with highest review score
-        let bestVersionIndex = 0;
-        let bestScore = Number.NEGATIVE_INFINITY;
-        
+
+    const warningLines = [];
+    const generationParams = this.currentConversationData?.generation_params || {};
+
+    this.currentConversationData.lines.forEach((line, lineIndex) => {
+        const bestVersionIndex = getBestConversationVersionIndex(
+            line,
+            generationParams,
+            { requireQualityGate: true },
+        );
+
         line.versions.forEach((version, index) => {
-            const reviewScore = getConversationReviewScore(version);
-            if (reviewScore > bestScore) {
-                bestScore = reviewScore;
-                bestVersionIndex = index;
-            }
+            version.is_selected = (bestVersionIndex >= 0) && (index === bestVersionIndex);
         });
-        
-        // Select best version
-        line.versions.forEach((version, index) => {
-            version.is_selected = (index === bestVersionIndex);
-        });
+
+        if (bestVersionIndex >= 0 && !conversationVersionMeetsQualityGate(line.versions[bestVersionIndex], generationParams)) {
+            const lineNumber = Number.isFinite(Number(line.line_number))
+                ? Number(line.line_number) + 1
+                : lineIndex + 1;
+            warningLines.push(lineNumber);
+        }
     });
     
     this.renderLineVersions();
-    this.showNotification('Success', 'Auto-selected best versions', 'success');
+
+    if (warningLines.length) {
+        this.showNotification(
+            'Warning',
+            `Auto-selected the best available versions, but lines ${warningLines.join(', ')} still need review.`,
+            'warning',
+        );
+        return;
+    }
+
+    this.showNotification('Success', 'Auto-selected the best gate-passing versions', 'success');
 };
 
 IndexTTSApp.prototype.autoSelectBestForLine = function(lineIndex) {
     if (!this.currentConversationData) return;
     
     const line = this.currentConversationData.lines[lineIndex];
-    
-    // Find version with highest review score
-    let bestVersionIndex = 0;
-    let bestScore = Number.NEGATIVE_INFINITY;
-    
+    const generationParams = this.currentConversationData?.generation_params || {};
+    const bestVersionIndex = getBestConversationVersionIndex(
+        line,
+        generationParams,
+        { requireQualityGate: true },
+    );
+
     line.versions.forEach((version, index) => {
-        const reviewScore = getConversationReviewScore(version);
-        if (reviewScore > bestScore) {
-            bestScore = reviewScore;
-            bestVersionIndex = index;
-        }
-    });
-    
-    // Select best version
-    line.versions.forEach((version, index) => {
-        version.is_selected = (index === bestVersionIndex);
+        version.is_selected = (bestVersionIndex >= 0) && (index === bestVersionIndex);
     });
     
     this.renderLineVersions();
+
+    if (bestVersionIndex >= 0 && !conversationVersionMeetsQualityGate(line.versions[bestVersionIndex], generationParams)) {
+        const lineNumber = Number.isFinite(Number(line.line_number))
+            ? Number(line.line_number) + 1
+            : lineIndex + 1;
+        this.showNotification(
+            'Warning',
+            `Line ${lineNumber} picked the best available version, but it still needs review.`,
+            'warning',
+        );
+    }
 };
 
 IndexTTSApp.prototype.clearVersionSelections = function() {

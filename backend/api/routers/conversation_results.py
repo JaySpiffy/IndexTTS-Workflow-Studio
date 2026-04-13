@@ -58,9 +58,75 @@ def _normalize_version_payload(conversation_service: ConversationService, versio
     return normalized
 
 
-def _version_score(version: Optional[Dict[str, Any]]) -> float:
+def _resolve_quality_gate(generation_params: Optional[Dict[str, Any]] = None) -> Dict[str, float]:
+    """Resolve the thresholds used for auto-selecting acceptable versions."""
+    params = generation_params or {}
+    similarity_threshold = float(params.get("similarity_threshold", 0.60))
+    robotic_threshold = float(params.get("robotic_threshold", settings.robotic_threshold))
+    min_quality_score = float(
+        params.get("quality_gate_min_quality_score", max(0.48, round(similarity_threshold * 0.8, 3)))
+    )
+    min_pacing_score = float(params.get("quality_gate_min_pacing_score", 0.45))
+    return {
+        "similarity_threshold": max(0.0, min(1.0, similarity_threshold)),
+        "robotic_threshold": max(0.0, min(1.0, robotic_threshold)),
+        "min_quality_score": max(0.0, min(1.0, min_quality_score)),
+        "min_pacing_score": max(0.0, min(1.0, min_pacing_score)),
+    }
+
+
+def _version_meets_quality_gate(
+    version: Optional[Dict[str, Any]],
+    quality_gate: Optional[Dict[str, float]] = None,
+) -> bool:
+    """Return whether a version is safe to auto-select."""
+    if not isinstance(version, dict):
+        return False
+
+    explicit_gate = version.get("meets_quality_gate")
+    if isinstance(explicit_gate, bool):
+        return explicit_gate
+
+    gate = quality_gate or _resolve_quality_gate()
+    try:
+        similarity_score = float(version.get("similarity_score", -1.0))
+    except (TypeError, ValueError):
+        similarity_score = -1.0
+    try:
+        robotic_score = float(version.get("robotic_score", 1.0))
+    except (TypeError, ValueError):
+        robotic_score = 1.0
+    try:
+        quality_score = float(version.get("quality_score", similarity_score))
+    except (TypeError, ValueError):
+        quality_score = similarity_score
+    pacing_score = version.get("pacing_score")
+    try:
+        safe_pacing = None if pacing_score is None else float(pacing_score)
+    except (TypeError, ValueError):
+        safe_pacing = None
+
+    if similarity_score < gate["similarity_threshold"]:
+        return False
+    if robotic_score > gate["robotic_threshold"]:
+        return False
+    if quality_score < gate["min_quality_score"]:
+        return False
+    if safe_pacing is not None and safe_pacing < gate["min_pacing_score"]:
+        return False
+    return True
+
+
+def _version_score(
+    version: Optional[Dict[str, Any]],
+    quality_gate: Optional[Dict[str, float]] = None,
+    *,
+    require_quality_gate: bool = False,
+) -> float:
     """Compare versions using the same quality-first ordering as the UI."""
     if not isinstance(version, dict):
+        return float("-inf")
+    if require_quality_gate and not _version_meets_quality_gate(version, quality_gate):
         return float("-inf")
     return float(
         version.get(
@@ -70,11 +136,16 @@ def _version_score(version: Optional[Dict[str, Any]]) -> float:
     )
 
 
-def _best_version_index(versions: List[Dict[str, Any]]) -> int:
-    """Return the index of the highest scoring version."""
-    best_index = 0
+def _best_gate_passing_version_index(
+    versions: List[Dict[str, Any]],
+    quality_gate: Optional[Dict[str, float]] = None,
+) -> Optional[int]:
+    """Return the highest-scoring version that clears the quality gate."""
+    best_index: Optional[int] = None
     best_score = float("-inf")
     for index, version in enumerate(versions):
+        if not _version_meets_quality_gate(version, quality_gate):
+            continue
         score = _version_score(version)
         if score > best_score:
             best_index = index
@@ -82,17 +153,69 @@ def _best_version_index(versions: List[Dict[str, Any]]) -> int:
     return best_index
 
 
-def _ensure_single_selection(versions: List[Dict[str, Any]], preferred_index: Optional[int] = None) -> List[Dict[str, Any]]:
+def _best_version_index(
+    versions: List[Dict[str, Any]],
+    quality_gate: Optional[Dict[str, float]] = None,
+    *,
+    require_quality_gate: bool = False,
+) -> Optional[int]:
+    """Return the best version, preferring gate-passing results when requested."""
+    if require_quality_gate:
+        best_gate_passing = _best_gate_passing_version_index(versions, quality_gate)
+        if best_gate_passing is not None:
+            return best_gate_passing
+
+    best_index: Optional[int] = None
+    best_score = float("-inf")
+    for index, version in enumerate(versions):
+        score = _version_score(version, quality_gate)
+        if score > best_score:
+            best_index = index
+            best_score = score
+    return best_index
+
+
+def _ensure_single_selection(
+    versions: List[Dict[str, Any]],
+    preferred_index: Optional[int] = None,
+    quality_gate: Optional[Dict[str, float]] = None,
+    *,
+    require_quality_gate: bool = False,
+) -> List[Dict[str, Any]]:
     """Keep version selection stable and guarantee at most one selected item."""
     if not versions:
         return versions
 
     selected_indices = [index for index, version in enumerate(versions) if version.get("is_selected")]
     if preferred_index is None:
-        preferred_index = selected_indices[0] if selected_indices else _best_version_index(versions)
+        if selected_indices:
+            preferred_index = selected_indices[0]
+            if require_quality_gate and not _version_meets_quality_gate(versions[preferred_index], quality_gate):
+                preferred_index = _best_version_index(
+                    versions,
+                    quality_gate,
+                    require_quality_gate=True,
+                )
+        else:
+            preferred_index = _best_version_index(
+                versions,
+                quality_gate,
+                require_quality_gate=require_quality_gate,
+            )
+    elif (
+        require_quality_gate
+        and preferred_index is not None
+        and 0 <= preferred_index < len(versions)
+        and not _version_meets_quality_gate(versions[preferred_index], quality_gate)
+    ):
+        preferred_index = _best_version_index(
+            versions,
+            quality_gate,
+            require_quality_gate=require_quality_gate,
+        )
 
     for index, version in enumerate(versions):
-        version["is_selected"] = index == preferred_index
+        version["is_selected"] = preferred_index is not None and index == preferred_index
     return versions
 
 
@@ -101,6 +224,7 @@ def _merge_threshold_versions(
     existing_versions: List[Dict[str, Any]],
     regenerated_versions: List[Dict[str, Any]],
     slots_to_regenerate: List[int],
+    quality_gate: Optional[Dict[str, float]] = None,
 ) -> List[Dict[str, Any]]:
     """Keep the best version in each slot while preserving slot order."""
     updated_versions: List[Dict[str, Any]] = []
@@ -119,18 +243,30 @@ def _merge_threshold_versions(
             )
             regenerated_index += 1
             chosen_version = candidate if _version_score(candidate) > _version_score(existing_version) else existing_version
+            preserve_selection = bool(
+                selected_before
+                and (
+                    chosen_version is existing_version
+                    or _version_meets_quality_gate(chosen_version, quality_gate)
+                )
+            )
         else:
             chosen_version = existing_version
+            preserve_selection = selected_before
 
         normalized = _normalize_version_payload(
             conversation_service,
             chosen_version,
-            is_selected=selected_before,
+            is_selected=preserve_selection,
         )
         if normalized:
             updated_versions.append(normalized)
 
-    return _ensure_single_selection(updated_versions)
+    return _ensure_single_selection(
+        updated_versions,
+        quality_gate=quality_gate,
+        require_quality_gate=True,
+    )
 
 
 @router.get("/{conversation_id}/results")
@@ -761,6 +897,7 @@ async def regenerate_line_background(
         # such as per-line emotion vectors from the parsed script.
         conversation_task = conversation_service.active_conversations.get(conversation_id, {})
         generation_params = conversation_task.get("generation_params", {})
+        quality_gate = _resolve_quality_gate(generation_params)
         parsed_script = conversation_task.get("parsed_script", [])
         current_lines = conversation_task.get("lines", [])
 
@@ -874,6 +1011,7 @@ async def regenerate_line_background(
                     existing_versions,
                     regenerated_versions,
                     slots_to_regenerate,
+                    quality_gate=quality_gate,
                 )
             else:
                 updated_versions = [
@@ -885,7 +1023,11 @@ async def regenerate_line_background(
                     for version in existing_versions
                 ]
                 updated_versions = [version for version in updated_versions if version]
-                updated_versions = _ensure_single_selection(updated_versions)
+                updated_versions = _ensure_single_selection(
+                    updated_versions,
+                    quality_gate=quality_gate,
+                    require_quality_gate=True,
+                )
                 task["current_step"] = "No versions were below the manual threshold"
 
         else:
@@ -909,7 +1051,11 @@ async def regenerate_line_background(
                 for version in regenerated_versions
             ]
             updated_versions = [version for version in updated_versions if version]
-            updated_versions = _ensure_single_selection(updated_versions)
+            updated_versions = _ensure_single_selection(
+                updated_versions,
+                quality_gate=quality_gate,
+                require_quality_gate=True,
+            )
 
         task["new_versions"] = updated_versions
 

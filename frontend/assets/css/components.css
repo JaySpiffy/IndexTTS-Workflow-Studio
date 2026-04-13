@@ -1582,6 +1582,11 @@ body.dark-mode .speaker-prep-metric-value {
     color: #0f766e;
 }
 
+.line-selection-quality-review {
+    background: rgba(249, 115, 22, 0.14);
+    color: #c2410c;
+}
+
 .line-selection-missing,
 .line-selection-invalid {
     background: rgba(245, 158, 11, 0.12);
@@ -1610,6 +1615,11 @@ body.dark-mode .selection-readiness-summary.is-ready,
 body.dark-mode .line-selection-ready {
     color: #6ee7b7;
     border-color: rgba(16, 185, 129, 0.3);
+}
+
+body.dark-mode .line-selection-quality-review {
+    color: #fdba74;
+    border-color: rgba(249, 115, 22, 0.32);
 }
 
 body.dark-mode .selection-readiness-summary.is-blocked,

@@ -291,6 +291,11 @@
     background-color: var(--primary-light);
 }
 
+.version-item.quality-gate-failed {
+    border-color: rgba(249, 115, 22, 0.34);
+    background-color: rgba(255, 237, 213, 0.62);
+}
+
 .version-header {
     display: flex;
     justify-content: space-between;
@@ -329,6 +334,11 @@
 .score-badge.quality {
     background-color: #dcfce7;
     color: var(--success-color);
+}
+
+.score-badge.warning {
+    background-color: #ffedd5;
+    color: #c2410c;
 }
 
 .version-actions {
@@ -447,6 +457,11 @@ body.dark-mode .version-item.selected {
     background-color: var(--dm-primary-light);
 }
 
+body.dark-mode .version-item.quality-gate-failed {
+    border-color: rgba(249, 115, 22, 0.44);
+    background-color: rgba(124, 45, 18, 0.3);
+}
+
 body.dark-mode .version-title {
     color: var(--dm-gray-900);
 }
@@ -463,6 +478,11 @@ body.dark-mode .score-badge.similarity {
 body.dark-mode .score-badge.quality {
     background-color: #064e3b;
     color: var(--dm-success-color);
+}
+
+body.dark-mode .score-badge.warning {
+    background-color: rgba(154, 52, 18, 0.7);
+    color: #fdba74;
 }
 
 body.dark-mode .concatenation-info {

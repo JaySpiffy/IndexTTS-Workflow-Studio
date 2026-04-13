@@ -341,6 +341,8 @@ class LineVersion(BaseModel):
     robotic_score: float
     quality_score: float
     is_selected: bool = False
+    meets_quality_gate: Optional[bool] = None
+    quality_gate_failures: List[str] = Field(default_factory=list)
     seed: Optional[int] = None
     seed_origin: Optional[str] = None
     seed_strategy: Optional[str] = None
