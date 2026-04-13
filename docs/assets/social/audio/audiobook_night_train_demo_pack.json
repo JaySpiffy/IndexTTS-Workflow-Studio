@@ -1,0 +1,605 @@
+{
+    "title":  "Audiobook Night Train Demo Pack",
+    "source_pack":  "C:\\dev\\index-ttsv4\\test_scripts\\audiobook_night_train_demo_pack.md",
+    "conversation_id":  "90ee48e7-91b7-4d67-9f12-5d3a9f348335",
+    "total_lines":  11,
+    "public_voice_assignments":  [
+                                     {
+                                         "public_label":  "SpeakerOne",
+                                         "actual_voice":  "Asmongold",
+                                         "filename":  "Asmongold.wav"
+                                     },
+                                     {
+                                         "public_label":  "SpeakerTwo",
+                                         "actual_voice":  "ElonMusk",
+                                         "filename":  "ElonMusk.wav"
+                                     },
+                                     {
+                                         "public_label":  "SpeakerThree",
+                                         "actual_voice":  "JeanLucPicard",
+                                         "filename":  "JeanLucPicard.wav"
+                                     },
+                                     {
+                                         "public_label":  "SpeakerFour",
+                                         "actual_voice":  "JoeRogan",
+                                         "filename":  "JoeRogan.wav"
+                                     },
+                                     {
+                                         "public_label":  "SpeakerFive",
+                                         "actual_voice":  "JohnnyDepp",
+                                         "filename":  "JohnnyDepp.wav"
+                                     },
+                                     {
+                                         "public_label":  "SpeakerSix",
+                                         "actual_voice":  "Pr.D.Trump",
+                                         "filename":  "Pr.D.Trump.wav"
+                                     },
+                                     {
+                                         "public_label":  "SpeakerSeven",
+                                         "actual_voice":  "gordeylaforge",
+                                         "filename":  "gordeylaforge.wav"
+                                     },
+                                     {
+                                         "public_label":  "SpeakerEight",
+                                         "actual_voice":  "kajsa",
+                                         "filename":  "kajsa.wav"
+                                     }
+                                 ],
+    "task":  {
+                 "task_id":  "90ee48e7-91b7-4d67-9f12-5d3a9f348335",
+                 "status":  "completed",
+                 "progress_percent":  100.0,
+                 "current_step":  "Generation completed",
+                 "queue_position":  null,
+                 "queued_jobs_ahead":  0,
+                 "active_generation_slots":  1,
+                 "queued_generation_tasks":  0,
+                 "estimated_time_remaining":  null,
+                 "result":  {
+                                "lines":  [
+                                              {
+                                                  "line_index":  0,
+                                                  "speaker_filename":  "JeanLucPicard.wav",
+                                                  "text":  "The night train left the coast at nineteen minutes past midnight, carrying rain on every window and silence in every seat.",
+                                                  "emotion_vectors":  [
+
+                                                                      ],
+                                                  "emotion_control_method":  3,
+                                                  "emotion_reference_filename":  null,
+                                                  "emotion_weight":  0.9,
+                                                  "emotion_text":  "calm narration, nocturnal atmosphere",
+                                                  "versions":  [
+                                                                   {
+                                                                       "audio_path":  "shared/audio/temp_conversation_segments/line000_spk-JeanLucPicard_v01.wav",
+                                                                       "audio_filename":  "line000_spk-JeanLucPicard_v01.wav",
+                                                                       "similarity_score":  0.821008563041687,
+                                                                       "robotic_score":  0.25,
+                                                                       "quality_score":  0.7183824926614761,
+                                                                       "speaker_filename":  "JeanLucPicard.wav",
+                                                                       "text":  "The night train left the coast at nineteen minutes past midnight, carrying rain on every window and silence in every seat.",
+                                                                       "emotion_vectors":  [
+
+                                                                                           ],
+                                                                       "emotion_control_method":  3,
+                                                                       "emotion_reference_filename":  null,
+                                                                       "emotion_weight":  0.9,
+                                                                       "emotion_text":  "calm narration, nocturnal atmosphere",
+                                                                       "seed":  2408,
+                                                                       "seed_origin":  "initial",
+                                                                       "seed_strategy":  "fixed_base_reused_list",
+                                                                       "delivery_rate":  1.0,
+                                                                       "duration_seconds":  7.86,
+                                                                       "expected_duration_seconds":  7.78,
+                                                                       "pacing_score":  1.0,
+                                                                       "pacing_label":  "balanced",
+                                                                       "pacing_notes":  [
+                                                                                            "Pacing sits in the expected range."
+                                                                                        ],
+                                                                       "review_score":  0.775,
+                                                                       "meets_quality_gate":  true,
+                                                                       "quality_gate_failures":  [
+
+                                                                                                 ],
+                                                                       "is_selected":  true,
+                                                                       "audio_url":  "/api/conversation/assets/audio/line000_spk-JeanLucPicard_v01.wav"
+                                                                   }
+                                                               ]
+                                              },
+                                              {
+                                                  "line_index":  1,
+                                                  "speaker_filename":  "JeanLucPicard.wav",
+                                                  "text":  "Across from me, a woman in a dark blue coat kept one gloved hand on a tin box no larger than a prayer book.",
+                                                  "emotion_vectors":  [
+
+                                                                      ],
+                                                  "emotion_control_method":  3,
+                                                  "emotion_reference_filename":  null,
+                                                  "emotion_weight":  0.9,
+                                                  "emotion_text":  "measured, observant",
+                                                  "versions":  [
+                                                                   {
+                                                                       "audio_path":  "shared/audio/temp_conversation_segments/line001_spk-JeanLucPicard_v01.wav",
+                                                                       "audio_filename":  "line001_spk-JeanLucPicard_v01.wav",
+                                                                       "similarity_score":  0.7687193155288696,
+                                                                       "robotic_score":  0.25,
+                                                                       "quality_score":  0.6726294010877609,
+                                                                       "speaker_filename":  "JeanLucPicard.wav",
+                                                                       "text":  "Across from me, a woman in a dark blue coat kept one gloved hand on a tin box no larger than a prayer book.",
+                                                                       "emotion_vectors":  [
+
+                                                                                           ],
+                                                                       "emotion_control_method":  3,
+                                                                       "emotion_reference_filename":  null,
+                                                                       "emotion_weight":  0.9,
+                                                                       "emotion_text":  "measured, observant",
+                                                                       "seed":  2408,
+                                                                       "seed_origin":  "initial",
+                                                                       "seed_strategy":  "fixed_base_reused_list",
+                                                                       "delivery_rate":  1.0,
+                                                                       "duration_seconds":  7.999,
+                                                                       "expected_duration_seconds":  8.851,
+                                                                       "pacing_score":  1.0,
+                                                                       "pacing_label":  "balanced",
+                                                                       "pacing_notes":  [
+                                                                                            "Pacing sits in the expected range."
+                                                                                        ],
+                                                                       "review_score":  0.738,
+                                                                       "meets_quality_gate":  true,
+                                                                       "quality_gate_failures":  [
+
+                                                                                                 ],
+                                                                       "is_selected":  true,
+                                                                       "audio_url":  "/api/conversation/assets/audio/line001_spk-JeanLucPicard_v01.wav"
+                                                                   }
+                                                               ]
+                                              },
+                                              {
+                                                  "line_index":  2,
+                                                  "speaker_filename":  "kajsa.wav",
+                                                  "text":  "You are awake early, she said, though the hour had already crossed into something stranger than early.",
+                                                  "emotion_vectors":  [
+
+                                                                      ],
+                                                  "emotion_control_method":  3,
+                                                  "emotion_reference_filename":  null,
+                                                  "emotion_weight":  1.0,
+                                                  "emotion_text":  "soft, curious",
+                                                  "versions":  [
+                                                                   {
+                                                                       "audio_path":  "shared/audio/temp_conversation_segments/line002_spk-kajsa_v01.wav",
+                                                                       "audio_filename":  "line002_spk-kajsa_v01.wav",
+                                                                       "similarity_score":  0.43935397267341614,
+                                                                       "robotic_score":  0.25,
+                                                                       "quality_score":  0.3844347260892391,
+                                                                       "speaker_filename":  "kajsa.wav",
+                                                                       "text":  "You are awake early, she said, though the hour had already crossed into something stranger than early.",
+                                                                       "emotion_vectors":  [
+
+                                                                                           ],
+                                                                       "emotion_control_method":  3,
+                                                                       "emotion_reference_filename":  null,
+                                                                       "emotion_weight":  1.0,
+                                                                       "emotion_text":  "soft, curious",
+                                                                       "seed":  2408,
+                                                                       "seed_origin":  "initial",
+                                                                       "seed_strategy":  "fixed_base_reused_list",
+                                                                       "delivery_rate":  1.0,
+                                                                       "duration_seconds":  5.909,
+                                                                       "expected_duration_seconds":  6.451,
+                                                                       "pacing_score":  1.0,
+                                                                       "pacing_label":  "balanced",
+                                                                       "pacing_notes":  [
+                                                                                            "Pacing sits in the expected range."
+                                                                                        ],
+                                                                       "review_score":  0.508,
+                                                                       "meets_quality_gate":  false,
+                                                                       "quality_gate_failures":  [
+                                                                                                     "Similarity 0.44 is below the 0.66 gate.",
+                                                                                                     "Quality 0.38 is below the 0.53 floor."
+                                                                                                 ],
+                                                                       "is_selected":  true,
+                                                                       "audio_url":  "/api/conversation/assets/audio/line002_spk-kajsa_v01.wav"
+                                                                   }
+                                                               ]
+                                              },
+                                              {
+                                                  "line_index":  3,
+                                                  "speaker_filename":  "JeanLucPicard.wav",
+                                                  "text":  "I told her sleep had stepped off somewhere before the last station and had not bothered to return.",
+                                                  "emotion_vectors":  [
+
+                                                                      ],
+                                                  "emotion_control_method":  3,
+                                                  "emotion_reference_filename":  null,
+                                                  "emotion_weight":  0.9,
+                                                  "emotion_text":  "wry, restrained",
+                                                  "versions":  [
+                                                                   {
+                                                                       "audio_path":  "shared/audio/temp_conversation_segments/line003_spk-JeanLucPicard_v01.wav",
+                                                                       "audio_filename":  "line003_spk-JeanLucPicard_v01.wav",
+                                                                       "similarity_score":  0.8016647100448608,
+                                                                       "robotic_score":  0.25,
+                                                                       "quality_score":  0.7014566212892532,
+                                                                       "speaker_filename":  "JeanLucPicard.wav",
+                                                                       "text":  "I told her sleep had stepped off somewhere before the last station and had not bothered to return.",
+                                                                       "emotion_vectors":  [
+
+                                                                                           ],
+                                                                       "emotion_control_method":  3,
+                                                                       "emotion_reference_filename":  null,
+                                                                       "emotion_weight":  0.9,
+                                                                       "emotion_text":  "wry, restrained",
+                                                                       "seed":  2408,
+                                                                       "seed_origin":  "initial",
+                                                                       "seed_strategy":  "fixed_base_reused_list",
+                                                                       "delivery_rate":  1.0,
+                                                                       "duration_seconds":  6.281,
+                                                                       "expected_duration_seconds":  6.609,
+                                                                       "pacing_score":  1.0,
+                                                                       "pacing_label":  "balanced",
+                                                                       "pacing_notes":  [
+                                                                                            "Pacing sits in the expected range."
+                                                                                        ],
+                                                                       "review_score":  0.761,
+                                                                       "meets_quality_gate":  true,
+                                                                       "quality_gate_failures":  [
+
+                                                                                                 ],
+                                                                       "is_selected":  true,
+                                                                       "audio_url":  "/api/conversation/assets/audio/line003_spk-JeanLucPicard_v01.wav"
+                                                                   }
+                                                               ]
+                                              },
+                                              {
+                                                  "line_index":  4,
+                                                  "speaker_filename":  "kajsa.wav",
+                                                  "text":  "People only travel with that face when they are running toward something, she said, or away from it.",
+                                                  "emotion_vectors":  [
+
+                                                                      ],
+                                                  "emotion_control_method":  3,
+                                                  "emotion_reference_filename":  null,
+                                                  "emotion_weight":  1.0,
+                                                  "emotion_text":  "knowing, almost kind",
+                                                  "versions":  [
+                                                                   {
+                                                                       "audio_path":  "shared/audio/temp_conversation_segments/line004_spk-kajsa_v01.wav",
+                                                                       "audio_filename":  "line004_spk-kajsa_v01.wav",
+                                                                       "similarity_score":  0.53089439868927,
+                                                                       "robotic_score":  0.25,
+                                                                       "quality_score":  0.46453259885311127,
+                                                                       "speaker_filename":  "kajsa.wav",
+                                                                       "text":  "People only travel with that face when they are running toward something, she said, or away from it.",
+                                                                       "emotion_vectors":  [
+
+                                                                                           ],
+                                                                       "emotion_control_method":  3,
+                                                                       "emotion_reference_filename":  null,
+                                                                       "emotion_weight":  1.0,
+                                                                       "emotion_text":  "knowing, almost kind",
+                                                                       "seed":  2408,
+                                                                       "seed_origin":  "initial",
+                                                                       "seed_strategy":  "fixed_base_reused_list",
+                                                                       "delivery_rate":  1.0,
+                                                                       "duration_seconds":  5.747,
+                                                                       "expected_duration_seconds":  6.809,
+                                                                       "pacing_score":  0.932,
+                                                                       "pacing_label":  "slightly_fast",
+                                                                       "pacing_notes":  [
+                                                                                            "Leans a little fast.",
+                                                                                            "Punctuation suggests stronger pauses than the audio delivered."
+                                                                                        ],
+                                                                       "review_score":  0.558,
+                                                                       "meets_quality_gate":  false,
+                                                                       "quality_gate_failures":  [
+                                                                                                     "Similarity 0.53 is below the 0.66 gate.",
+                                                                                                     "Quality 0.46 is below the 0.53 floor."
+                                                                                                 ],
+                                                                       "is_selected":  true,
+                                                                       "audio_url":  "/api/conversation/assets/audio/line004_spk-kajsa_v01.wav"
+                                                                   }
+                                                               ]
+                                              },
+                                              {
+                                                  "line_index":  5,
+                                                  "speaker_filename":  "Pr.D.Trump.wav",
+                                                  "text":  "Tickets, please.",
+                                                  "emotion_vectors":  [
+
+                                                                      ],
+                                                  "emotion_control_method":  3,
+                                                  "emotion_reference_filename":  null,
+                                                  "emotion_weight":  0.95,
+                                                  "emotion_text":  "formal interruption",
+                                                  "versions":  [
+                                                                   {
+                                                                       "audio_path":  "shared/audio/temp_conversation_segments/line005_spk-Pr.D.Trump_v01.wav",
+                                                                       "audio_filename":  "line005_spk-Pr.D.Trump_v01.wav",
+                                                                       "similarity_score":  0.48418015241622925,
+                                                                       "robotic_score":  0.25,
+                                                                       "quality_score":  0.4236576333642006,
+                                                                       "speaker_filename":  "Pr.D.Trump.wav",
+                                                                       "text":  "Tickets, please.",
+                                                                       "emotion_vectors":  [
+
+                                                                                           ],
+                                                                       "emotion_control_method":  3,
+                                                                       "emotion_reference_filename":  null,
+                                                                       "emotion_weight":  0.95,
+                                                                       "emotion_text":  "formal interruption",
+                                                                       "seed":  2408,
+                                                                       "seed_origin":  "initial",
+                                                                       "seed_strategy":  "fixed_base_reused_list",
+                                                                       "delivery_rate":  1.0,
+                                                                       "duration_seconds":  2.136,
+                                                                       "expected_duration_seconds":  0.994,
+                                                                       "pacing_score":  0.293,
+                                                                       "pacing_label":  "too_slow",
+                                                                       "pacing_notes":  [
+                                                                                            "Drags compared with the script length.",
+                                                                                            "Very short line is landing long."
+                                                                                        ],
+                                                                       "review_score":  0.398,
+                                                                       "meets_quality_gate":  false,
+                                                                       "quality_gate_failures":  [
+                                                                                                     "Similarity 0.48 is below the 0.66 gate.",
+                                                                                                     "Quality 0.42 is below the 0.53 floor.",
+                                                                                                     "Pacing 0.29 is below the 0.45 floor."
+                                                                                                 ],
+                                                                       "is_selected":  true,
+                                                                       "audio_url":  "/api/conversation/assets/audio/line005_spk-Pr.D.Trump_v01.wav"
+                                                                   }
+                                                               ]
+                                              },
+                                              {
+                                                  "line_index":  6,
+                                                  "speaker_filename":  "JeanLucPicard.wav",
+                                                  "text":  "The conductor lifted his lantern, and for a second the compartment shone gold enough to make the woman look almost unreal.",
+                                                  "emotion_vectors":  [
+
+                                                                      ],
+                                                  "emotion_control_method":  3,
+                                                  "emotion_reference_filename":  null,
+                                                  "emotion_weight":  0.92,
+                                                  "emotion_text":  "quietly unsettled",
+                                                  "versions":  [
+                                                                   {
+                                                                       "audio_path":  "shared/audio/temp_conversation_segments/line006_spk-JeanLucPicard_v01.wav",
+                                                                       "audio_filename":  "line006_spk-JeanLucPicard_v01.wav",
+                                                                       "similarity_score":  0.7839776873588562,
+                                                                       "robotic_score":  0.25,
+                                                                       "quality_score":  0.6859804764389992,
+                                                                       "speaker_filename":  "JeanLucPicard.wav",
+                                                                       "text":  "The conductor lifted his lantern, and for a second the compartment shone gold enough to make the woman look almost unreal.",
+                                                                       "emotion_vectors":  [
+
+                                                                                           ],
+                                                                       "emotion_control_method":  3,
+                                                                       "emotion_reference_filename":  null,
+                                                                       "emotion_weight":  0.92,
+                                                                       "emotion_text":  "quietly unsettled",
+                                                                       "seed":  2408,
+                                                                       "seed_origin":  "initial",
+                                                                       "seed_strategy":  "fixed_base_reused_list",
+                                                                       "delivery_rate":  1.0,
+                                                                       "duration_seconds":  8.696,
+                                                                       "expected_duration_seconds":  7.78,
+                                                                       "pacing_score":  1.0,
+                                                                       "pacing_label":  "balanced",
+                                                                       "pacing_notes":  [
+                                                                                            "Pacing sits in the expected range."
+                                                                                        ],
+                                                                       "review_score":  0.749,
+                                                                       "meets_quality_gate":  true,
+                                                                       "quality_gate_failures":  [
+
+                                                                                                 ],
+                                                                       "is_selected":  true,
+                                                                       "audio_url":  "/api/conversation/assets/audio/line006_spk-JeanLucPicard_v01.wav"
+                                                                   }
+                                                               ]
+                                              },
+                                              {
+                                                  "line_index":  7,
+                                                  "speaker_filename":  "kajsa.wav",
+                                                  "text":  "Do not tell him my name, she whispered.",
+                                                  "emotion_vectors":  [
+
+                                                                      ],
+                                                  "emotion_control_method":  3,
+                                                  "emotion_reference_filename":  null,
+                                                  "emotion_weight":  1.1,
+                                                  "emotion_text":  "urgent whisper",
+                                                  "versions":  [
+                                                                   {
+                                                                       "audio_path":  "shared/audio/temp_conversation_segments/line007_spk-kajsa_v01.wav",
+                                                                       "audio_filename":  "line007_spk-kajsa_v01.wav",
+                                                                       "similarity_score":  0.40006566047668457,
+                                                                       "robotic_score":  0.25,
+                                                                       "quality_score":  0.350057452917099,
+                                                                       "speaker_filename":  "kajsa.wav",
+                                                                       "text":  "Do not tell him my name, she whispered.",
+                                                                       "emotion_vectors":  [
+
+                                                                                           ],
+                                                                       "emotion_control_method":  3,
+                                                                       "emotion_reference_filename":  null,
+                                                                       "emotion_weight":  1.1,
+                                                                       "emotion_text":  "urgent whisper",
+                                                                       "seed":  2408,
+                                                                       "seed_origin":  "initial",
+                                                                       "seed_strategy":  "fixed_base_reused_list",
+                                                                       "delivery_rate":  1.0,
+                                                                       "duration_seconds":  2.833,
+                                                                       "expected_duration_seconds":  3.137,
+                                                                       "pacing_score":  1.0,
+                                                                       "pacing_label":  "balanced",
+                                                                       "pacing_notes":  [
+                                                                                            "Pacing sits in the expected range."
+                                                                                        ],
+                                                                       "review_score":  0.48,
+                                                                       "meets_quality_gate":  false,
+                                                                       "quality_gate_failures":  [
+                                                                                                     "Similarity 0.40 is below the 0.66 gate.",
+                                                                                                     "Quality 0.35 is below the 0.53 floor."
+                                                                                                 ],
+                                                                       "is_selected":  true,
+                                                                       "audio_url":  "/api/conversation/assets/audio/line007_spk-kajsa_v01.wav"
+                                                                   }
+                                                               ]
+                                              },
+                                              {
+                                                  "line_index":  8,
+                                                  "speaker_filename":  "JeanLucPicard.wav",
+                                                  "text":  "The train leaned hard into a curve, the box rattled once against the window, and every passenger in the carriage looked up at the same time.",
+                                                  "emotion_vectors":  [
+
+                                                                      ],
+                                                  "emotion_control_method":  3,
+                                                  "emotion_reference_filename":  null,
+                                                  "emotion_weight":  0.95,
+                                                  "emotion_text":  "cinematic tension",
+                                                  "versions":  [
+                                                                   {
+                                                                       "audio_path":  "shared/audio/temp_conversation_segments/line008_spk-JeanLucPicard_v01.wav",
+                                                                       "audio_filename":  "line008_spk-JeanLucPicard_v01.wav",
+                                                                       "similarity_score":  0.813867449760437,
+                                                                       "robotic_score":  0.25,
+                                                                       "quality_score":  0.7121340185403824,
+                                                                       "speaker_filename":  "JeanLucPicard.wav",
+                                                                       "text":  "The train leaned hard into a curve, the box rattled once against the window, and every passenger in the carriage looked up at the same time.",
+                                                                       "emotion_vectors":  [
+
+                                                                                           ],
+                                                                       "emotion_control_method":  3,
+                                                                       "emotion_reference_filename":  null,
+                                                                       "emotion_weight":  0.95,
+                                                                       "emotion_text":  "cinematic tension",
+                                                                       "seed":  2408,
+                                                                       "seed_origin":  "initial",
+                                                                       "seed_strategy":  "fixed_base_reused_list",
+                                                                       "delivery_rate":  1.0,
+                                                                       "duration_seconds":  8.626,
+                                                                       "expected_duration_seconds":  9.666,
+                                                                       "pacing_score":  0.999,
+                                                                       "pacing_label":  "balanced",
+                                                                       "pacing_notes":  [
+                                                                                            "Pacing sits in the expected range.",
+                                                                                            "Punctuation suggests stronger pauses than the audio delivered."
+                                                                                        ],
+                                                                       "review_score":  0.77,
+                                                                       "meets_quality_gate":  true,
+                                                                       "quality_gate_failures":  [
+
+                                                                                                 ],
+                                                                       "is_selected":  true,
+                                                                       "audio_url":  "/api/conversation/assets/audio/line008_spk-JeanLucPicard_v01.wav"
+                                                                   }
+                                                               ]
+                                              },
+                                              {
+                                                  "line_index":  9,
+                                                  "speaker_filename":  "Pr.D.Trump.wav",
+                                                  "text":  "Final stop before dawn.",
+                                                  "emotion_vectors":  [
+
+                                                                      ],
+                                                  "emotion_control_method":  3,
+                                                  "emotion_reference_filename":  null,
+                                                  "emotion_weight":  0.98,
+                                                  "emotion_text":  "warning disguised as routine",
+                                                  "versions":  [
+                                                                   {
+                                                                       "audio_path":  "shared/audio/temp_conversation_segments/line009_spk-Pr.D.Trump_v01.wav",
+                                                                       "audio_filename":  "line009_spk-Pr.D.Trump_v01.wav",
+                                                                       "similarity_score":  0.599717915058136,
+                                                                       "robotic_score":  0.25,
+                                                                       "quality_score":  0.524753175675869,
+                                                                       "speaker_filename":  "Pr.D.Trump.wav",
+                                                                       "text":  "Final stop before dawn.",
+                                                                       "emotion_vectors":  [
+
+                                                                                           ],
+                                                                       "emotion_control_method":  3,
+                                                                       "emotion_reference_filename":  null,
+                                                                       "emotion_weight":  0.98,
+                                                                       "emotion_text":  "warning disguised as routine",
+                                                                       "seed":  2408,
+                                                                       "seed_origin":  "initial",
+                                                                       "seed_strategy":  "fixed_base_reused_list",
+                                                                       "delivery_rate":  1.0,
+                                                                       "duration_seconds":  2.786,
+                                                                       "expected_duration_seconds":  1.609,
+                                                                       "pacing_score":  0.554,
+                                                                       "pacing_label":  "too_slow",
+                                                                       "pacing_notes":  [
+                                                                                            "Drags compared with the script length.",
+                                                                                            "Very short line is landing long."
+                                                                                        ],
+                                                                       "review_score":  0.531,
+                                                                       "meets_quality_gate":  false,
+                                                                       "quality_gate_failures":  [
+                                                                                                     "Similarity 0.60 is below the 0.66 gate.",
+                                                                                                     "Quality 0.52 is below the 0.53 floor."
+                                                                                                 ],
+                                                                       "is_selected":  true,
+                                                                       "audio_url":  "/api/conversation/assets/audio/line009_spk-Pr.D.Trump_v01.wav"
+                                                                   }
+                                                               ]
+                                              },
+                                              {
+                                                  "line_index":  10,
+                                                  "speaker_filename":  "JeanLucPicard.wav",
+                                                  "text":  "That was when I understood the box was not meant to survive the morning.",
+                                                  "emotion_vectors":  [
+
+                                                                      ],
+                                                  "emotion_control_method":  3,
+                                                  "emotion_reference_filename":  null,
+                                                  "emotion_weight":  0.95,
+                                                  "emotion_text":  "quiet revelation",
+                                                  "versions":  [
+                                                                   {
+                                                                       "audio_path":  "shared/audio/temp_conversation_segments/line010_spk-JeanLucPicard_v01.wav",
+                                                                       "audio_filename":  "line010_spk-JeanLucPicard_v01.wav",
+                                                                       "similarity_score":  0.6684461832046509,
+                                                                       "robotic_score":  0.25,
+                                                                       "quality_score":  0.5848904103040695,
+                                                                       "speaker_filename":  "JeanLucPicard.wav",
+                                                                       "text":  "That was when I understood the box was not meant to survive the morning.",
+                                                                       "emotion_vectors":  [
+
+                                                                                           ],
+                                                                       "emotion_control_method":  3,
+                                                                       "emotion_reference_filename":  null,
+                                                                       "emotion_weight":  0.95,
+                                                                       "emotion_text":  "quiet revelation",
+                                                                       "seed":  2408,
+                                                                       "seed_origin":  "initial",
+                                                                       "seed_strategy":  "fixed_base_reused_list",
+                                                                       "delivery_rate":  1.0,
+                                                                       "duration_seconds":  5.05,
+                                                                       "expected_duration_seconds":  5.18,
+                                                                       "pacing_score":  1.0,
+                                                                       "pacing_label":  "balanced",
+                                                                       "pacing_notes":  [
+                                                                                            "Pacing sits in the expected range."
+                                                                                        ],
+                                                                       "review_score":  0.668,
+                                                                       "meets_quality_gate":  true,
+                                                                       "quality_gate_failures":  [
+
+                                                                                                 ],
+                                                                       "is_selected":  true,
+                                                                       "audio_url":  "/api/conversation/assets/audio/line010_spk-JeanLucPicard_v01.wav"
+                                                                   }
+                                                               ]
+                                              }
+                                          ],
+                                "concatenation_completed":  true,
+                                "concatenation_output_path":  "shared/audio/temp_conversation_segments/conversation_90ee48e7-91b7-4d67-9f12-5d3a9f348335_concatenated.wav",
+                                "concatenation_error":  null
+                            },
+                 "error":  null
+             }
+}

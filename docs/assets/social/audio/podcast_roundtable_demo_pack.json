@@ -1,0 +1,893 @@
+{
+    "title":  "Podcast Roundtable Demo Pack",
+    "source_pack":  "C:\\dev\\index-ttsv4\\test_scripts\\podcast_roundtable_demo_pack.md",
+    "conversation_id":  "9d34bbd5-c94e-4b56-bdd4-e7807e4f8c45",
+    "total_lines":  17,
+    "public_voice_assignments":  [
+                                     {
+                                         "public_label":  "SpeakerOne",
+                                         "actual_voice":  "Asmongold",
+                                         "filename":  "Asmongold.wav"
+                                     },
+                                     {
+                                         "public_label":  "SpeakerTwo",
+                                         "actual_voice":  "ElonMusk",
+                                         "filename":  "ElonMusk.wav"
+                                     },
+                                     {
+                                         "public_label":  "SpeakerThree",
+                                         "actual_voice":  "JeanLucPicard",
+                                         "filename":  "JeanLucPicard.wav"
+                                     },
+                                     {
+                                         "public_label":  "SpeakerFour",
+                                         "actual_voice":  "JoeRogan",
+                                         "filename":  "JoeRogan.wav"
+                                     },
+                                     {
+                                         "public_label":  "SpeakerFive",
+                                         "actual_voice":  "JohnnyDepp",
+                                         "filename":  "JohnnyDepp.wav"
+                                     },
+                                     {
+                                         "public_label":  "SpeakerSix",
+                                         "actual_voice":  "Pr.D.Trump",
+                                         "filename":  "Pr.D.Trump.wav"
+                                     },
+                                     {
+                                         "public_label":  "SpeakerSeven",
+                                         "actual_voice":  "gordeylaforge",
+                                         "filename":  "gordeylaforge.wav"
+                                     },
+                                     {
+                                         "public_label":  "SpeakerEight",
+                                         "actual_voice":  "kajsa",
+                                         "filename":  "kajsa.wav"
+                                     }
+                                 ],
+    "task":  {
+                 "task_id":  "9d34bbd5-c94e-4b56-bdd4-e7807e4f8c45",
+                 "status":  "completed",
+                 "progress_percent":  100.0,
+                 "current_step":  "Generation completed",
+                 "queue_position":  null,
+                 "queued_jobs_ahead":  0,
+                 "active_generation_slots":  1,
+                 "queued_generation_tasks":  0,
+                 "estimated_time_remaining":  null,
+                 "result":  {
+                                "lines":  [
+                                              {
+                                                  "line_index":  0,
+                                                  "speaker_filename":  "Asmongold.wav",
+                                                  "text":  "Welcome back to the roundtable.",
+                                                  "emotion_vectors":  [
+
+                                                                      ],
+                                                  "emotion_control_method":  3,
+                                                  "emotion_reference_filename":  null,
+                                                  "emotion_weight":  0.95,
+                                                  "emotion_text":  "warm host energy",
+                                                  "versions":  [
+                                                                   {
+                                                                       "audio_path":  "shared/audio/temp_conversation_segments/line000_spk-Asmongold_v01.wav",
+                                                                       "audio_filename":  "line000_spk-Asmongold_v01.wav",
+                                                                       "similarity_score":  0.47697803378105164,
+                                                                       "robotic_score":  0.25,
+                                                                       "quality_score":  0.4173557795584202,
+                                                                       "speaker_filename":  "Asmongold.wav",
+                                                                       "text":  "Welcome back to the roundtable.",
+                                                                       "emotion_vectors":  [
+
+                                                                                           ],
+                                                                       "emotion_control_method":  3,
+                                                                       "emotion_reference_filename":  null,
+                                                                       "emotion_weight":  0.95,
+                                                                       "emotion_text":  "warm host energy",
+                                                                       "seed":  2408,
+                                                                       "seed_origin":  "initial",
+                                                                       "seed_strategy":  "fixed_base_reused_list",
+                                                                       "delivery_rate":  1.0,
+                                                                       "duration_seconds":  2.368,
+                                                                       "expected_duration_seconds":  1.966,
+                                                                       "pacing_score":  0.992,
+                                                                       "pacing_label":  "balanced",
+                                                                       "pacing_notes":  [
+                                                                                            "Pacing sits in the expected range."
+                                                                                        ],
+                                                                       "review_score":  0.532,
+                                                                       "meets_quality_gate":  false,
+                                                                       "quality_gate_failures":  [
+                                                                                                     "Similarity 0.48 is below the 0.66 gate.",
+                                                                                                     "Quality 0.42 is below the 0.53 floor."
+                                                                                                 ],
+                                                                       "is_selected":  true,
+                                                                       "audio_url":  "/api/conversation/assets/audio/line000_spk-Asmongold_v01.wav"
+                                                                   }
+                                                               ]
+                                              },
+                                              {
+                                                  "line_index":  1,
+                                                  "speaker_filename":  "Asmongold.wav",
+                                                  "text":  "Today we are testing whether local multi-speaker TTS can actually feel directed instead of merely generated.",
+                                                  "emotion_vectors":  [
+
+                                                                      ],
+                                                  "emotion_control_method":  3,
+                                                  "emotion_reference_filename":  null,
+                                                  "emotion_weight":  0.95,
+                                                  "emotion_text":  "clear, confident setup",
+                                                  "versions":  [
+                                                                   {
+                                                                       "audio_path":  "shared/audio/temp_conversation_segments/line001_spk-Asmongold_v01.wav",
+                                                                       "audio_filename":  "line001_spk-Asmongold_v01.wav",
+                                                                       "similarity_score":  0.8108856081962585,
+                                                                       "robotic_score":  0.25,
+                                                                       "quality_score":  0.7095249071717262,
+                                                                       "speaker_filename":  "Asmongold.wav",
+                                                                       "text":  "Today we are testing whether local multi-speaker TTS can actually feel directed instead of merely generated.",
+                                                                       "emotion_vectors":  [
+
+                                                                                           ],
+                                                                       "emotion_control_method":  3,
+                                                                       "emotion_reference_filename":  null,
+                                                                       "emotion_weight":  0.95,
+                                                                       "emotion_text":  "clear, confident setup",
+                                                                       "seed":  2408,
+                                                                       "seed_origin":  "initial",
+                                                                       "seed_strategy":  "fixed_base_reused_list",
+                                                                       "delivery_rate":  1.0,
+                                                                       "duration_seconds":  7.941,
+                                                                       "expected_duration_seconds":  6.251,
+                                                                       "pacing_score":  0.848,
+                                                                       "pacing_label":  "slightly_slow",
+                                                                       "pacing_notes":  [
+                                                                                            "Leans a little slow."
+                                                                                        ],
+                                                                       "review_score":  0.737,
+                                                                       "meets_quality_gate":  true,
+                                                                       "quality_gate_failures":  [
+
+                                                                                                 ],
+                                                                       "is_selected":  true,
+                                                                       "audio_url":  "/api/conversation/assets/audio/line001_spk-Asmongold_v01.wav"
+                                                                   }
+                                                               ]
+                                              },
+                                              {
+                                                  "line_index":  2,
+                                                  "speaker_filename":  "JoeRogan.wav",
+                                                  "text":  "Which is a risky promise.",
+                                                  "emotion_vectors":  [
+
+                                                                      ],
+                                                  "emotion_control_method":  3,
+                                                  "emotion_reference_filename":  null,
+                                                  "emotion_weight":  0.95,
+                                                  "emotion_text":  "playful skepticism",
+                                                  "versions":  [
+                                                                   {
+                                                                       "audio_path":  "shared/audio/temp_conversation_segments/line002_spk-JoeRogan_v01.wav",
+                                                                       "audio_filename":  "line002_spk-JoeRogan_v01.wav",
+                                                                       "similarity_score":  0.6910433769226074,
+                                                                       "robotic_score":  0.25,
+                                                                       "quality_score":  0.6046629548072815,
+                                                                       "speaker_filename":  "JoeRogan.wav",
+                                                                       "text":  "Which is a risky promise.",
+                                                                       "emotion_vectors":  [
+
+                                                                                           ],
+                                                                       "emotion_control_method":  3,
+                                                                       "emotion_reference_filename":  null,
+                                                                       "emotion_weight":  0.95,
+                                                                       "emotion_text":  "playful skepticism",
+                                                                       "seed":  2408,
+                                                                       "seed_origin":  "initial",
+                                                                       "seed_strategy":  "fixed_base_reused_list",
+                                                                       "delivery_rate":  1.0,
+                                                                       "duration_seconds":  1.509,
+                                                                       "expected_duration_seconds":  1.966,
+                                                                       "pacing_score":  0.897,
+                                                                       "pacing_label":  "slightly_fast",
+                                                                       "pacing_notes":  [
+                                                                                            "Leans a little fast."
+                                                                                        ],
+                                                                       "review_score":  0.663,
+                                                                       "meets_quality_gate":  true,
+                                                                       "quality_gate_failures":  [
+
+                                                                                                 ],
+                                                                       "is_selected":  true,
+                                                                       "audio_url":  "/api/conversation/assets/audio/line002_spk-JoeRogan_v01.wav"
+                                                                   }
+                                                               ]
+                                              },
+                                              {
+                                                  "line_index":  3,
+                                                  "speaker_filename":  "JoeRogan.wav",
+                                                  "text":  "People forgive weird opinions faster than they forgive weird breathing.",
+                                                  "emotion_vectors":  [
+
+                                                                      ],
+                                                  "emotion_control_method":  3,
+                                                  "emotion_reference_filename":  null,
+                                                  "emotion_weight":  0.95,
+                                                  "emotion_text":  "dry punchline",
+                                                  "versions":  [
+                                                                   {
+                                                                       "audio_path":  "shared/audio/temp_conversation_segments/line003_spk-JoeRogan_v01.wav",
+                                                                       "audio_filename":  "line003_spk-JoeRogan_v01.wav",
+                                                                       "similarity_score":  0.6798136830329895,
+                                                                       "robotic_score":  0.25,
+                                                                       "quality_score":  0.5948369726538658,
+                                                                       "speaker_filename":  "JoeRogan.wav",
+                                                                       "text":  "People forgive weird opinions faster than they forgive weird breathing.",
+                                                                       "emotion_vectors":  [
+
+                                                                                           ],
+                                                                       "emotion_control_method":  3,
+                                                                       "emotion_reference_filename":  null,
+                                                                       "emotion_weight":  0.95,
+                                                                       "emotion_text":  "dry punchline",
+                                                                       "seed":  2408,
+                                                                       "seed_origin":  "initial",
+                                                                       "seed_strategy":  "fixed_base_reused_list",
+                                                                       "delivery_rate":  1.0,
+                                                                       "duration_seconds":  4.365,
+                                                                       "expected_duration_seconds":  3.751,
+                                                                       "pacing_score":  0.954,
+                                                                       "pacing_label":  "balanced",
+                                                                       "pacing_notes":  [
+                                                                                            "Pacing sits in the expected range."
+                                                                                        ],
+                                                                       "review_score":  0.667,
+                                                                       "meets_quality_gate":  true,
+                                                                       "quality_gate_failures":  [
+
+                                                                                                 ],
+                                                                       "is_selected":  true,
+                                                                       "audio_url":  "/api/conversation/assets/audio/line003_spk-JoeRogan_v01.wav"
+                                                                   }
+                                                               ]
+                                              },
+                                              {
+                                                  "line_index":  4,
+                                                  "speaker_filename":  "ElonMusk.wav",
+                                                  "text":  "Good.",
+                                                  "emotion_vectors":  [
+
+                                                                      ],
+                                                  "emotion_control_method":  3,
+                                                  "emotion_reference_filename":  null,
+                                                  "emotion_weight":  0.9,
+                                                  "emotion_text":  "quietly amused",
+                                                  "versions":  [
+                                                                   {
+                                                                       "audio_path":  "shared/audio/temp_conversation_segments/line004_spk-ElonMusk_v01.wav",
+                                                                       "audio_filename":  "line004_spk-ElonMusk_v01.wav",
+                                                                       "similarity_score":  0.1708996593952179,
+                                                                       "robotic_score":  0.25,
+                                                                       "quality_score":  0.14953720197081566,
+                                                                       "speaker_filename":  "ElonMusk.wav",
+                                                                       "text":  "Good.",
+                                                                       "emotion_vectors":  [
+
+                                                                                           ],
+                                                                       "emotion_control_method":  3,
+                                                                       "emotion_reference_filename":  null,
+                                                                       "emotion_weight":  0.9,
+                                                                       "emotion_text":  "quietly amused",
+                                                                       "seed":  2408,
+                                                                       "seed_origin":  "initial",
+                                                                       "seed_strategy":  "fixed_base_reused_list",
+                                                                       "delivery_rate":  1.0,
+                                                                       "duration_seconds":  0.755,
+                                                                       "expected_duration_seconds":  0.55,
+                                                                       "pacing_score":  0.834,
+                                                                       "pacing_label":  "slightly_slow",
+                                                                       "pacing_notes":  [
+                                                                                            "Leans a little slow.",
+                                                                                            "Very short line is landing long."
+                                                                                        ],
+                                                                       "review_score":  0.286,
+                                                                       "meets_quality_gate":  false,
+                                                                       "quality_gate_failures":  [
+                                                                                                     "Similarity 0.17 is below the 0.66 gate.",
+                                                                                                     "Quality 0.15 is below the 0.53 floor."
+                                                                                                 ],
+                                                                       "is_selected":  true,
+                                                                       "audio_url":  "/api/conversation/assets/audio/line004_spk-ElonMusk_v01.wav"
+                                                                   }
+                                                               ]
+                                              },
+                                              {
+                                                  "line_index":  5,
+                                                  "speaker_filename":  "ElonMusk.wav",
+                                                  "text":  "I brought both opinions and measurable breathing.",
+                                                  "emotion_vectors":  [
+
+                                                                      ],
+                                                  "emotion_control_method":  3,
+                                                  "emotion_reference_filename":  null,
+                                                  "emotion_weight":  0.9,
+                                                  "emotion_text":  "deadpan confidence",
+                                                  "versions":  [
+                                                                   {
+                                                                       "audio_path":  "shared/audio/temp_conversation_segments/line005_spk-ElonMusk_v01.wav",
+                                                                       "audio_filename":  "line005_spk-ElonMusk_v01.wav",
+                                                                       "similarity_score":  0.7139313220977783,
+                                                                       "robotic_score":  0.25,
+                                                                       "quality_score":  0.624689906835556,
+                                                                       "speaker_filename":  "ElonMusk.wav",
+                                                                       "text":  "I brought both opinions and measurable breathing.",
+                                                                       "emotion_vectors":  [
+
+                                                                                           ],
+                                                                       "emotion_control_method":  3,
+                                                                       "emotion_reference_filename":  null,
+                                                                       "emotion_weight":  0.9,
+                                                                       "emotion_text":  "deadpan confidence",
+                                                                       "seed":  2408,
+                                                                       "seed_origin":  "initial",
+                                                                       "seed_strategy":  "fixed_base_reused_list",
+                                                                       "delivery_rate":  1.0,
+                                                                       "duration_seconds":  2.914,
+                                                                       "expected_duration_seconds":  2.68,
+                                                                       "pacing_score":  1.0,
+                                                                       "pacing_label":  "balanced",
+                                                                       "pacing_notes":  [
+                                                                                            "Pacing sits in the expected range."
+                                                                                        ],
+                                                                       "review_score":  0.7,
+                                                                       "meets_quality_gate":  true,
+                                                                       "quality_gate_failures":  [
+
+                                                                                                 ],
+                                                                       "is_selected":  true,
+                                                                       "audio_url":  "/api/conversation/assets/audio/line005_spk-ElonMusk_v01.wav"
+                                                                   }
+                                                               ]
+                                              },
+                                              {
+                                                  "line_index":  6,
+                                                  "speaker_filename":  "Asmongold.wav",
+                                                  "text":  "The part I like is the review loop.",
+                                                  "emotion_vectors":  [
+
+                                                                      ],
+                                                  "emotion_control_method":  3,
+                                                  "emotion_reference_filename":  null,
+                                                  "emotion_weight":  0.95,
+                                                  "emotion_text":  "thoughtful, upbeat",
+                                                  "versions":  [
+                                                                   {
+                                                                       "audio_path":  "shared/audio/temp_conversation_segments/line006_spk-Asmongold_v01.wav",
+                                                                       "audio_filename":  "line006_spk-Asmongold_v01.wav",
+                                                                       "similarity_score":  0.5127894282341003,
+                                                                       "robotic_score":  0.25,
+                                                                       "quality_score":  0.4486907497048378,
+                                                                       "speaker_filename":  "Asmongold.wav",
+                                                                       "text":  "The part I like is the review loop.",
+                                                                       "emotion_vectors":  [
+
+                                                                                           ],
+                                                                       "emotion_control_method":  3,
+                                                                       "emotion_reference_filename":  null,
+                                                                       "emotion_weight":  0.95,
+                                                                       "emotion_text":  "thoughtful, upbeat",
+                                                                       "seed":  2408,
+                                                                       "seed_origin":  "initial",
+                                                                       "seed_strategy":  "fixed_base_reused_list",
+                                                                       "delivery_rate":  1.0,
+                                                                       "duration_seconds":  2.287,
+                                                                       "expected_duration_seconds":  3.037,
+                                                                       "pacing_score":  0.834,
+                                                                       "pacing_label":  "slightly_fast",
+                                                                       "pacing_notes":  [
+                                                                                            "Leans a little fast."
+                                                                                        ],
+                                                                       "review_score":  0.526,
+                                                                       "meets_quality_gate":  false,
+                                                                       "quality_gate_failures":  [
+                                                                                                     "Similarity 0.51 is below the 0.66 gate.",
+                                                                                                     "Quality 0.45 is below the 0.53 floor."
+                                                                                                 ],
+                                                                       "is_selected":  true,
+                                                                       "audio_url":  "/api/conversation/assets/audio/line006_spk-Asmongold_v01.wav"
+                                                                   }
+                                                               ]
+                                              },
+                                              {
+                                                  "line_index":  7,
+                                                  "speaker_filename":  "Asmongold.wav",
+                                                  "text":  "We generate a few takes, keep the line that works, and only regenerate the one that misses.",
+                                                  "emotion_vectors":  [
+
+                                                                      ],
+                                                  "emotion_control_method":  3,
+                                                  "emotion_reference_filename":  null,
+                                                  "emotion_weight":  0.95,
+                                                  "emotion_text":  "explaining the workflow",
+                                                  "versions":  [
+                                                                   {
+                                                                       "audio_path":  "shared/audio/temp_conversation_segments/line007_spk-Asmongold_v01.wav",
+                                                                       "audio_filename":  "line007_spk-Asmongold_v01.wav",
+                                                                       "similarity_score":  0.735593855381012,
+                                                                       "robotic_score":  0.25,
+                                                                       "quality_score":  0.6436446234583855,
+                                                                       "speaker_filename":  "Asmongold.wav",
+                                                                       "text":  "We generate a few takes, keep the line that works, and only regenerate the one that misses.",
+                                                                       "emotion_vectors":  [
+
+                                                                                           ],
+                                                                       "emotion_control_method":  3,
+                                                                       "emotion_reference_filename":  null,
+                                                                       "emotion_weight":  0.95,
+                                                                       "emotion_text":  "explaining the workflow",
+                                                                       "seed":  2408,
+                                                                       "seed_origin":  "initial",
+                                                                       "seed_strategy":  "fixed_base_reused_list",
+                                                                       "delivery_rate":  1.0,
+                                                                       "duration_seconds":  6.026,
+                                                                       "expected_duration_seconds":  6.451,
+                                                                       "pacing_score":  1.0,
+                                                                       "pacing_label":  "balanced",
+                                                                       "pacing_notes":  [
+                                                                                            "Pacing sits in the expected range."
+                                                                                        ],
+                                                                       "review_score":  0.715,
+                                                                       "meets_quality_gate":  true,
+                                                                       "quality_gate_failures":  [
+
+                                                                                                 ],
+                                                                       "is_selected":  true,
+                                                                       "audio_url":  "/api/conversation/assets/audio/line007_spk-Asmongold_v01.wav"
+                                                                   }
+                                                               ]
+                                              },
+                                              {
+                                                  "line_index":  8,
+                                                  "speaker_filename":  "JoeRogan.wav",
+                                                  "text":  "That changes the whole mood.",
+                                                  "emotion_vectors":  [
+
+                                                                      ],
+                                                  "emotion_control_method":  3,
+                                                  "emotion_reference_filename":  null,
+                                                  "emotion_weight":  0.95,
+                                                  "emotion_text":  "agreeing, energized",
+                                                  "versions":  [
+                                                                   {
+                                                                       "audio_path":  "shared/audio/temp_conversation_segments/line008_spk-JoeRogan_v01.wav",
+                                                                       "audio_filename":  "line008_spk-JoeRogan_v01.wav",
+                                                                       "similarity_score":  0.5520827174186707,
+                                                                       "robotic_score":  0.25,
+                                                                       "quality_score":  0.4830723777413368,
+                                                                       "speaker_filename":  "JoeRogan.wav",
+                                                                       "text":  "That changes the whole mood.",
+                                                                       "emotion_vectors":  [
+
+                                                                                           ],
+                                                                       "emotion_control_method":  3,
+                                                                       "emotion_reference_filename":  null,
+                                                                       "emotion_weight":  0.95,
+                                                                       "emotion_text":  "agreeing, energized",
+                                                                       "seed":  2408,
+                                                                       "seed_origin":  "initial",
+                                                                       "seed_strategy":  "fixed_base_reused_list",
+                                                                       "delivery_rate":  1.0,
+                                                                       "duration_seconds":  1.556,
+                                                                       "expected_duration_seconds":  1.966,
+                                                                       "pacing_score":  0.934,
+                                                                       "pacing_label":  "balanced",
+                                                                       "pacing_notes":  [
+                                                                                            "Pacing sits in the expected range."
+                                                                                        ],
+                                                                       "review_score":  0.573,
+                                                                       "meets_quality_gate":  false,
+                                                                       "quality_gate_failures":  [
+                                                                                                     "Similarity 0.55 is below the 0.66 gate.",
+                                                                                                     "Quality 0.48 is below the 0.53 floor."
+                                                                                                 ],
+                                                                       "is_selected":  true,
+                                                                       "audio_url":  "/api/conversation/assets/audio/line008_spk-JoeRogan_v01.wav"
+                                                                   }
+                                                               ]
+                                              },
+                                              {
+                                                  "line_index":  9,
+                                                  "speaker_filename":  "JoeRogan.wav",
+                                                  "text":  "You stop babysitting one giant render and start shaping a conversation.",
+                                                  "emotion_vectors":  [
+
+                                                                      ],
+                                                  "emotion_control_method":  3,
+                                                  "emotion_reference_filename":  null,
+                                                  "emotion_weight":  0.95,
+                                                  "emotion_text":  "animated explanation",
+                                                  "versions":  [
+                                                                   {
+                                                                       "audio_path":  "shared/audio/temp_conversation_segments/line009_spk-JoeRogan_v01.wav",
+                                                                       "audio_filename":  "line009_spk-JoeRogan_v01.wav",
+                                                                       "similarity_score":  0.7558777332305908,
+                                                                       "robotic_score":  0.25,
+                                                                       "quality_score":  0.661393016576767,
+                                                                       "speaker_filename":  "JoeRogan.wav",
+                                                                       "text":  "You stop babysitting one giant render and start shaping a conversation.",
+                                                                       "emotion_vectors":  [
+
+                                                                                           ],
+                                                                       "emotion_control_method":  3,
+                                                                       "emotion_reference_filename":  null,
+                                                                       "emotion_weight":  0.95,
+                                                                       "emotion_text":  "animated explanation",
+                                                                       "seed":  2408,
+                                                                       "seed_origin":  "initial",
+                                                                       "seed_strategy":  "fixed_base_reused_list",
+                                                                       "delivery_rate":  1.0,
+                                                                       "duration_seconds":  3.553,
+                                                                       "expected_duration_seconds":  4.109,
+                                                                       "pacing_score":  0.961,
+                                                                       "pacing_label":  "balanced",
+                                                                       "pacing_notes":  [
+                                                                                            "Pacing sits in the expected range."
+                                                                                        ],
+                                                                       "review_score":  0.721,
+                                                                       "meets_quality_gate":  true,
+                                                                       "quality_gate_failures":  [
+
+                                                                                                 ],
+                                                                       "is_selected":  true,
+                                                                       "audio_url":  "/api/conversation/assets/audio/line009_spk-JoeRogan_v01.wav"
+                                                                   }
+                                                               ]
+                                              },
+                                              {
+                                                  "line_index":  10,
+                                                  "speaker_filename":  "ElonMusk.wav",
+                                                  "text":  "The timeline editor is where it finally feels like production.",
+                                                  "emotion_vectors":  [
+
+                                                                      ],
+                                                  "emotion_control_method":  3,
+                                                  "emotion_reference_filename":  null,
+                                                  "emotion_weight":  0.9,
+                                                  "emotion_text":  "precise, approving",
+                                                  "versions":  [
+                                                                   {
+                                                                       "audio_path":  "shared/audio/temp_conversation_segments/line010_spk-ElonMusk_v01.wav",
+                                                                       "audio_filename":  "line010_spk-ElonMusk_v01.wav",
+                                                                       "similarity_score":  0.73225337266922,
+                                                                       "robotic_score":  0.25,
+                                                                       "quality_score":  0.6407217010855675,
+                                                                       "speaker_filename":  "ElonMusk.wav",
+                                                                       "text":  "The timeline editor is where it finally feels like production.",
+                                                                       "emotion_vectors":  [
+
+                                                                                           ],
+                                                                       "emotion_control_method":  3,
+                                                                       "emotion_reference_filename":  null,
+                                                                       "emotion_weight":  0.9,
+                                                                       "emotion_text":  "precise, approving",
+                                                                       "seed":  2408,
+                                                                       "seed_origin":  "initial",
+                                                                       "seed_strategy":  "fixed_base_reused_list",
+                                                                       "delivery_rate":  1.0,
+                                                                       "duration_seconds":  5.19,
+                                                                       "expected_duration_seconds":  3.751,
+                                                                       "pacing_score":  0.745,
+                                                                       "pacing_label":  "slightly_slow",
+                                                                       "pacing_notes":  [
+                                                                                            "Leans a little slow."
+                                                                                        ],
+                                                                       "review_score":  0.662,
+                                                                       "meets_quality_gate":  true,
+                                                                       "quality_gate_failures":  [
+
+                                                                                                 ],
+                                                                       "is_selected":  true,
+                                                                       "audio_url":  "/api/conversation/assets/audio/line010_spk-ElonMusk_v01.wav"
+                                                                   }
+                                                               ]
+                                              },
+                                              {
+                                                  "line_index":  11,
+                                                  "speaker_filename":  "ElonMusk.wav",
+                                                  "text":  "Tiny pauses, quick overlaps, cleaner handoffs, and less accidental chaos.",
+                                                  "emotion_vectors":  [
+
+                                                                      ],
+                                                  "emotion_control_method":  3,
+                                                  "emotion_reference_filename":  null,
+                                                  "emotion_weight":  0.9,
+                                                  "emotion_text":  "matter-of-fact",
+                                                  "versions":  [
+                                                                   {
+                                                                       "audio_path":  "shared/audio/temp_conversation_segments/line011_spk-ElonMusk_v01.wav",
+                                                                       "audio_filename":  "line011_spk-ElonMusk_v01.wav",
+                                                                       "similarity_score":  0.7195690870285034,
+                                                                       "robotic_score":  0.25,
+                                                                       "quality_score":  0.6296229511499405,
+                                                                       "speaker_filename":  "ElonMusk.wav",
+                                                                       "text":  "Tiny pauses, quick overlaps, cleaner handoffs, and less accidental chaos.",
+                                                                       "emotion_vectors":  [
+
+                                                                                           ],
+                                                                       "emotion_control_method":  3,
+                                                                       "emotion_reference_filename":  null,
+                                                                       "emotion_weight":  0.9,
+                                                                       "emotion_text":  "matter-of-fact",
+                                                                       "seed":  2408,
+                                                                       "seed_origin":  "initial",
+                                                                       "seed_strategy":  "fixed_base_reused_list",
+                                                                       "delivery_rate":  1.0,
+                                                                       "duration_seconds":  5.526,
+                                                                       "expected_duration_seconds":  4.051,
+                                                                       "pacing_score":  0.762,
+                                                                       "pacing_label":  "slightly_slow",
+                                                                       "pacing_notes":  [
+                                                                                            "Leans a little slow."
+                                                                                        ],
+                                                                       "review_score":  0.656,
+                                                                       "meets_quality_gate":  true,
+                                                                       "quality_gate_failures":  [
+
+                                                                                                 ],
+                                                                       "is_selected":  true,
+                                                                       "audio_url":  "/api/conversation/assets/audio/line011_spk-ElonMusk_v01.wav"
+                                                                   }
+                                                               ]
+                                              },
+                                              {
+                                                  "line_index":  12,
+                                                  "speaker_filename":  "Asmongold.wav",
+                                                  "text":  "So this demo is short on purpose.",
+                                                  "emotion_vectors":  [
+
+                                                                      ],
+                                                  "emotion_control_method":  3,
+                                                  "emotion_reference_filename":  null,
+                                                  "emotion_weight":  0.95,
+                                                  "emotion_text":  "friendly wrap-up",
+                                                  "versions":  [
+                                                                   {
+                                                                       "audio_path":  "shared/audio/temp_conversation_segments/line012_spk-Asmongold_v01.wav",
+                                                                       "audio_filename":  "line012_spk-Asmongold_v01.wav",
+                                                                       "similarity_score":  0.733407199382782,
+                                                                       "robotic_score":  0.25,
+                                                                       "quality_score":  0.6417312994599342,
+                                                                       "speaker_filename":  "Asmongold.wav",
+                                                                       "text":  "So this demo is short on purpose.",
+                                                                       "emotion_vectors":  [
+
+                                                                                           ],
+                                                                       "emotion_control_method":  3,
+                                                                       "emotion_reference_filename":  null,
+                                                                       "emotion_weight":  0.95,
+                                                                       "emotion_text":  "friendly wrap-up",
+                                                                       "seed":  2408,
+                                                                       "seed_origin":  "initial",
+                                                                       "seed_strategy":  "fixed_base_reused_list",
+                                                                       "delivery_rate":  1.0,
+                                                                       "duration_seconds":  3.309,
+                                                                       "expected_duration_seconds":  2.68,
+                                                                       "pacing_score":  0.942,
+                                                                       "pacing_label":  "balanced",
+                                                                       "pacing_notes":  [
+                                                                                            "Pacing sits in the expected range."
+                                                                                        ],
+                                                                       "review_score":  0.702,
+                                                                       "meets_quality_gate":  true,
+                                                                       "quality_gate_failures":  [
+
+                                                                                                 ],
+                                                                       "is_selected":  true,
+                                                                       "audio_url":  "/api/conversation/assets/audio/line012_spk-Asmongold_v01.wav"
+                                                                   }
+                                                               ]
+                                              },
+                                              {
+                                                  "line_index":  13,
+                                                  "speaker_filename":  "Asmongold.wav",
+                                                  "text":  "We wanted something you can hear in under a minute and immediately understand the workflow.",
+                                                  "emotion_vectors":  [
+
+                                                                      ],
+                                                  "emotion_control_method":  3,
+                                                  "emotion_reference_filename":  null,
+                                                  "emotion_weight":  0.95,
+                                                  "emotion_text":  "inviting, clear",
+                                                  "versions":  [
+                                                                   {
+                                                                       "audio_path":  "shared/audio/temp_conversation_segments/line013_spk-Asmongold_v01.wav",
+                                                                       "audio_filename":  "line013_spk-Asmongold_v01.wav",
+                                                                       "similarity_score":  0.791282057762146,
+                                                                       "robotic_score":  0.25,
+                                                                       "quality_score":  0.6923718005418777,
+                                                                       "speaker_filename":  "Asmongold.wav",
+                                                                       "text":  "We wanted something you can hear in under a minute and immediately understand the workflow.",
+                                                                       "emotion_vectors":  [
+
+                                                                                           ],
+                                                                       "emotion_control_method":  3,
+                                                                       "emotion_reference_filename":  null,
+                                                                       "emotion_weight":  0.95,
+                                                                       "emotion_text":  "inviting, clear",
+                                                                       "seed":  2408,
+                                                                       "seed_origin":  "initial",
+                                                                       "seed_strategy":  "fixed_base_reused_list",
+                                                                       "delivery_rate":  1.0,
+                                                                       "duration_seconds":  4.644,
+                                                                       "expected_duration_seconds":  5.537,
+                                                                       "pacing_score":  0.924,
+                                                                       "pacing_label":  "slightly_fast",
+                                                                       "pacing_notes":  [
+                                                                                            "Leans a little fast."
+                                                                                        ],
+                                                                       "review_score":  0.739,
+                                                                       "meets_quality_gate":  true,
+                                                                       "quality_gate_failures":  [
+
+                                                                                                 ],
+                                                                       "is_selected":  true,
+                                                                       "audio_url":  "/api/conversation/assets/audio/line013_spk-Asmongold_v01.wav"
+                                                                   }
+                                                               ]
+                                              },
+                                              {
+                                                  "line_index":  14,
+                                                  "speaker_filename":  "JoeRogan.wav",
+                                                  "text":  "Also, under a minute is the natural habitat of my attention span.",
+                                                  "emotion_vectors":  [
+
+                                                                      ],
+                                                  "emotion_control_method":  3,
+                                                  "emotion_reference_filename":  null,
+                                                  "emotion_weight":  1.0,
+                                                  "emotion_text":  "self-aware joke",
+                                                  "versions":  [
+                                                                   {
+                                                                       "audio_path":  "shared/audio/temp_conversation_segments/line014_spk-JoeRogan_v01.wav",
+                                                                       "audio_filename":  "line014_spk-JoeRogan_v01.wav",
+                                                                       "similarity_score":  0.8269588947296143,
+                                                                       "robotic_score":  0.25,
+                                                                       "quality_score":  0.7235890328884125,
+                                                                       "speaker_filename":  "JoeRogan.wav",
+                                                                       "text":  "Also, under a minute is the natural habitat of my attention span.",
+                                                                       "emotion_vectors":  [
+
+                                                                                           ],
+                                                                       "emotion_control_method":  3,
+                                                                       "emotion_reference_filename":  null,
+                                                                       "emotion_weight":  1.0,
+                                                                       "emotion_text":  "self-aware joke",
+                                                                       "seed":  2408,
+                                                                       "seed_origin":  "initial",
+                                                                       "seed_strategy":  "fixed_base_reused_list",
+                                                                       "delivery_rate":  1.0,
+                                                                       "duration_seconds":  3.344,
+                                                                       "expected_duration_seconds":  4.566,
+                                                                       "pacing_score":  0.761,
+                                                                       "pacing_label":  "slightly_fast",
+                                                                       "pacing_notes":  [
+                                                                                            "Leans a little fast.",
+                                                                                            "Punctuation suggests stronger pauses than the audio delivered."
+                                                                                        ],
+                                                                       "review_score":  0.731,
+                                                                       "meets_quality_gate":  true,
+                                                                       "quality_gate_failures":  [
+
+                                                                                                 ],
+                                                                       "is_selected":  true,
+                                                                       "audio_url":  "/api/conversation/assets/audio/line014_spk-JoeRogan_v01.wav"
+                                                                   }
+                                                               ]
+                                              },
+                                              {
+                                                  "line_index":  15,
+                                                  "speaker_filename":  "ElonMusk.wav",
+                                                  "text":  "Great.",
+                                                  "emotion_vectors":  [
+
+                                                                      ],
+                                                  "emotion_control_method":  3,
+                                                  "emotion_reference_filename":  null,
+                                                  "emotion_weight":  0.9,
+                                                  "emotion_text":  "tiny laugh before the line",
+                                                  "versions":  [
+                                                                   {
+                                                                       "audio_path":  "shared/audio/temp_conversation_segments/line015_spk-ElonMusk_v01.wav",
+                                                                       "audio_filename":  "line015_spk-ElonMusk_v01.wav",
+                                                                       "similarity_score":  0.2434910535812378,
+                                                                       "robotic_score":  0.25,
+                                                                       "quality_score":  0.21305467188358307,
+                                                                       "speaker_filename":  "ElonMusk.wav",
+                                                                       "text":  "Great.",
+                                                                       "emotion_vectors":  [
+
+                                                                                           ],
+                                                                       "emotion_control_method":  3,
+                                                                       "emotion_reference_filename":  null,
+                                                                       "emotion_weight":  0.9,
+                                                                       "emotion_text":  "tiny laugh before the line",
+                                                                       "seed":  2408,
+                                                                       "seed_origin":  "initial",
+                                                                       "seed_strategy":  "fixed_base_reused_list",
+                                                                       "delivery_rate":  1.0,
+                                                                       "duration_seconds":  2.612,
+                                                                       "expected_duration_seconds":  0.55,
+                                                                       "pacing_score":  0.16,
+                                                                       "pacing_label":  "too_slow",
+                                                                       "pacing_notes":  [
+                                                                                            "Drags compared with the script length.",
+                                                                                            "Very short line is landing long."
+                                                                                        ],
+                                                                       "review_score":  0.202,
+                                                                       "meets_quality_gate":  false,
+                                                                       "quality_gate_failures":  [
+                                                                                                     "Similarity 0.24 is below the 0.66 gate.",
+                                                                                                     "Quality 0.21 is below the 0.53 floor.",
+                                                                                                     "Pacing 0.16 is below the 0.45 floor."
+                                                                                                 ],
+                                                                       "is_selected":  true,
+                                                                       "audio_url":  "/api/conversation/assets/audio/line015_spk-ElonMusk_v01.wav"
+                                                                   }
+                                                               ]
+                                              },
+                                              {
+                                                  "line_index":  16,
+                                                  "speaker_filename":  "ElonMusk.wav",
+                                                  "text":  "We have finally optimized the product around honesty.",
+                                                  "emotion_vectors":  [
+
+                                                                      ],
+                                                  "emotion_control_method":  3,
+                                                  "emotion_reference_filename":  null,
+                                                  "emotion_weight":  0.9,
+                                                  "emotion_text":  "dry closer",
+                                                  "versions":  [
+                                                                   {
+                                                                       "audio_path":  "shared/audio/temp_conversation_segments/line016_spk-ElonMusk_v01.wav",
+                                                                       "audio_filename":  "line016_spk-ElonMusk_v01.wav",
+                                                                       "similarity_score":  0.5224633812904358,
+                                                                       "robotic_score":  0.25,
+                                                                       "quality_score":  0.4571554586291313,
+                                                                       "speaker_filename":  "ElonMusk.wav",
+                                                                       "text":  "We have finally optimized the product around honesty.",
+                                                                       "emotion_vectors":  [
+
+                                                                                           ],
+                                                                       "emotion_control_method":  3,
+                                                                       "emotion_reference_filename":  null,
+                                                                       "emotion_weight":  0.9,
+                                                                       "emotion_text":  "dry closer",
+                                                                       "seed":  2408,
+                                                                       "seed_origin":  "initial",
+                                                                       "seed_strategy":  "fixed_base_reused_list",
+                                                                       "delivery_rate":  1.0,
+                                                                       "duration_seconds":  3.692,
+                                                                       "expected_duration_seconds":  3.037,
+                                                                       "pacing_score":  0.941,
+                                                                       "pacing_label":  "balanced",
+                                                                       "pacing_notes":  [
+                                                                                            "Pacing sits in the expected range."
+                                                                                        ],
+                                                                       "review_score":  0.554,
+                                                                       "meets_quality_gate":  false,
+                                                                       "quality_gate_failures":  [
+                                                                                                     "Similarity 0.52 is below the 0.66 gate.",
+                                                                                                     "Quality 0.46 is below the 0.53 floor."
+                                                                                                 ],
+                                                                       "is_selected":  true,
+                                                                       "audio_url":  "/api/conversation/assets/audio/line016_spk-ElonMusk_v01.wav"
+                                                                   }
+                                                               ]
+                                              }
+                                          ],
+                                "concatenation_completed":  true,
+                                "concatenation_output_path":  "shared/audio/temp_conversation_segments/conversation_9d34bbd5-c94e-4b56-bdd4-e7807e4f8c45_concatenated.wav",
+                                "concatenation_error":  null
+                            },
+                 "error":  null
+             }
+}
