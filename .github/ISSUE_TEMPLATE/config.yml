@@ -1,8 +1,5 @@
-blank_issues_enabled: true
+blank_issues_enabled: false
 contact_links:
-  - name: User manual
-    url: https://github.com/JaySpiffy/IndexTTS-Workflow-Studio/blob/main/docs/manual/USER_MANUAL.md
-    about: Check the tab-by-tab manual with screenshots and walkthrough videos.
-  - name: Docker setup guide
-    url: https://github.com/JaySpiffy/IndexTTS-Workflow-Studio/blob/main/docker/README.md
-    about: Use this for first-run setup, model download notes, and Docker troubleshooting.
+  - name: Draft to Take beta setup notes
+    url: https://github.com/JaySpiffy/IndexTTS-Workflow-Studio
+    about: Check the main project page before filing a setup issue.

@@ -1,352 +1,320 @@
-<div align="center">
-  <img src="assets/index_icon.png" width="180" alt="IndexTTS2 Workflow Studio icon"/>
+# Draft to Take Beta
 
-# IndexTTS2 Workflow Studio
+Formerly **IndexTTS Workflow Studio**. This repository now hosts the Docker beta launcher for Draft to Take, the next-generation version of the original prototype.
 
-**Create natural, multi-speaker conversations with IndexTTS2 - fast.**
+[![Sponsor JaySpiffy](https://img.shields.io/badge/Sponsor-JaySpiffy-ea4aaa?style=for-the-badge&logo=githubsponsors&logoColor=white)](https://github.com/sponsors/JaySpiffy)
 
-Turn scripts into realistic dialogue with speaker prep, line-by-line review, regeneration, timeline editing, and polished local export on top of the official IndexTTS2 models.
+Draft to Take is a local-first AI audio production studio for turning scripts into generated dialogue, reviewed takes, timeline clips, and exported mixes.
 
-**Bring your own voices.** This repo does not ship bundled voice clones or private speaker files.
+This beta repo contains the Docker launcher, configuration, diagnostics scripts, and tester docs. It does not contain the private source code or model weights. Docker pulls prebuilt beta images from GitHub Container Registry, then the app downloads supported model files into your own local machine.
 
-[![Sponsor JaySpiffy](https://img.shields.io/badge/Sponsor-JaySpiffy-ea4aaa?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/JaySpiffy)
-</div>
+Looking for the old prototype? The previous IndexTTS Workflow Studio code is preserved on the [`legacy-v2`](https://github.com/JaySpiffy/IndexTTS-Workflow-Studio/tree/legacy-v2) branch and the [`v2-legacy-final`](https://github.com/JaySpiffy/IndexTTS-Workflow-Studio/tree/v2-legacy-final) tag.
 
-## Start In 2 Minutes
+## Quick Run
 
-If you already have Docker and an NVIDIA-ready setup, the fastest path is:
+Already have Docker Desktop running?
 
-1. Put your models in `shared/models/checkpoints`
-2. Run `docker\start.bat`
-3. Open [http://localhost:3000](http://localhost:3000)
-4. Start in `Speaker Prep`, then move through `Conversation Workflow`, `Conversation Results`, and `Timeline Editor`
+1. Download this repo as a ZIP.
+2. Extract it somewhere simple, for example `C:\DraftToTakeBeta`.
+3. Double-click `start.bat`.
+4. Open the URL printed in the terminal, usually:
 
-Good entry points:
-
-- Demo scenes: [Hear What It Can Do](#hear-what-it-can-do)
-- Quick start: [Quick Start](#quick-start)
-- Manual with screenshots: [docs/manual/USER_MANUAL.md](docs/manual/USER_MANUAL.md)
-- Docker details: [docker/README.md](docker/README.md)
-- Contributing: [CONTRIBUTING.md](CONTRIBUTING.md)
-- Security reporting: [SECURITY.md](SECURITY.md)
-
-## Hear What It Can Do
-
-If you want proof before setup details, start with three short scene demos rendered through this workflow:
-
-| Demo | Play | What it shows |
-| --- | --- | --- |
-| Podcast roundtable | [Play in browser](https://github.com/JaySpiffy/IndexTTS-Workflow-Studio/raw/main/docs/assets/social/audio/podcast_roundtable_demo_pack.mp3) | Quick multi-speaker turn-taking and pacing |
-| Audiobook night train | [Play in browser](https://github.com/JaySpiffy/IndexTTS-Workflow-Studio/raw/main/docs/assets/social/audio/audiobook_night_train_demo_pack.mp3) | Steadier narration with longer phrasing |
-| Game dialogue checkpoint breach | [Play in browser](https://github.com/JaySpiffy/IndexTTS-Workflow-Studio/raw/main/docs/assets/social/audio/game_dialogue_checkpoint_breach_pack.mp3) | Tighter back-and-forth with more urgent timing |
-
-These are public-safe sample scenes rendered from the local speaker library already used in the app.
-
-## Workflow At A Glance
-
-```mermaid
-flowchart LR
-    A["Speaker Prep<br/>clean and score source clips"] --> B["Conversation Workflow<br/>generate first passes"]
-    B --> C["Conversation Results<br/>compare takes and regenerate weak lines"]
-    C --> D["Timeline Editor<br/>arrange timing, overlaps, and scenes"]
-    D --> E["Export Mix<br/>render the final scene"]
+```text
+http://localhost:3000
 ```
 
-For a moving walkthrough, open the [timeline workflow clip](docs/assets/social/timeline-workflow-demo.webm).
+First launch can be slow because Docker images and model files are large. Keep the terminal open and let it finish.
 
-## What This Repo Is
+## Screenshots
 
-This repository is **not** the official IndexTTS model repository.
+### Script Canvas
 
-It is a practical local app built **on top of** the official IndexTTS ecosystem, with:
+Draft, revise, assign speakers, detect emotions, and prepare production lines in one focused workspace.
 
-- `Speaker Prep` for cleaning and evaluating source clips
-- `Conversation Workflow` for fast multi-speaker script generation
-- `Conversation Results` for review, version selection, and regeneration
-- `Timeline Editor` for scene timing, overlaps, and final arrangement
-- a Docker-first local runtime with GPU-first behavior and CPU fallback
+![Script Canvas production view](screenshots/01-script-canvas.png)
 
-If you want the upstream project, papers, and hosted demos, use:
+### Script Canvas Timeline
 
-- Official code: [index-tts/index-tts](https://github.com/index-tts/index-tts)
-- Official model: [IndexTeam/IndexTTS-2](https://huggingface.co/IndexTeam/IndexTTS-2)
-- Official demo: [IndexTTS-2 Demo](https://huggingface.co/spaces/IndexTeam/IndexTTS-2-Demo)
-- Paper: [arXiv 2506.21619](https://arxiv.org/abs/2506.21619)
+The Script Canvas can place lines onto its built-in timeline drawer so you can review timing, generate missing takes, and export the mix without leaving the writing flow.
 
-## Why People Use It
+![Script Canvas built-in timeline drawer](screenshots/02-script-canvas-timeline.png)
 
-This app is built for longer-form, practical TTS work rather than one-off single-line demos.
+### Voice Studio
 
-Example use cases:
+Prepare reusable voices, manage source clips, and keep cast-building separate from the main writing canvas.
 
-- build a 3-speaker podcast or panel conversation
-- create character dialogue for games, machinima, or visual novels
-- generate narration with multiple takes, then compare and regenerate weak lines
-- clean source clips before cloning so the voices sound more stable
-- arrange interruptions, overlaps, and scene timing in a timeline before export
+![Voice Studio](screenshots/03-voice-studio.png)
 
-## Why This Workflow Is Different
+## Beta Status
 
-| What you want to do | Where you do it | Why it matters |
-| --- | --- | --- |
-| Clean bad source audio before cloning | `Speaker Prep` | Better prompt clips usually mean better voice match, less noise, and fewer robotic takes |
-| Turn a script into multi-speaker dialogue quickly | `Conversation Workflow` | Fastest path from script to first usable versions |
-| Keep only the lines that actually sound right | `Conversation Results` | Review, compare, edit, regenerate, and lock final takes before export |
-| Shape interruptions, timing, and full scenes | `Timeline Editor` | Useful when a plain linear conversation is not enough |
+`v3.0.0-beta.4` is ready for a small closed beta with Docker-capable testers.
 
-## Main Workspaces
+All beta container images are public and pullable from GitHub Container Registry:
 
-### 1. Speaker Prep
+- `draft-to-take-backend`
+- `draft-to-take-frontend`
+- `draft-to-take-script-llm`
+- `draft-to-take-omnivoice`
+- `draft-to-take-sfx`
 
-- upload or select raw source clips
-- trim, convert to mono, normalize, and clean noisy audio
-- run quick clone-readiness diagnostics
-- save the improved result into the live speaker library
+## Who This Beta Is For
 
-### 2. Conversation Workflow
+This first beta is best for people who are comfortable with Docker Desktop and local AI tools. It is not a one-click desktop installer yet.
 
-- paste a multi-speaker script
-- see available voices clearly
-- apply pacing presets
-- parse, generate, and save project state
+Good testers:
 
-### 3. Conversation Results
+- Run Windows 11 with Docker Desktop and WSL2.
+- Have an NVIDIA GPU, ideally with 12-16 GB VRAM.
+- Can tolerate large downloads and rough edges.
+- Are willing to report bugs with hardware details and safe log excerpts.
 
-- compare versions line by line
-- play clips, compare clips, and review scores
-- edit text during review
-- regenerate weak lines
-- export only after every line has a chosen final take
+## Requirements
 
-### 4. Timeline Editor
+- Windows 11 recommended.
+- Docker Desktop with WSL2 enabled.
+- NVIDIA GPU strongly recommended.
+- NVIDIA Container Toolkit / Docker GPU support.
+- 32 GB system RAM recommended for the full workflow.
+- 12-16 GB VRAM recommended for the smoother local AI path.
+- Plenty of disk space. First-run image pulls and model downloads can be many gigabytes.
 
-- build a scene directly in the timeline
-- add speaker tracks and segments
-- move segments in time
-- shape overlaps and interruptions
-- preview and export the final arranged scene
-
-## Studio Preview
-
-| Speaker Prep | Conversation Workflow |
-| --- | --- |
-| ![Speaker Prep](docs/assets/manual/speaker-prep-tab.png) | ![Conversation Workflow](docs/assets/manual/conversation-workflow-tab.png) |
-
-| Conversation Results | Timeline Editor |
-| --- | --- |
-| ![Conversation Results](docs/assets/manual/conversation-results-tab.png) | ![Timeline Editor](docs/assets/manual/timeline-editor-tab.png) |
+CPU fallback can work for some paths, but it will be much slower.
 
 ## Quick Start
 
-### Recommended: Docker
-
-This is the supported runtime path for this repo.
-
-Default behavior:
-
-- use your NVIDIA GPU when Docker can access it
-- fall back to CPU only when GPU runtime is unavailable
-
-1. Put your model files in:
+1. Download this repo as a ZIP or clone it.
+2. Extract it somewhere simple, for example:
 
 ```text
-shared/models/checkpoints
+C:\DraftToTakeBeta
 ```
 
-2. Start the app:
-
-```powershell
-docker\start.bat
-```
-
-Or manually:
-
-```powershell
-docker compose -f docker/docker-compose.yml -f docker/docker-compose.gpu.yml up -d --build
-```
-
-3. Open:
-
-- Frontend UI: [http://localhost:3000](http://localhost:3000)
-- Backend API: [http://localhost:8001](http://localhost:8001)
-- API docs: [http://localhost:8001/docs](http://localhost:8001/docs)
-
-4. Add your own clips:
-
-- finished cloning prompts -> `shared/audio/speakers/`
-- raw clips for prep -> `shared/audio/source_clips/`
-
-5. Work through the app in this order:
-
-- `Speaker Prep`
-- `Conversation Workflow`
-- `Conversation Results`
-- `Timeline Editor`
-
-To stop the stack:
-
-```powershell
-docker\stop.bat
-```
-
-If `shared/models/checkpoints` is empty, the backend can automatically download the official IndexTTS2 model bundle on first start.
-
-## Official Model Downloads
-
-If you prefer to download the models yourself instead of using the app's automatic bootstrap, use the official upstream links:
-
-- IndexTTS-2 on Hugging Face: [IndexTeam/IndexTTS-2](https://huggingface.co/IndexTeam/IndexTTS-2)
-- IndexTTS-2 on ModelScope: [IndexTTS-2](https://modelscope.cn/models/IndexTeam/IndexTTS-2)
-
-For this app, place the downloaded files in:
+3. Start Docker Desktop and wait until it is fully running.
+4. Double-click:
 
 ```text
-shared/models/checkpoints
+start.bat
 ```
 
-The app is built around **IndexTTS2**. Older upstream model releases exist, but this repo's current workflow and docs are centered on the v2 model line.
-
-## What You Get Out Of The Box
-
-- Docker-first startup with GPU-first behavior and CPU fallback
-- DeepSpeed-enabled local inference path
-- Speaker prep and diagnostics before cloning
-- Multi-speaker script generation
-- Review, regeneration, and final selection gating
-- Timeline-based arrangement and scene export
-- Project save/load for longer sessions
-- Public demo scenes, screenshots, and short walkthrough videos
-- Optional WebMCP website bridge for AI agents
-
-## Community And Support
-
-- Start with the pinned support issue for common first-run help and runtime fixes
-- Use the built-in GitHub issue templates for bug reports, setup help, and feature requests
-- Read [CONTRIBUTING.md](CONTRIBUTING.md) if you want to send changes back
-- Read [SECURITY.md](SECURITY.md) for responsible vulnerability reporting
-
-## AI / Agent Access
-
-The web UI remains the main interface for human users.
-
-For agent-style use, the frontend now includes an optional WebMCP bridge that can expose studio tools, prompts, and resources from the running website when the WebMCP script is available.
-
-This is intended as a lightweight AI integration layer on top of the existing web app and API, not as a replacement for the normal UI.
-
-## Hardware And Runtime Guidance
-
-Practical guidance for a good local experience:
-
-- NVIDIA GPU is strongly recommended
-- CPU fallback works, but startup and generation are much slower
-- at least `16 GB RAM`, `32 GB` recommended
-- allow `50 GB+` disk space for models, caches, and outputs
-- the first DeepSpeed-enabled startup can take longer while extensions warm up or compile
-
-Today the Docker image is NVIDIA/CUDA-based. AMD and Apple GPU paths are not supported by this Docker image.
-
-More runtime details: [docker/README.md](docker/README.md)
-
-## Bring Your Own Voices
-
-This app is intentionally **BYO voice**.
-
-It does not include celebrity voices, personal voice libraries, or redistributable speaker packs.
-
-Expected folders:
-
-- `shared/audio/speakers/` - live speaker prompt files used by the app
-- `shared/audio/source_clips/` - raw clips for cleanup and preparation
-- `shared/audio/speakers_backups/` - backups of original speaker files before replacement
-
-## Quality Tips
-
-If a voice sounds too fast, robotic, or less faithful than expected:
-
-- use the `Clone Fidelity` preset in the UI
-- keep random sampling off
-- use natural punctuation and sentence casing in the script
-- prefer a clean `8 to 20 second` clip with one speaker and low background noise
-- use `Speaker Prep` before blaming the model
-
-There is also:
-
-- a benchmark helper in [backend/scripts/quality_benchmark.py](backend/scripts/quality_benchmark.py)
-- a listening review format in [docs/research/LISTENING_FEEDBACK_SYNTAX.md](docs/research/LISTENING_FEEDBACK_SYNTAX.md)
-- a scripting guide in [docs/research/INDEXTTS2_SCRIPTING_PLAYBOOK.md](docs/research/INDEXTTS2_SCRIPTING_PLAYBOOK.md)
-
-## User Manual And Walkthrough Videos
-
-If you want a guided tour of the app before using it, start here:
-
-- Full user manual with screenshots: [docs/manual/USER_MANUAL.md](docs/manual/USER_MANUAL.md)
-- Speaker Prep video: [docs/assets/manual/videos/speaker-prep-tab.webm](docs/assets/manual/videos/speaker-prep-tab.webm)
-- Conversation Workflow video: [docs/assets/manual/videos/conversation-workflow-tab.webm](docs/assets/manual/videos/conversation-workflow-tab.webm)
-- Conversation Results video: [docs/assets/manual/videos/conversation-results-tab.webm](docs/assets/manual/videos/conversation-results-tab.webm)
-- Timeline Editor video: [docs/assets/manual/videos/timeline-editor-tab.webm](docs/assets/manual/videos/timeline-editor-tab.webm)
-
-## Example Script
+5. Open the frontend URL shown in the terminal, usually:
 
 ```text
-SpeakerOne: I think we should test three versions before we keep the final line.
-SpeakerTwo: Good. If one sounds rushed, regenerate it and compare again.
-SpeakerThree: After that, move the best takes into the timeline and export the scene.
+http://localhost:3000
 ```
 
-## Important Directories
+First launch can take a while. Docker may pull large images, then the backend and sidecars may download large models. Keep the terminal open so you can see progress and errors.
 
-- `shared/audio/speakers/` - live speaker reference audio used for cloning
-- `shared/audio/source_clips/` - raw clips for preparation or batch processing
-- `shared/audio/speakers_backups/` - backups of original speaker files
-- `shared/models/checkpoints/` - IndexTTS model files
-- `shared/audio/outputs/` - exported outputs
-- `shared/audio/temp_conversation_segments/` - per-line conversation audio
-- `shared/audio/uploads/` - temporary imported files
-- `shared/data/project_saves/` - saved conversation projects
-- `shared/data/timeline_projects/` - saved timeline projects
-- `frontend/` - browser UI
-- `backend/` - FastAPI app plus wrapped IndexTTS runtime
-- `docs/` - manuals, research notes, release docs, and supporting references
-- `tools/` - maintenance helpers, manual capture scripts, and debug utilities
-- `examples/` - reusable sample inputs and saved examples
+## What Start.bat Does
 
-## Container CLI Usage
+The launcher:
 
-If you want a CLI-style run without teaching users a host Python setup, use the backend container:
+- Creates `.env` from `.env.example` if needed.
+- Creates a persistent shared folder under your Windows user profile.
+- Checks whether Docker is running.
+- Checks whether Docker can see your NVIDIA GPU.
+- Pulls the prebuilt beta images.
+- Starts the backend, frontend, Qwen sidecar, and OmniVoice sidecar.
+- Leaves SFX/music disabled unless you opt in.
 
-```powershell
-docker compose -f docker/docker-compose.yml exec backend python backend/indextts/cli.py "Your text here" -v /app/shared/audio/speakers/YourVoice.wav -o output.wav --model_dir /app/shared/models/checkpoints -c /app/shared/models/checkpoints/config.yaml
+If ports `3000` or `8001` are busy, the launcher tries nearby ports and prints the actual URLs.
+
+## Where Your Files Go
+
+Your data is stored outside this release folder:
+
+```text
+%USERPROFILE%\DraftToTake\shared
 ```
 
-## Docs
+That means you can delete and re-download this beta repo without losing downloaded models, voices, projects, or exported audio.
 
-- Docs index: [docs/README.md](docs/README.md)
-- User manual: [docs/manual/USER_MANUAL.md](docs/manual/USER_MANUAL.md)
-- Docker guide: [docker/README.md](docker/README.md)
-- Deployment guide: [docs/deployment/DEPLOYMENT_GUIDE.md](docs/deployment/DEPLOYMENT_GUIDE.md)
-- API summary: [docs/api/API_README.md](docs/api/API_README.md)
-- Known limitations: [docs/project/KNOWN_LIMITATIONS.md](docs/project/KNOWN_LIMITATIONS.md)
-- Release readiness: [docs/project/RELEASE_READINESS_STATUS.md](docs/project/RELEASE_READINESS_STATUS.md)
-- Audio folder guide: [shared/audio/README.md](shared/audio/README.md)
+Important folders:
 
-## Ready To Try It
+- `shared\models` - downloaded model files.
+- `shared\models\checkpoints` - IndexTTS2 checkpoints and Hugging Face cache.
+- `shared\models\llm` - Qwen GGUF files.
+- `shared\audio\speakers` - prepared speaker WAV files.
+- `shared\audio\source_clips` - raw clips you want to prepare.
+- `shared\audio\outputs` - exported mixes.
+- `shared\audio\sfx` - generated or imported SFX assets.
+- `shared\audio\music` - generated or imported music assets.
+- `shared\data` - app/project data.
 
-If you want the shortest path from install to first result:
+## Models Used By This Beta
 
-1. Start the stack with `docker\start.bat`
-2. Open [http://localhost:3000](http://localhost:3000)
-3. Prep or add a voice
-4. Generate a short conversation
-5. Review, regenerate, and export
+This beta does not bundle model weights. The launcher and containers download the configured models into your local shared folder or Hugging Face cache.
 
-## Credit
+| Feature area | Default model/source | Enabled by default | Where it is stored | Notes |
+| --- | --- | --- | --- | --- |
+| Dialogue TTS | `IndexTeam/IndexTTS-2` | Yes | `shared\models\checkpoints` | Main Script Canvas and timeline speech generation. The upstream bundle includes the IndexTTS2 checkpoints, tokenizer/BPE assets, emotion and speaker matrices, and related vocoder/runtime files used by IndexTTS2. |
+| Script assistant and emotion detection | `ufoym/Qwen3-8B-Q4_K_M-GGUF` / `qwen3-8b-q4_k_m.gguf` | Yes | `shared\models\llm` | Managed llama.cpp sidecar used by the optional AI Thread and by Qwen emotion-vector detection. |
+| Reusable voice design | `k2-fsa/OmniVoice` | Yes | Hugging Face cache under `shared\models\checkpoints\hf_cache` | Creates prepared voice WAVs for the Voice Studio. Final dialogue rendering still uses IndexTTS2. |
+| SFX and ambience | `AEmotionStudio/woosh-models`, default model `Woosh-DFlow` | No | `shared\models\woosh` | Optional SFX/music sidecar. `Woosh-Flow` can be selected as a slower quality option. |
+| Music beds | `facebook/musicgen-small` | No | Hugging Face cache under `shared\models\checkpoints\hf_cache` | Optional music generation through the SFX/music sidecar. |
+| Sound-cue alignment | `openai/whisper-tiny.en` | Lazy/optional | Hugging Face cache under `shared\models\checkpoints\hf_cache` | Used only when Whisper alignment is available and sound cue markers need word-timestamp alignment. |
+| Speaker similarity checks | `speechbrain/spkrec-ecapa-voxceleb` and `funasr/campplus` / `campplus_cn_common.bin` | Lazy/optional | `shared\models\pretrained` and Hugging Face cache | Used for optional speaker similarity scoring and reranking during voice prep/quality checks. |
+| Neural cleanup | DeepFilterNet via the `df` package | Lazy/optional | Docker cache volume / package cache | Used only when DeepFilterNet cleanup is selected or available through `auto` cleanup mode. Classic noise reduction can be used when it is unavailable. |
 
-The underlying model technology, papers, and official pretrained checkpoints belong to the IndexTTS team. This repository packages those models into a more workflow-focused local application.
+Most defaults can be changed in `.env`. The most useful model overrides are `INDTEXTS_MODEL_REPO`, `SCRIPT_LLM_MODEL_REPO_ID`, `SCRIPT_LLM_MODEL_FILENAME`, `OMNIVOICE_MODEL_ID`, `SFX_WOOSH_WEIGHTS_REPO`, `SFX_WOOSH_MODEL_NAME`, `MUSIC_MODEL_ID`, and `DRAFT_TO_TAKE_WHISPER_MODEL`.
 
-## Acknowledgements
+## Enabled By Default
 
-- [index-tts/index-tts](https://github.com/index-tts/index-tts)
-- [tortoise-tts](https://github.com/neonbjb/tortoise-tts)
-- [XTTSv2](https://github.com/coqui-ai/TTS)
-- [BigVGAN](https://github.com/NVIDIA/BigVGAN)
-- [maskgct](https://github.com/open-mmlab/Amphion/tree/main/models/tts/maskgct)
+The beta starts these services by default:
+
+- Main Draft to Take backend.
+- Frontend UI.
+- Managed Qwen sidecar, used for emotion detection and the optional AI Thread.
+- OmniVoice sidecar, used for beta testing reusable voice design.
+
+Qwen is enabled by default because emotion detection depends on it. You can turn off the AI Thread in the app settings if you do not want to use the experimental assistant workflow.
+
+## Optional SFX And Music
+
+SFX/music generation is disabled by default because the current model-backed generators are experimental, heavier, and license-dependent.
+
+To test it, edit `.env` and set:
+
+```text
+INDTEXTS_SFX_ENABLED=true
+```
+
+Then run `start.bat` again.
+
+Only enable SFX/music if your machine has enough VRAM and you understand that generated asset rights depend on the upstream model licenses and your use case.
+
+## Updating The Beta
+
+To update to a newer beta:
+
+1. Run:
+
+```text
+stop.bat
+```
+
+2. Download the new beta repo ZIP or pull the latest repo.
+3. Run:
+
+```text
+start.bat
+```
+
+Your shared folder under `%USERPROFILE%\DraftToTake\shared` is not deleted.
+
+If a new release uses a new Docker image tag, check `.env` and update:
+
+```text
+DRAFT_TO_TAKE_IMAGE_TAG=v3.0.0-beta.4
+```
+
+## Stopping
+
+Run:
+
+```text
+stop.bat
+```
+
+This stops containers but does not delete shared models, voices, projects, or outputs.
+
+## Diagnostics
+
+If something breaks, run:
+
+```text
+collect-diagnostics.bat
+```
+
+It writes a diagnostics text file under:
+
+```text
+%USERPROFILE%\DraftToTake\diagnostics
+```
+
+Review the file before posting it publicly. Do not share private scripts, voices, tokens, speaker samples, generated audio, or personal data unless you are comfortable doing so.
+
+## Common Problems
+
+### Docker Image Pull Failed
+
+Make sure Docker Desktop is running and your network can reach GitHub Container Registry.
+
+The images are public, so `docker login ghcr.io` should not be required for this beta.
+
+### GPU Not Detected
+
+The launcher will warn if Docker cannot see your NVIDIA GPU. Check Docker Desktop WSL2 integration and NVIDIA Container Toolkit support.
+
+The app may continue in CPU mode, but generation will be much slower.
+
+### First Start Looks Slow
+
+This is expected on a fresh install. Docker images and model files are large. Keep the terminal open and watch the logs before assuming it has crashed.
+
+### Frontend URL Does Not Open
+
+Check the terminal output. If port `3000` was busy, the launcher may choose another port such as:
+
+```text
+http://localhost:3001
+```
+
+### Model Download Needs Authentication
+
+Some upstream model downloads may require Hugging Face authentication depending on the model and account state.
+
+If needed, edit `.env` and set:
+
+```text
+HF_TOKEN=your_token_here
+```
+
+Do not post your token in public issues or screenshots.
+
+## Reporting Bugs
+
+Use this repo's Issues tab.
+
+Good bug reports include:
+
+- Windows version.
+- GPU model and VRAM.
+- System RAM.
+- Docker Desktop version.
+- Whether Docker GPU support works.
+- What you clicked.
+- What you expected.
+- What happened.
+- A safe excerpt from the diagnostics file, if relevant.
+
+Please do not upload private scripts, paid voices, private speaker samples, tokens, or sensitive generated audio to public issues.
+
+## What To Test
+
+Useful beta feedback includes:
+
+- First-run setup problems.
+- Model download problems.
+- Voice preparation and speaker library issues.
+- Single-line generation quality.
+- Script Canvas workflow confusion.
+- Timeline/export bugs.
+- VRAM pressure or sidecar crashes.
+- Places where the app looks frozen but is actually working.
+
+## Model And License Notes
+
+This beta does not sell, bundle, or grant rights to third-party model weights. The app may download models from official upstream sources into your local machine.
+
+Read:
+
+- [BETA_TERMS.md](BETA_TERMS.md)
+- [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)
+
+SFX/music model-backed generation is optional, experimental, and license-dependent.
+
+## Privacy Note
+
+Draft to Take is designed around a local-first workflow. Your scripts, speaker samples, generated audio, and projects stay in your local shared folder unless you choose to share them.
+
+For beta support, only share the minimum logs and examples needed to reproduce a problem.

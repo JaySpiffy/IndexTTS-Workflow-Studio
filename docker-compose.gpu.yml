@@ -1,0 +1,9 @@
+services:
+  backend:
+    gpus: all
+  script-llm:
+    gpus: all
+  omnivoice:
+    gpus: all
+  sfx:
+    gpus: all

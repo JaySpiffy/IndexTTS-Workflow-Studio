@@ -1,0 +1,197 @@
+name: draft-to-take-beta
+
+services:
+  backend:
+    image: "${DRAFT_TO_TAKE_IMAGE_PREFIX:-ghcr.io/jayspiffy}/draft-to-take-backend:${DRAFT_TO_TAKE_IMAGE_TAG:-v3.0.0-beta.4}"
+    container_name: draft-to-take-beta-backend
+    restart: unless-stopped
+    ports:
+      - "${INDTEXTS_BACKEND_HOST_PORT:-8001}:8000"
+    volumes:
+      - "${DRAFT_TO_TAKE_SHARED_DIR}/models:/app/shared/models"
+      - "${DRAFT_TO_TAKE_SHARED_DIR}/audio:/app/shared/audio"
+      - "${DRAFT_TO_TAKE_SHARED_DIR}/data:/app/shared/data"
+      - draft-to-take-beta-torch-extensions:/root/.cache/torch_extensions
+      - draft-to-take-beta-deepfilter-cache:/root/.cache/DeepFilterNet
+      - draft-to-take-beta-triton-cache:/root/.triton
+    environment:
+      INDTEXTS_HOST: 0.0.0.0
+      INDTEXTS_PORT: 8000
+      INDTEXTS_USE_GPU: ${INDTEXTS_USE_GPU:-true}
+      INDTEXTS_DEVICE: ${INDTEXTS_DEVICE:-auto}
+      INDTEXTS_USE_FP16: ${INDTEXTS_USE_FP16:-auto}
+      INDTEXTS_USE_DEEPSPEED: ${INDTEXTS_USE_DEEPSPEED:-true}
+      INDTEXTS_SPEAKER_ANALYSIS_DEVICE: ${INDTEXTS_SPEAKER_ANALYSIS_DEVICE:-cpu}
+      INDTEXTS_AUTO_DOWNLOAD_MODELS: ${INDTEXTS_AUTO_DOWNLOAD_MODELS:-true}
+      INDTEXTS_MODEL_REPO: ${INDTEXTS_MODEL_REPO:-IndexTeam/IndexTTS-2}
+      INDTEXTS_DEBUG: ${INDTEXTS_DEBUG:-false}
+      INDTEXTS_OMNIVOICE_SERVICE_URL: ${INDTEXTS_OMNIVOICE_SERVICE_URL:-http://omnivoice:8010}
+      INDTEXTS_OMNIVOICE_SERVICE_TIMEOUT: ${INDTEXTS_OMNIVOICE_SERVICE_TIMEOUT:-10}
+      INDTEXTS_SCRIPT_LLM_SERVICE_URL: ${INDTEXTS_SCRIPT_LLM_SERVICE_URL:-http://script-llm:8030}
+      INDTEXTS_SCRIPT_LLM_SERVICE_TIMEOUT: ${INDTEXTS_SCRIPT_LLM_SERVICE_TIMEOUT:-180}
+      INDTEXTS_SCRIPT_LLM_LOAD_TIMEOUT_SECONDS: ${INDTEXTS_SCRIPT_LLM_LOAD_TIMEOUT_SECONDS:-330}
+      INDTEXTS_SFX_SERVICE_URL: ${INDTEXTS_SFX_SERVICE_URL:-http://sfx:8020}
+      INDTEXTS_SFX_SERVICE_TIMEOUT: ${INDTEXTS_SFX_SERVICE_TIMEOUT:-180}
+      INDTEXTS_SFX_AUTO_UNLOAD_AFTER_GENERATION: ${INDTEXTS_SFX_AUTO_UNLOAD_AFTER_GENERATION:-true}
+      INDTEXTS_VRAM_GUARD_ENABLED: ${INDTEXTS_VRAM_GUARD_ENABLED:-true}
+      INDTEXTS_VRAM_GUARD_TTS_MIN_FREE_MB: ${INDTEXTS_VRAM_GUARD_TTS_MIN_FREE_MB:-4096}
+      INDTEXTS_VRAM_GUARD_LLM_MIN_FREE_MB: ${INDTEXTS_VRAM_GUARD_LLM_MIN_FREE_MB:-2048}
+      INDTEXTS_VRAM_GUARD_SFX_MIN_FREE_MB: ${INDTEXTS_VRAM_GUARD_SFX_MIN_FREE_MB:-4096}
+      INDTEXTS_VRAM_GUARD_MUSIC_MIN_FREE_MB: ${INDTEXTS_VRAM_GUARD_MUSIC_MIN_FREE_MB:-4096}
+      INDTEXTS_VRAM_GUARD_WAIT_TIMEOUT_SECONDS: ${INDTEXTS_VRAM_GUARD_WAIT_TIMEOUT_SECONDS:-120}
+      INDTEXTS_VRAM_GUARD_POLL_SECONDS: ${INDTEXTS_VRAM_GUARD_POLL_SECONDS:-2}
+      INDTEXTS_VRAM_GUARD_UNLOAD_IDLE_LM_STUDIO: ${INDTEXTS_VRAM_GUARD_UNLOAD_IDLE_LM_STUDIO:-true}
+      INDTEXTS_VRAM_GUARD_UNLOAD_MANUAL_LM_STUDIO: ${INDTEXTS_VRAM_GUARD_UNLOAD_MANUAL_LM_STUDIO:-false}
+      HF_TOKEN: ${HF_TOKEN:-}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8000/health | grep -q '\"status\":\"healthy\"'"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+      start_period: 900s
+    networks:
+      - draft-to-take-beta-network
+
+  script-llm:
+    profiles: ["llm"]
+    image: "${DRAFT_TO_TAKE_IMAGE_PREFIX:-ghcr.io/jayspiffy}/draft-to-take-script-llm:${DRAFT_TO_TAKE_IMAGE_TAG:-v3.0.0-beta.4}"
+    container_name: draft-to-take-beta-script-llm
+    restart: unless-stopped
+    ports:
+      - "${INDTEXTS_SCRIPT_LLM_HOST_PORT:-8030}:8030"
+    volumes:
+      - "${DRAFT_TO_TAKE_SHARED_DIR}/models:/app/shared/models"
+      - draft-to-take-beta-script-llm-cache:/root/.cache
+    environment:
+      SCRIPT_LLM_HOST: 0.0.0.0
+      SCRIPT_LLM_PORT: 8030
+      SCRIPT_LLM_INNER_PORT: 8031
+      SCRIPT_LLM_MODEL_ROOT: ${SCRIPT_LLM_MODEL_ROOT:-/app/shared/models/llm}
+      SCRIPT_LLM_DEFAULT_MODEL: ${SCRIPT_LLM_DEFAULT_MODEL:-}
+      SCRIPT_LLM_AUTO_LOAD: ${SCRIPT_LLM_AUTO_LOAD:-true}
+      SCRIPT_LLM_AUTO_DOWNLOAD: ${SCRIPT_LLM_AUTO_DOWNLOAD:-true}
+      SCRIPT_LLM_MODEL_REPO_ID: ${SCRIPT_LLM_MODEL_REPO_ID:-ufoym/Qwen3-8B-Q4_K_M-GGUF}
+      SCRIPT_LLM_MODEL_FILENAME: ${SCRIPT_LLM_MODEL_FILENAME:-qwen3-8b-q4_k_m.gguf}
+      SCRIPT_LLM_CTX_SIZE: ${SCRIPT_LLM_CTX_SIZE:-10000}
+      SCRIPT_LLM_GPU_LAYERS: ${SCRIPT_LLM_GPU_LAYERS:--1}
+      SCRIPT_LLM_PARALLEL: ${SCRIPT_LLM_PARALLEL:-1}
+      SCRIPT_LLM_LOAD_TIMEOUT_SECONDS: ${SCRIPT_LLM_LOAD_TIMEOUT_SECONDS:-300}
+      SCRIPT_LLM_REQUEST_TIMEOUT_SECONDS: ${SCRIPT_LLM_REQUEST_TIMEOUT_SECONDS:-180}
+      SCRIPT_LLM_DISABLE_THINKING: ${SCRIPT_LLM_DISABLE_THINKING:-true}
+      SCRIPT_LLM_EXTRA_ARGS: ${SCRIPT_LLM_EXTRA_ARGS:-}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8030/health | grep -q '\"status\":\"ok\"'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - draft-to-take-beta-network
+
+  sfx:
+    profiles: ["sfx"]
+    image: "${DRAFT_TO_TAKE_IMAGE_PREFIX:-ghcr.io/jayspiffy}/draft-to-take-sfx:${DRAFT_TO_TAKE_IMAGE_TAG:-v3.0.0-beta.4}"
+    container_name: draft-to-take-beta-sfx
+    restart: unless-stopped
+    ports:
+      - "${INDTEXTS_SFX_HOST_PORT:-8020}:8020"
+    volumes:
+      - "${DRAFT_TO_TAKE_SHARED_DIR}/audio:/app/shared/audio"
+      - "${DRAFT_TO_TAKE_SHARED_DIR}/models:/app/shared/models"
+      - draft-to-take-beta-sfx-cache:/root/.cache
+    environment:
+      SFX_HOST: 0.0.0.0
+      SFX_PORT: 8020
+      SFX_DEVICE: ${SFX_DEVICE:-cuda}
+      SFX_ALLOW_CPU_FALLBACK: ${SFX_ALLOW_CPU_FALLBACK:-false}
+      SFX_ENGINE: ${SFX_ENGINE:-woosh+musicgen}
+      SFX_WOOSH_MODEL_NAME: ${SFX_WOOSH_MODEL_NAME:-Woosh-DFlow}
+      SFX_WOOSH_WEIGHTS_REPO: ${SFX_WOOSH_WEIGHTS_REPO:-AEmotionStudio/woosh-models}
+      SFX_WOOSH_MODEL_ROOT: ${SFX_WOOSH_MODEL_ROOT:-/app/shared/models/woosh}
+      SFX_WOOSH_AUTO_DOWNLOAD: ${SFX_WOOSH_AUTO_DOWNLOAD:-true}
+      SFX_WOOSH_DFLOW_STEPS: ${SFX_WOOSH_DFLOW_STEPS:-4}
+      SFX_WOOSH_DFLOW_CFG: ${SFX_WOOSH_DFLOW_CFG:-1.0}
+      SFX_WOOSH_DFLOW_RENOISE: ${SFX_WOOSH_DFLOW_RENOISE:-0,0.5,0.5,0.3}
+      SFX_WOOSH_FLOW_CFG: ${SFX_WOOSH_FLOW_CFG:-4.5}
+      MUSIC_MODEL_ID: ${MUSIC_MODEL_ID:-facebook/musicgen-small}
+      SFX_SELECTION_HOP_SECONDS: ${SFX_SELECTION_HOP_SECONDS:-0.05}
+      SFX_OUTPUT_FADE_MS: ${SFX_OUTPUT_FADE_MS:-25}
+      SFX_PEAK_NORMALIZE_DBFS: ${SFX_PEAK_NORMALIZE_DBFS:--6.0}
+      SFX_PEAK_NORMALIZE_MAX_GAIN: ${SFX_PEAK_NORMALIZE_MAX_GAIN:-8.0}
+      SFX_PEAK_NORMALIZE_MIN_PEAK: ${SFX_PEAK_NORMALIZE_MIN_PEAK:-0.01}
+      SFX_WARN_MIN_QUALITY_SCORE: ${SFX_WARN_MIN_QUALITY_SCORE:-0.03}
+      SFX_WARN_MAX_ZERO_CROSSING: ${SFX_WARN_MAX_ZERO_CROSSING:-0.42}
+      SFX_WARN_MIN_RMS: ${SFX_WARN_MIN_RMS:-0.004}
+      SFX_FAIL_ON_LOW_QUALITY: ${SFX_FAIL_ON_LOW_QUALITY:-false}
+      SFX_MUSICGEN_GUIDANCE: ${SFX_MUSICGEN_GUIDANCE:-3.0}
+      SFX_AUTO_UNLOAD_AFTER_GENERATION: ${SFX_AUTO_UNLOAD_AFTER_GENERATION:-true}
+      SFX_VRAM_MIN_FREE_MB: ${SFX_VRAM_MIN_FREE_MB:-4096}
+      MUSIC_VRAM_MIN_FREE_MB: ${MUSIC_VRAM_MIN_FREE_MB:-4096}
+      SFX_VRAM_WAIT_TIMEOUT_SECONDS: ${SFX_VRAM_WAIT_TIMEOUT_SECONDS:-120}
+      SFX_VRAM_POLL_SECONDS: ${SFX_VRAM_POLL_SECONDS:-2}
+      SFX_ASSET_ROOT: /app/shared/audio
+      HF_HOME: /app/shared/models/checkpoints/hf_cache
+      HF_HUB_CACHE: /app/shared/models/checkpoints/hf_cache
+      HF_TOKEN: ${HF_TOKEN:-}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8020/health | grep -q '\"status\":\"ok\"'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - draft-to-take-beta-network
+
+  omnivoice:
+    profiles: ["omnivoice"]
+    image: "${DRAFT_TO_TAKE_IMAGE_PREFIX:-ghcr.io/jayspiffy}/draft-to-take-omnivoice:${DRAFT_TO_TAKE_IMAGE_TAG:-v3.0.0-beta.4}"
+    container_name: draft-to-take-beta-omnivoice
+    restart: unless-stopped
+    ports:
+      - "${INDTEXTS_OMNIVOICE_HOST_PORT:-8010}:8010"
+    volumes:
+      - "${DRAFT_TO_TAKE_SHARED_DIR}/audio:/app/shared/audio"
+      - "${DRAFT_TO_TAKE_SHARED_DIR}/models:/app/shared/models"
+      - draft-to-take-beta-omnivoice-cache:/root/.cache
+    environment:
+      OMNIVOICE_HOST: 0.0.0.0
+      OMNIVOICE_PORT: 8010
+      OMNIVOICE_DEVICE: ${OMNIVOICE_DEVICE:-auto}
+      OMNIVOICE_MODEL_ID: ${OMNIVOICE_MODEL_ID:-k2-fsa/OmniVoice}
+      OMNIVOICE_AUTO_DOWNLOAD: ${OMNIVOICE_AUTO_DOWNLOAD:-true}
+      OMNIVOICE_DOWNLOAD_ON_START: ${OMNIVOICE_DOWNLOAD_ON_START:-true}
+      HF_HOME: /app/shared/models/checkpoints/hf_cache
+      HF_HUB_CACHE: /app/shared/models/checkpoints/hf_cache
+      HF_TOKEN: ${HF_TOKEN:-}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8010/health | grep -q '\"status\":\"ok\"'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+    networks:
+      - draft-to-take-beta-network
+
+  frontend:
+    image: "${DRAFT_TO_TAKE_IMAGE_PREFIX:-ghcr.io/jayspiffy}/draft-to-take-frontend:${DRAFT_TO_TAKE_IMAGE_TAG:-v3.0.0-beta.4}"
+    container_name: draft-to-take-beta-frontend
+    restart: unless-stopped
+    ports:
+      - "${INDTEXTS_FRONTEND_HOST_PORT:-3000}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - draft-to-take-beta-network
+
+networks:
+  draft-to-take-beta-network:
+    driver: bridge
+
+volumes:
+  draft-to-take-beta-deepfilter-cache:
+  draft-to-take-beta-omnivoice-cache:
+  draft-to-take-beta-script-llm-cache:
+  draft-to-take-beta-sfx-cache:
+  draft-to-take-beta-torch-extensions:
+  draft-to-take-beta-triton-cache:

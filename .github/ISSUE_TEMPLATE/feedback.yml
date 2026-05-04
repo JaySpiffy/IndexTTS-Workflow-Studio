@@ -1,0 +1,29 @@
+name: Workflow feedback
+description: Share beta feedback about the Draft to Take workflow.
+title: "[Feedback]: "
+labels: ["feedback", "beta"]
+body:
+  - type: textarea
+    id: workflow
+    attributes:
+      label: What were you trying to make?
+      placeholder: Audio drama scene, audiobook chapter, game dialogue, speech, etc.
+    validations:
+      required: true
+  - type: textarea
+    id: worked
+    attributes:
+      label: What worked well?
+  - type: textarea
+    id: confusing
+    attributes:
+      label: What was confusing or slow?
+  - type: textarea
+    id: missing
+    attributes:
+      label: What would make this useful for your real workflow?
+  - type: input
+    id: hardware
+    attributes:
+      label: Hardware summary
+      placeholder: CPU, GPU/VRAM, RAM
