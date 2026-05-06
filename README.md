@@ -10,6 +10,12 @@ This beta repo contains the Docker launcher, configuration, diagnostics scripts,
 
 Looking for the old prototype? The previous IndexTTS Workflow Studio code is preserved on the [`legacy-v2`](https://github.com/JaySpiffy/IndexTTS-Workflow-Studio/tree/legacy-v2) branch and the [`v2-legacy-final`](https://github.com/JaySpiffy/IndexTTS-Workflow-Studio/tree/v2-legacy-final) tag.
 
+## App Preview
+
+![Draft to Take app preview](media/draft-to-take-20s-app-clip.gif)
+
+Prefer video playback? Open the [MP4 app preview](media/draft-to-take-20s-app-clip.mp4).
+
 ## Quick Run
 
 Already have Docker Desktop running?
