@@ -16,6 +16,16 @@ Looking for the old prototype? The previous IndexTTS Workflow Studio code is pre
 
 Prefer video playback? Open the [MP4 app preview](media/draft-to-take-20s-app-clip.mp4).
 
+## Manuals
+
+If you are testing the beta for the first time, start with the manuals:
+
+- [Docs index](docs/README.md)
+- [User Manual](docs/USER_MANUAL.md)
+- [Script Canvas Authoring Guide](docs/SCRIPT_CANVAS_AUTHORING_GUIDE.md)
+- [IndexTTS2 Prompting Guide](docs/INDEXTTS2_PROMPTING_GUIDE.md)
+- [SFX, Ambience, And Music Smoke Test](docs/SFX_AMBIENCE_MUSIC_SMOKE_TEST.md)
+
 ## Quick Run
 
 Already have Docker Desktop running?
