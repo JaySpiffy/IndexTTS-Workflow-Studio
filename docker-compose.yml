@@ -2,7 +2,7 @@ name: draft-to-take-beta
 
 services:
   backend:
-    image: "${DRAFT_TO_TAKE_IMAGE_PREFIX:-ghcr.io/jayspiffy}/draft-to-take-backend:${DRAFT_TO_TAKE_IMAGE_TAG:-v3.0.0-beta.6}"
+    image: "${DRAFT_TO_TAKE_IMAGE_PREFIX:-ghcr.io/jayspiffy}/draft-to-take-backend:${DRAFT_TO_TAKE_IMAGE_TAG:-v3.0.0-beta.7}"
     container_name: draft-to-take-beta-backend
     restart: unless-stopped
     ports:
@@ -54,7 +54,7 @@ services:
 
   script-llm:
     profiles: ["llm"]
-    image: "${DRAFT_TO_TAKE_IMAGE_PREFIX:-ghcr.io/jayspiffy}/draft-to-take-script-llm:${DRAFT_TO_TAKE_IMAGE_TAG:-v3.0.0-beta.6}"
+    image: "${DRAFT_TO_TAKE_IMAGE_PREFIX:-ghcr.io/jayspiffy}/draft-to-take-script-llm:${DRAFT_TO_TAKE_IMAGE_TAG:-v3.0.0-beta.7}"
     container_name: draft-to-take-beta-script-llm
     restart: unless-stopped
     ports:
@@ -90,7 +90,7 @@ services:
 
   sfx:
     profiles: ["sfx"]
-    image: "${DRAFT_TO_TAKE_IMAGE_PREFIX:-ghcr.io/jayspiffy}/draft-to-take-sfx:${DRAFT_TO_TAKE_IMAGE_TAG:-v3.0.0-beta.6}"
+    image: "${DRAFT_TO_TAKE_IMAGE_PREFIX:-ghcr.io/jayspiffy}/draft-to-take-sfx:${DRAFT_TO_TAKE_IMAGE_TAG:-v3.0.0-beta.7}"
     container_name: draft-to-take-beta-sfx
     restart: unless-stopped
     ports:
@@ -144,7 +144,7 @@ services:
 
   omnivoice:
     profiles: ["omnivoice"]
-    image: "${DRAFT_TO_TAKE_IMAGE_PREFIX:-ghcr.io/jayspiffy}/draft-to-take-omnivoice:${DRAFT_TO_TAKE_IMAGE_TAG:-v3.0.0-beta.6}"
+    image: "${DRAFT_TO_TAKE_IMAGE_PREFIX:-ghcr.io/jayspiffy}/draft-to-take-omnivoice:${DRAFT_TO_TAKE_IMAGE_TAG:-v3.0.0-beta.7}"
     container_name: draft-to-take-beta-omnivoice
     restart: unless-stopped
     ports:
@@ -173,7 +173,7 @@ services:
       - draft-to-take-beta-network
 
   frontend:
-    image: "${DRAFT_TO_TAKE_IMAGE_PREFIX:-ghcr.io/jayspiffy}/draft-to-take-frontend:${DRAFT_TO_TAKE_IMAGE_TAG:-v3.0.0-beta.6}"
+    image: "${DRAFT_TO_TAKE_IMAGE_PREFIX:-ghcr.io/jayspiffy}/draft-to-take-frontend:${DRAFT_TO_TAKE_IMAGE_TAG:-v3.0.0-beta.7}"
     container_name: draft-to-take-beta-frontend
     restart: unless-stopped
     ports:
