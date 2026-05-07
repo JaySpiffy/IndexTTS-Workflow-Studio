@@ -5,7 +5,7 @@
 [![Sponsor JaySpiffy](https://img.shields.io/badge/Sponsor-JaySpiffy-ea4aaa?style=for-the-badge&logo=githubsponsors&logoColor=white)](https://github.com/sponsors/JaySpiffy)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
 
-Turn scripts into multi-speaker dialogue, emotion-guided takes, sound design, and finished timeline mixes, all running locally on your machine.
+Turn your scripts into finished multi-speaker audio, complete with emotion, sound design, and timeline mixing, all running locally on your machine.
 
 **Think ElevenLabs-style script production, but Docker-local, IndexTTS2-powered, and built for creators who want control over voices, takes, emotion, SFX, ambience, music, and export.**
 
