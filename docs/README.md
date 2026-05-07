@@ -11,6 +11,11 @@ This repo does not contain the private Draft to Take source code or model weight
 - [IndexTTS2 Prompting Guide](INDEXTTS2_PROMPTING_GUIDE.md) - how to write clean lines for better TTS output.
 - [SFX, Ambience, And Music Smoke Test](SFX_AMBIENCE_MUSIC_SMOKE_TEST.md) - a tester checklist for optional sound-design generation.
 
+## Try It Quickly
+
+- [Blackmere Road sample scene](../samples/try-this-first/blackmere-road-45s.md) - import this Markdown file into Script Canvas to test dialogue, emotion comments, ambience, music, and SFX markers.
+- [Audio examples](../media/audio-examples/README.md) - short generated MP3 examples visitors can hear before running the app.
+
 ## Useful Repo Files
 
 - [README](../README.md) - install, start, beta status, model list, and troubleshooting.

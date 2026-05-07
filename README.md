@@ -1,21 +1,70 @@
 # Draft to Take Beta
 
-Formerly **IndexTTS Workflow Studio**. This repository now hosts the Docker beta launcher for Draft to Take, the next-generation version of the original prototype.
+**Local-first ElevenLabs-style script-to-audio production.**
 
 [![Sponsor JaySpiffy](https://img.shields.io/badge/Sponsor-JaySpiffy-ea4aaa?style=for-the-badge&logo=githubsponsors&logoColor=white)](https://github.com/sponsors/JaySpiffy)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
 
-Draft to Take is a local-first AI audio production studio for turning scripts into generated dialogue, reviewed takes, timeline clips, and exported mixes.
-
-This beta repo contains the Docker launcher, configuration, diagnostics scripts, and tester docs. It does not contain the private source code or model weights. Docker pulls prebuilt beta images from GitHub Container Registry, then the app downloads supported model files into your own local machine.
-
-Looking for the old prototype? The previous IndexTTS Workflow Studio code is preserved on the [`legacy-v2`](https://github.com/JaySpiffy/IndexTTS-Workflow-Studio/tree/legacy-v2) branch and the [`v2-legacy-final`](https://github.com/JaySpiffy/IndexTTS-Workflow-Studio/tree/v2-legacy-final) tag.
-
-## App Preview
+Draft to Take turns scripts into multi-speaker dialogue, emotion-guided takes, SFX, ambience, music cues, timeline clips, and downloadable mixes while keeping your projects and generated audio on your machine.
 
 ![Draft to Take app preview](media/draft-to-take-20s-app-clip.gif)
 
 Prefer video playback? Open the [MP4 app preview](media/draft-to-take-20s-app-clip.mp4).
+
+## Why This Exists
+
+Most TTS tools are great for one line at a time. Draft to Take is built for creators who need the whole production loop:
+
+```text
+Write or import a script -> cast voices -> detect emotion -> generate takes -> lock the good ones -> add sound cues -> export the mix
+```
+
+Use it for audio drama, game dialogue, audiobook tests, YouTube narration, podcast sketches, horror scenes, or any project where you want a local script-to-audio workflow instead of a cloud text box.
+
+This beta repo contains the Docker launcher, configuration, diagnostics scripts, and tester docs. It does not contain the private source code or model weights. Docker pulls prebuilt beta images from GitHub Container Registry, then the app downloads supported model files into your own local machine.
+
+Formerly **IndexTTS Workflow Studio**, this repo now hosts the Docker beta launcher for Draft to Take, the next-generation version of the original prototype.
+
+Looking for the old prototype? The previous IndexTTS Workflow Studio code is preserved on the [`legacy-v2`](https://github.com/JaySpiffy/IndexTTS-Workflow-Studio/tree/legacy-v2) branch and the [`v2-legacy-final`](https://github.com/JaySpiffy/IndexTTS-Workflow-Studio/tree/v2-legacy-final) tag.
+
+## Listen First
+
+Short generated examples:
+
+- [Script Canvas mini mix](media/audio-examples/script-canvas-mini-mix.mp3)
+- [Emotion example: fear](media/audio-examples/emotion-fear.mp3)
+- [Emotion example: anger + disgust](media/audio-examples/emotion-anger-disgust.mp3)
+
+What you are hearing: audio generated through the Draft to Take workflow using local model-backed dialogue/emotion tooling. Output quality depends on your source voices, settings, model downloads, and hardware.
+
+## Try This First
+
+After starting the app, import the sample scene:
+
+[samples/try-this-first/blackmere-road-45s.md](samples/try-this-first/blackmere-road-45s.md)
+
+Suggested first run:
+
+1. Double-click `start.bat`.
+2. Open `http://localhost:3000`.
+3. Go to `Studio`.
+4. Start a new blank Script Canvas project.
+5. Click `Import MD` and select the sample file.
+6. Click `Full Episode Timeline`.
+7. Click `Detect Active Scene Emotions`.
+8. Click `Generate Audio`.
+9. Preview and download the mix.
+
+The sample includes dialogue, IndexTTS2 emotion comments, ambience, music, and SFX markers so you can test the full canvas without inventing a script first.
+
+## What Makes It Different
+
+- **Script-first workflow** - write scenes, chapters, pages, or speeches instead of isolated text snippets.
+- **Local-first production** - scripts, voices, projects, and exports stay in your local shared folder unless you choose to share them.
+- **Take review** - listen, lock strong takes, and regenerate only weak unlocked lines.
+- **Emotion-aware delivery** - Qwen can suggest IndexTTS2 emotion vectors, and you can adjust them manually.
+- **Timeline export** - dialogue, SFX, ambience, and music live in one embedded Script Canvas timeline.
+- **Reusable libraries** - keep voices, characters, SFX, ambience, and music assets organized for future projects.
 
 ## Manuals
 
