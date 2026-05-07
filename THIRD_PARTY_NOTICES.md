@@ -2,6 +2,8 @@
 
 Draft to Take beta is an application layer around third-party local AI models and runtime dependencies. This file is not legal advice. Re-check official upstream sources before relying on model outputs for public or commercial use.
 
+The launcher, docs, and helper scripts in this public beta repository are MIT licensed. That MIT license does not relicense Draft to Take container images, private source code, third-party model weights, third-party runtimes, or generated model outputs.
+
 ## IndexTTS2
 
 Draft to Take uses the official IndexTTS2 model/runtime family for dialogue generation.

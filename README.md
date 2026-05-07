@@ -3,6 +3,7 @@
 Formerly **IndexTTS Workflow Studio**. This repository now hosts the Docker beta launcher for Draft to Take, the next-generation version of the original prototype.
 
 [![Sponsor JaySpiffy](https://img.shields.io/badge/Sponsor-JaySpiffy-ea4aaa?style=for-the-badge&logo=githubsponsors&logoColor=white)](https://github.com/sponsors/JaySpiffy)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
 
 Draft to Take is a local-first AI audio production studio for turning scripts into generated dialogue, reviewed takes, timeline clips, and exported mixes.
 
@@ -320,7 +321,11 @@ Useful beta feedback includes:
 
 ## Model And License Notes
 
+The launcher, docs, and helper scripts in this repository are released under the [MIT License](LICENSE).
+
 This beta does not sell, bundle, or grant rights to third-party model weights. The app may download models from official upstream sources into your local machine.
+
+Draft to Take container images, private source code, third-party model weights, and generated model outputs are governed separately by their own terms.
 
 Read:
 
