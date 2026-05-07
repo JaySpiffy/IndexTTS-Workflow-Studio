@@ -1,19 +1,23 @@
 # Draft to Take Beta
 
-**Local-first ElevenLabs-style script-to-audio production.**
+**Local-first script-to-audio production studio.**
 
 [![Sponsor JaySpiffy](https://img.shields.io/badge/Sponsor-JaySpiffy-ea4aaa?style=for-the-badge&logo=githubsponsors&logoColor=white)](https://github.com/sponsors/JaySpiffy)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
 
-Draft to Take turns scripts into multi-speaker dialogue, emotion-guided takes, SFX, ambience, music cues, timeline clips, and downloadable mixes while keeping your projects and generated audio on your machine.
+Turn scripts into multi-speaker dialogue, emotion-guided takes, sound design, and finished timeline mixes, all running locally on your machine.
+
+**Think ElevenLabs-style script production, but Docker-local, IndexTTS2-powered, and built for creators who want control over voices, takes, emotion, SFX, ambience, music, and export.**
+
+[Watch the 23-second app preview](media/draft-to-take-20s-app-clip.mp4)
 
 ![Draft to Take app preview](media/draft-to-take-20s-app-clip.gif)
 
-Prefer video playback? Open the [MP4 app preview](media/draft-to-take-20s-app-clip.mp4).
+Formerly **IndexTTS Workflow Studio**. This repository now hosts the Docker beta launcher for Draft to Take, the next-generation version of the original prototype.
 
-## Why This Exists
+## The Workflow
 
-Most TTS tools are great for one line at a time. Draft to Take is built for creators who need the whole production loop:
+Most TTS tools are great for one line at a time. Draft to Take is built for the whole production loop:
 
 ```text
 Write or import a script -> cast voices -> detect emotion -> generate takes -> lock the good ones -> add sound cues -> export the mix
@@ -22,8 +26,6 @@ Write or import a script -> cast voices -> detect emotion -> generate takes -> l
 Use it for audio drama, game dialogue, audiobook tests, YouTube narration, podcast sketches, horror scenes, or any project where you want a local script-to-audio workflow instead of a cloud text box.
 
 This beta repo contains the Docker launcher, configuration, diagnostics scripts, and tester docs. It does not contain the private source code or model weights. Docker pulls prebuilt beta images from GitHub Container Registry, then the app downloads supported model files into your own local machine.
-
-Formerly **IndexTTS Workflow Studio**, this repo now hosts the Docker beta launcher for Draft to Take, the next-generation version of the original prototype.
 
 Looking for the old prototype? The previous IndexTTS Workflow Studio code is preserved on the [`legacy-v2`](https://github.com/JaySpiffy/IndexTTS-Workflow-Studio/tree/legacy-v2) branch and the [`v2-legacy-final`](https://github.com/JaySpiffy/IndexTTS-Workflow-Studio/tree/v2-legacy-final) tag.
 
@@ -39,9 +41,7 @@ What you are hearing: audio generated through the Draft to Take workflow using l
 
 ## Try This First
 
-After starting the app, import the sample scene:
-
-[samples/try-this-first/blackmere-road-45s.md](samples/try-this-first/blackmere-road-45s.md)
+After starting the app, import the sample scene: [Blackmere Road](samples/try-this-first/blackmere-road-45s.md).
 
 Suggested first run:
 
@@ -57,7 +57,7 @@ Suggested first run:
 
 The sample includes dialogue, IndexTTS2 emotion comments, ambience, music, and SFX markers so you can test the full canvas without inventing a script first.
 
-## What Makes It Different
+## Why Creators Use It
 
 - **Script-first workflow** - write scenes, chapters, pages, or speeches instead of isolated text snippets.
 - **Local-first production** - scripts, voices, projects, and exports stay in your local shared folder unless you choose to share them.
@@ -66,19 +66,7 @@ The sample includes dialogue, IndexTTS2 emotion comments, ambience, music, and S
 - **Timeline export** - dialogue, SFX, ambience, and music live in one embedded Script Canvas timeline.
 - **Reusable libraries** - keep voices, characters, SFX, ambience, and music assets organized for future projects.
 
-## Manuals
-
-If you are testing the beta for the first time, start with the manuals:
-
-- [Docs index](docs/README.md)
-- [User Manual](docs/USER_MANUAL.md)
-- [Script Canvas Authoring Guide](docs/SCRIPT_CANVAS_AUTHORING_GUIDE.md)
-- [IndexTTS2 Prompting Guide](docs/INDEXTTS2_PROMPTING_GUIDE.md)
-- [SFX, Ambience, And Music Smoke Test](docs/SFX_AMBIENCE_MUSIC_SMOKE_TEST.md)
-
-## Quick Run
-
-Already have Docker Desktop running?
+## Quick Start
 
 1. Download this repo as a ZIP.
 2. Extract it somewhere simple, for example `C:\DraftToTakeBeta`.
@@ -91,25 +79,35 @@ http://localhost:3000
 
 First launch can be slow because Docker images and model files are large. Keep the terminal open and let it finish.
 
-## Screenshots
+## Product Tour
 
-### Script Canvas
-
-Draft, revise, assign speakers, detect emotions, and prepare production lines in one focused workspace.
+### Script Canvas: write, revise, cast, and generate
 
 ![Script Canvas production view](screenshots/01-script-canvas.png)
 
-### Script Canvas Timeline
+Script Canvas is the main workspace: draft or import scripts, assign speakers, detect emotions, clean up production lines, and send scenes to the embedded timeline.
 
-The Script Canvas can place lines onto its built-in timeline drawer so you can review timing, generate missing takes, and export the mix without leaving the writing flow.
+### Embedded Timeline: shape the finished take
 
 ![Script Canvas built-in timeline drawer](screenshots/02-script-canvas-timeline.png)
 
-### Voice Studio
+Review timing, generate missing takes, balance dialogue/SFX/ambience/music tracks, lock good clips, preview the mix, and export without leaving Script Canvas.
 
-Prepare reusable voices, manage source clips, and keep cast-building separate from the main writing canvas.
+### Voice Studio: prepare reusable voices
 
 ![Voice Studio](screenshots/03-voice-studio.png)
+
+Create synthetic voices, prepare source clips, manage reusable voice assets, then turn them into character profiles for Script Canvas.
+
+## Manuals
+
+If you are testing the beta for the first time, start with the manuals:
+
+- [Docs index](docs/README.md)
+- [User Manual](docs/USER_MANUAL.md)
+- [Script Canvas Authoring Guide](docs/SCRIPT_CANVAS_AUTHORING_GUIDE.md)
+- [IndexTTS2 Prompting Guide](docs/INDEXTTS2_PROMPTING_GUIDE.md)
+- [SFX, Ambience, And Music Smoke Test](docs/SFX_AMBIENCE_MUSIC_SMOKE_TEST.md)
 
 ## Beta Status
 
@@ -145,30 +143,6 @@ Good testers:
 - Plenty of disk space. First-run image pulls and model downloads can be many gigabytes.
 
 CPU fallback can work for some paths, but it will be much slower.
-
-## Quick Start
-
-1. Download this repo as a ZIP or clone it.
-2. Extract it somewhere simple, for example:
-
-```text
-C:\DraftToTakeBeta
-```
-
-3. Start Docker Desktop and wait until it is fully running.
-4. Double-click:
-
-```text
-start.bat
-```
-
-5. Open the frontend URL shown in the terminal, usually:
-
-```text
-http://localhost:3000
-```
-
-First launch can take a while. Docker may pull large images, then the backend and sidecars may download large models. Keep the terminal open so you can see progress and errors.
 
 ## What Start.bat Does
 
@@ -206,9 +180,14 @@ Important folders:
 - `shared\audio\music` - generated or imported music assets.
 - `shared\data` - app/project data.
 
-## Models Used By This Beta
+## Model Downloads
 
 This beta does not bundle model weights. The launcher and containers download the configured models into your local shared folder or Hugging Face cache.
+
+The default install uses IndexTTS2 for dialogue, managed Qwen for emotion detection and optional script assistance, and OmniVoice for reusable voice design. SFX, ambience, and music generation are optional because those model-backed paths are heavier and license-dependent.
+
+<details>
+<summary>Show model details</summary>
 
 | Feature area | Default model/source | Enabled by default | Where it is stored | Notes |
 | --- | --- | --- | --- | --- |
@@ -222,6 +201,8 @@ This beta does not bundle model weights. The launcher and containers download th
 | Neural cleanup | DeepFilterNet via the `df` package | Lazy/optional | Docker cache volume / package cache | Used only when DeepFilterNet cleanup is selected or available through `auto` cleanup mode. Classic noise reduction can be used when it is unavailable. |
 
 Most defaults can be changed in `.env`. The most useful model overrides are `INDTEXTS_MODEL_REPO`, `SCRIPT_LLM_MODEL_REPO_ID`, `SCRIPT_LLM_MODEL_FILENAME`, `OMNIVOICE_MODEL_ID`, `SFX_WOOSH_WEIGHTS_REPO`, `SFX_WOOSH_MODEL_NAME`, `MUSIC_MODEL_ID`, and `DRAFT_TO_TAKE_WHISPER_MODEL`.
+
+</details>
 
 ## Enabled By Default
 
